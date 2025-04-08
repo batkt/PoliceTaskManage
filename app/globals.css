@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    /* Police blue */
+    --primary: 220 70% 40%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 220 70% 95%;
+    --accent-foreground: 220 70% 40%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 220 70% 40%;
+
+    --radius: 0.5rem;
+
+    /* Sidebar colors */
+    --sidebar: 220 70% 40%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-border: 220 70% 30%;
+    --sidebar-accent: 220 70% 30%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-primary: 210 40% 98%;
+    --sidebar-primary-foreground: 220 70% 40%;
+  }
+
+  .dark {
+    --background: 222.2 47.4% 11.2%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 47.4% 13.2%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 47.4% 11.2%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Police blue - brighter for dark mode */
+    --primary: 220 70% 55%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 217.2 32.6% 20%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 20%;
+    --muted-foreground: 215 20.2% 75%;
+
+    --accent: 220 70% 35%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 40%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 25%;
+    --input: 217.2 32.6% 25%;
+    --ring: 220 70% 55%;
+
+    /* Sidebar colors for dark mode - brighter */
+    --sidebar: 220 70% 25%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-border: 220 70% 20%;
+    --sidebar-accent: 220 70% 20%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-primary: 210 40% 98%;
+    --sidebar-primary-foreground: 220 70% 25%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom styles for login page */
+.login-gradient {
+  background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary) / 0.8));
+}
+

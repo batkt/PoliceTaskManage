@@ -22,8 +22,8 @@ import { useToast } from "@/hooks/use-toast";
 const formSchema = z.object({
   phone: z
     .string()
-    .min(8, {
-      message: "Утасны дугаар 8-аас дээш тэмдэгт байх ёстой",
+    .min(5, {
+      message: "Утасны дугаар 5-аас дээш тэмдэгт байх ёстой",
     })
     .max(12, {
       message: "Утасны дугаар 12-оос бага тэмдэгт байх ёстой",
@@ -31,7 +31,7 @@ const formSchema = z.object({
     .regex(/^[0-9]+$/, {
       message: "Утасны дугаар зөвхөн тоо байх ёстой",
     }),
-  password: z.string().min(6, {
+  password: z.string().min(3, {
     message: "Нууц үг 6-аас дээш тэмдэгт байх ёстой",
   }),
 });

@@ -68,7 +68,7 @@ export default function LoginPage() {
         <div className="lg:p-8">
           <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
             <div className="flex flex-col space-y-2 text-center">
-              <div className="flex justify-center lg:hidden">
+              {/* <div className="flex justify-center lg:hidden">
                 <div className="mb-6 rounded-full bg-primary p-1">
                   <Image
                     src="/placeholder.svg?height=60&width=60"
@@ -78,7 +78,7 @@ export default function LoginPage() {
                     className="h-14 w-14"
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
             <LoginForm />
             <p className="px-8 text-center text-sm text-muted-foreground">

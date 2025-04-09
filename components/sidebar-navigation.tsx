@@ -114,16 +114,16 @@ export function SidebarNavigation() {
     //   href: "/dashboard/deputies",
     //   icon: <Users className="h-5 w-5" />,
     // },
-    // {
-    //   title: "Цагдаагийн бүртгэл",
-    //   href: "/dashboard/officers",
-    //   icon: <Shield className="h-5 w-5" />,
-    // submenu: [
-    //   { title: "Бүх ажилтан", href: "/dashboard/officers" },
-    //   { title: "Шинэ ажилтан", href: "/dashboard/officers/new" },
-    //   { title: "Ажилтны тайлан", href: "/dashboard/officers/reports" },
-    // ],
-    // },
+    {
+      title: "Алба хаагчид",
+      href: "/dashboard/officers",
+      icon: <Shield className="h-5 w-5" />,
+      // submenu: [
+      //   { title: "Бүх ажилтан", href: "/dashboard/officers" },
+      //   { title: "Шинэ ажилтан", href: "/dashboard/officers/new" },
+      //   { title: "Ажилтны тайлан", href: "/dashboard/officers/reports" },
+      // ],
+    },
     // {
     //   title: "Ажлын хяналт",
     //   href: "/dashboard/jobs",
@@ -171,7 +171,11 @@ export function SidebarNavigation() {
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-16 items-center justify-center border-b border-primary-foreground/10">
-            <Shield className="mr-2 h-8 w-8" />
+            <img
+              src="/tsagda.png"
+              alt="Logo"
+              className="h-10 w-10 mr-3 object-contain"
+            />
             <span className="text-xl font-bold">ЦЕГ Систем</span>
           </div>
 

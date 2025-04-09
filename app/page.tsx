@@ -1,13 +1,13 @@
-import type { Metadata } from "next"
-import Link from "next/link"
-import Image from "next/image"
-import { LoginForm } from "@/components/login-form"
-import { ThemeToggle } from "@/components/theme-toggle"
+import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import { LoginForm } from "@/components/login-form";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
   title: "Login - Task Management System",
   description: "Login to the Police Department Task Management System",
-}
+};
 
 export default function LoginPage() {
   return (
@@ -23,7 +23,7 @@ export default function LoginPage() {
           <div className="relative z-20 flex items-center gap-2 text-lg font-medium">
             <div className="rounded-full bg-white/90 p-1">
               <Image
-                src="/placeholder.svg?height=40&width=40"
+                src="/tsagda.png?height=40&width=40"
                 alt="ЦЕГ Logo"
                 width={40}
                 height={40}
@@ -35,15 +35,20 @@ export default function LoginPage() {
 
           <div className="relative z-20 mt-auto">
             <div className="mb-4">
-              <div className="mb-2 text-lg font-semibold">Даалгаврын удирдлагын систем</div>
+              <div className="mb-2 text-lg font-semibold">
+                Даалгаврын удирдлагын систем
+              </div>
               <div className="text-sm opacity-90">
-                Цагдаагийн байгууллагын үйл ажиллагааг дэмжих, удирдлагын шийдвэр гаргалтыг хялбарчлах, ажлын
-                гүйцэтгэлийг хянах, тайлагнах үйл явцыг автоматжуулах зорилготой систем.
+                Цагдаагийн байгууллагын үйл ажиллагааг дэмжих, удирдлагын
+                шийдвэр гаргалтыг хялбарчлах, ажлын гүйцэтгэлийг хянах,
+                тайлагнах үйл явцыг автоматжуулах зорилготой систем.
               </div>
             </div>
 
             <blockquote className="space-y-2 border-l-4 border-white/30 pl-4">
-              <p className="text-lg">"Хууль дээдлэн сахиж, ард түмэндээ үйлчилж, эх орноо хамгаална"</p>
+              <p className="text-lg">
+                "Хууль дээдлэн сахиж, ард түмэндээ үйлчилж, эх орноо хамгаална"
+              </p>
               <footer className="text-sm">Цагдаагийн байгууллагын уриа</footer>
             </blockquote>
 
@@ -78,20 +83,23 @@ export default function LoginPage() {
             <LoginForm />
             <p className="px-8 text-center text-sm text-muted-foreground">
               Техникийн асуудал гарвал{" "}
-              <Link href="/support" className="underline underline-offset-4 hover:text-primary">
+              <Link
+                href="/support"
+                className="underline underline-offset-4 hover:text-primary"
+              >
                 Дэмжлэг
               </Link>{" "}
               хэсэгт хандана уу.
             </p>
             <div className="flex justify-center">
               <div className="text-xs text-muted-foreground">
-                &copy; {new Date().getFullYear()} Цагдаагийн Ерөнхий Газар. Бүх эрх хуулиар хамгаалагдсан.
+                &copy; {new Date().getFullYear()} Цагдаагийн Ерөнхий Газар. Бүх
+                эрх хуулиар хамгаалагдсан.
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
-

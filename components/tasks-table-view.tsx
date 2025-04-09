@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -38,6 +38,7 @@ import {
   DropdownMenuPortal,
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -189,30 +190,6 @@ export function TasksTableView({ status = "all" }: { status?: string }) {
   const [data, setData] = useState<Task[]>(initialData);
   const { toast } = useToast();
 
-  const [table, setTable] = useState<any>(null);
-
-  const handleGlobalSearch = useCallback(
-    (searchTerm: string) => {
-      if (searchTerm && table?.getColumn("title")) {
-        table.getColumn("title")?.setFilterValue(searchTerm);
-      }
-    },
-    [table]
-  );
-
-  useEffect(() => {
-    const handleGlobalSearchEvent = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      const searchTerm = customEvent.detail;
-      handleGlobalSearch(searchTerm);
-    };
-
-    window.addEventListener("globalSearch", handleGlobalSearchEvent);
-    return () => {
-      window.removeEventListener("globalSearch", handleGlobalSearchEvent);
-    };
-  }, [handleGlobalSearch]);
-
   // Filter data based on status prop
   const filteredData =
     status === "all"
@@ -250,11 +227,11 @@ export function TasksTableView({ status = "all" }: { status?: string }) {
 
   // Handle status change
   const handleStatusChange = (taskId: string, newStatus: string) => {
-    // setData(
-    //   data.map((task) =>
-    //     task.id === taskId ? { ...task, status: newStatus } : task
-    //   )
-    // );
+    setData(
+      data.map((task) =>
+        task.id === taskId ? { ...task, status: newStatus } : task
+      )
+    );
 
     const statusLabels: Record<string, string> = {
       pending: "Хүлээгдэж буй",
@@ -541,34 +518,35 @@ export function TasksTableView({ status = "all" }: { status?: string }) {
     },
   ];
 
-  useEffect(() => {
-    // setTable(
-    //   useReactTable({
-    //     data: filteredData,
-    //     columns,
-    //     onSortingChange: setSorting,
-    //     onColumnFiltersChange: setColumnFilters,
-    //     getCoreRowModel: getCoreRowModel(),
-    //     getPaginationRowModel: getPaginationRowModel(),
-    //     getSortedRowModel: getSortedRowModel(),
-    //     getFilteredRowModel: getFilteredRowModel(),
-    //     state: {
-    //       sorting,
-    //       columnFilters,
-    //     },
-    //   })
-    // );
-  }, [filteredData, columns, setSorting, setColumnFilters]);
-
-  if (!table) return null;
+  const table = useReactTable({
+    data: filteredData,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+    },
+  });
 
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
-        <div className="flex-1"></div>
+        <Input
+          placeholder="Даалгавраар хайх..."
+          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+          onChange={(event) =>
+            table.getColumn("title")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm"
+        />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">
+            <Button variant="outline" className="ml-auto">
               Багана
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
@@ -576,8 +554,8 @@ export function TasksTableView({ status = "all" }: { status?: string }) {
           <DropdownMenuContent align="end">
             {table
               .getAllColumns()
-              .filter((column: { getCanHide: () => any; }) => column.getCanHide())
-              .map((column: { id: boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | React.Key | null | undefined; getIsVisible: () => string | boolean | undefined; toggleVisibility: (arg0: boolean) => void; }) => {
+              .filter((column) => column.getCanHide())
+              .map((column) => {
                 return (
                   <DropdownMenuCheckboxItem
                     key={column.id}

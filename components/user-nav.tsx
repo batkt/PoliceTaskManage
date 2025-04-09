@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { ThemeToggle } from "@/components/theme-toggle"
-import { useRouter } from "next/navigation"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useRouter } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,11 +12,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Settings, LogOut } from "lucide-react"
+} from "@/components/ui/dropdown-menu";
+import { Settings, LogOut, User2 } from "lucide-react";
 
 export function UserNav() {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className="flex items-center gap-4">
@@ -25,7 +25,7 @@ export function UserNav() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-              <AvatarImage src="/placeholder.svg?height=32&width=32" alt="@user" />
+              <AvatarImage src="/user.png" alt="user" />
               <AvatarFallback>ЦЕГ</AvatarFallback>
             </Avatar>
           </Button>
@@ -34,12 +34,16 @@ export function UserNav() {
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">Б. Батболд</p>
-              <p className="text-xs leading-none text-muted-foreground">batbold@police.gov.mn</p>
+              <p className="text-xs leading-none text-muted-foreground">
+                batbold@police.gov.mn
+              </p>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
+            <DropdownMenuItem
+              onClick={() => router.push("/dashboard/settings")}
+            >
               <Settings className="mr-2 h-4 w-4" />
               <span>Тохиргоо</span>
             </DropdownMenuItem>
@@ -52,6 +56,5 @@ export function UserNav() {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  )
+  );
 }
-

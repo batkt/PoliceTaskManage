@@ -24,8 +24,7 @@ export default function TasksPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Ажлын жагсаалт</h2>
         <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Шинэ даалгавар
+          <Plus className=" h-4 w-4" />
         </Button>
       </div>
       <Tabs defaultValue="all" className="space-y-4">

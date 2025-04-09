@@ -28,8 +28,7 @@ export default function OfficersPage() {
         </div>
         <Button asChild>
           <Link href="/dashboard/officers/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Шинэ ажилтан
+            <Plus className=" h-4 w-4" />
           </Link>
         </Button>
       </div>

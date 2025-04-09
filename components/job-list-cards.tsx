@@ -178,11 +178,11 @@ export function JobListCards({
     <div className="space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1"></div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap justify-between items-center gap-2">
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4" />
             <Select defaultValue={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[180px]">
+                <Filter className="h-4 w-4" />
                 <SelectValue placeholder="Эрэмбэлэх" />
               </SelectTrigger>
               <SelectContent>
@@ -192,12 +192,13 @@ export function JobListCards({
               </SelectContent>
             </Select>
           </div>
-          <JobRegistrationDialog>
-            <Button className="w-full sm:w-auto">
-              <Plus className="mr-2 h-4 w-4" />
-              Ажил бүртгэх
-            </Button>
-          </JobRegistrationDialog>
+          <div>
+            <JobRegistrationDialog>
+              <Button className="sm:w-auto h-9">
+                <Plus className=" h-4 w-4" />
+              </Button>
+            </JobRegistrationDialog>
+          </div>
         </div>
       </div>
 

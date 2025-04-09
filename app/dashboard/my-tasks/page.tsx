@@ -1,17 +1,27 @@
-import type { Metadata } from "next"
-import { Suspense } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { MyTasksResponsiveView } from "@/components/my-tasks-responsive-view"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Skeleton } from "@/components/ui/skeleton"
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { MyTasksResponsiveView } from "@/components/my-tasks-responsive-view";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const metadata: Metadata = {
   title: "My Tasks - Task Management System",
   description: "Police Department Task Management System My Tasks",
-}
+};
 
-export default function MyTasksPage({ searchParams }: { searchParams: { status?: string } }) {
-  const status = searchParams.status || "all"
+export default function MyTasksPage({
+  searchParams,
+}: {
+  searchParams: { status?: string };
+}) {
+  const status = searchParams.status || "all";
 
   return (
     <div className="space-y-4">
@@ -31,11 +41,11 @@ export default function MyTasksPage({ searchParams }: { searchParams: { status?:
 
         <TabsContent value="all" className="space-y-4">
           <Card>
-            <CardHeader>
+            {/* <CardHeader>
               <CardTitle>Бүх даалгавар</CardTitle>
               <CardDescription>Танд оноогдсон бүх даалгаврын жагсаалт</CardDescription>
-            </CardHeader>
-            <CardContent>
+            </CardHeader> */}
+            <CardContent className="mt-4">
               <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
                 <MyTasksResponsiveView status="all" />
               </Suspense>
@@ -45,10 +55,12 @@ export default function MyTasksPage({ searchParams }: { searchParams: { status?:
 
         <TabsContent value="planned" className="space-y-4">
           <Card>
-            <CardHeader>
+            {/* <CardHeader>
               <CardTitle>Эхлээгүй даалгаврууд</CardTitle>
-              <CardDescription>Төлөвлөгдсөн боловч эхлээгүй байгаа даалгаврууд</CardDescription>
-            </CardHeader>
+              <CardDescription>
+                Төлөвлөгдсөн боловч эхлээгүй байгаа даалгаврууд
+              </CardDescription>
+            </CardHeader> */}
             <CardContent>
               <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
                 <MyTasksResponsiveView status="planned" />
@@ -59,10 +71,10 @@ export default function MyTasksPage({ searchParams }: { searchParams: { status?:
 
         <TabsContent value="assigned" className="space-y-4">
           <Card>
-            <CardHeader>
+            {/* <CardHeader>
               <CardTitle>Хуваарилагдсан даалгаврууд</CardTitle>
               <CardDescription>Танд хуваарилагдсан даалгаврууд</CardDescription>
-            </CardHeader>
+            </CardHeader> */}
             <CardContent>
               <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
                 <MyTasksResponsiveView status="assigned" />
@@ -73,10 +85,10 @@ export default function MyTasksPage({ searchParams }: { searchParams: { status?:
 
         <TabsContent value="checking" className="space-y-4">
           <Card>
-            <CardHeader>
+            {/* <CardHeader>
               <CardTitle>Шалгах даалгаврууд</CardTitle>
               <CardDescription>Шалгагдаж буй даалгаврууд</CardDescription>
-            </CardHeader>
+            </CardHeader> */}
             <CardContent>
               <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
                 <MyTasksResponsiveView status="checking" />
@@ -87,10 +99,10 @@ export default function MyTasksPage({ searchParams }: { searchParams: { status?:
 
         <TabsContent value="completed" className="space-y-4">
           <Card>
-            <CardHeader>
+            {/* <CardHeader>
               <CardTitle>Дууссан даалгаврууд</CardTitle>
               <CardDescription>Амжилттай дууссан даалгаврууд</CardDescription>
-            </CardHeader>
+            </CardHeader> */}
             <CardContent>
               <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
                 <MyTasksResponsiveView status="completed" />
@@ -100,6 +112,5 @@ export default function MyTasksPage({ searchParams }: { searchParams: { status?:
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
-

@@ -64,7 +64,6 @@ export function SidebarNavigation() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isMobile, isOpen]);
 
-  // Close sidebar when route changes on mobile
   useEffect(() => {
     if (isMobile) {
       setIsOpen(false);
@@ -78,7 +77,7 @@ export function SidebarNavigation() {
       icon: <Home className="h-5 w-5" />,
     },
     {
-      title: "Даалгаврууд",
+      title: "Ажлын жагсаалт",
       href: "/dashboard/tasks",
       icon: <ClipboardList className="h-5 w-5" />,
       // submenu: [
@@ -88,7 +87,7 @@ export function SidebarNavigation() {
       // ],
     },
     {
-      title: "Минии даалгавар",
+      title: "Миний даалгавар",
       href: "/dashboard/my-tasks",
       icon: <CheckSquare className="h-5 w-5" />,
       // submenu: [
@@ -135,11 +134,11 @@ export function SidebarNavigation() {
     //     { title: "Дууссан", href: "/dashboard/jobs?status=completed" },
     //   ],
     // },
-    {
-      title: "Статистик",
-      href: "/dashboard/statistics",
-      icon: <BarChart3 className="h-5 w-5" />,
-    },
+    // {
+    //   title: "Статистик",
+    //   href: "/dashboard/statistics",
+    //   icon: <BarChart3 className="h-5 w-5" />,
+    // },
     // {
     //   title: "Тохиргоо",
     //   href: "/dashboard/settings",
@@ -176,7 +175,6 @@ export function SidebarNavigation() {
               alt="Logo"
               className="h-10 w-10 mr-3 object-contain"
             />
-            <span className="text-xl font-bold">ЦЕГ Систем</span>
           </div>
 
           {/* Navigation */}

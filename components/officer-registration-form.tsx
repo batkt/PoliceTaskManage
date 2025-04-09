@@ -1,25 +1,43 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { CalendarIcon, Loader2 } from "lucide-react"
-import { format } from "date-fns"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { CalendarIcon, Loader2 } from "lucide-react";
+import { format } from "date-fns";
 
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { Textarea } from "@/components/ui/textarea"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useToast } from "@/hooks/use-toast"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   firstName: z.string().min(2, {
@@ -68,9 +86,9 @@ const formSchema = z.object({
     message: "Хаяг 5-аас дээш тэмдэгт байх ёстой",
   }),
   bio: z.string().optional(),
-})
+});
 
-type FormValues = z.infer<typeof formSchema>
+type FormValues = z.infer<typeof formSchema>;
 
 // Sample data for dropdowns
 const ranks = [
@@ -81,14 +99,14 @@ const ranks = [
   { value: "хошууч", label: "Хошууч" },
   { value: "дэд-хурандаа", label: "Дэд хурандаа" },
   { value: "хурандаа", label: "Хурандаа" },
-]
+];
 
 const departments = [
   { value: "хэрэг-бүртгэлийн-хэлтэс", label: "Хэрэг бүртгэлийн хэлтэс" },
   { value: "эрүүгийн-цагдаагийн-хэлтэс", label: "Эрүүгийн цагдаагийн хэлтэс" },
   { value: "хяналтын-хэлтэс", label: "Хяналтын хэлтэс" },
   { value: "захиргааны-хэлтэс", label: "Захиргааны хэлтэс" },
-]
+];
 
 const positions = [
   { value: "мөрдөгч", label: "Мөрдөгч" },
@@ -96,13 +114,13 @@ const positions = [
   { value: "хэсгийн-төлөөлөгч", label: "Хэсгийн төлөөлөгч" },
   { value: "хэлтсийн-дарга", label: "Хэлтсийн дарга" },
   { value: "газрын-дарга", label: "Газрын дарга" },
-]
+];
 
 export function OfficerRegistrationForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
-  const router = useRouter()
-  const { toast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const router = useRouter();
+  const { toast } = useToast();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -114,50 +132,51 @@ export function OfficerRegistrationForm() {
       address: "",
       bio: "",
     },
-  })
+  });
 
   function onSubmit(values: FormValues) {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     // Create FormData to include photo
-    const formData = new FormData()
+    const formData = new FormData();
     Object.entries(values).forEach(([key, value]) => {
       if (value instanceof Date) {
-        formData.append(key, value.toISOString())
+        formData.append(key, value.toISOString());
       } else {
-        formData.append(key, String(value))
+        formData.append(key, String(value));
       }
-    })
+    });
 
     // Simulate API call
     setTimeout(() => {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
 
       toast({
         title: "Ажилтан амжилттай бүртгэгдлээ",
-        description: "Ажилтан амжилттай бүртгэгдэж, ажилтны жагсаалтад нэмэгдлээ.",
-      })
+        description:
+          "Ажилтан амжилттай бүртгэгдэж, ажилтны жагсаалтад нэмэгдлээ.",
+      });
 
       // Reset form
-      form.reset()
-      setPhotoPreview(null)
+      form.reset();
+      setPhotoPreview(null);
 
       // Redirect to officers page
-      router.push("/dashboard/officers")
-      router.refresh()
-    }, 1500)
+      router.push("/dashboard/officers");
+      router.refresh();
+    }, 1500);
   }
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      const reader = new FileReader()
+      const file = e.target.files[0];
+      const reader = new FileReader();
       reader.onload = () => {
-        setPhotoPreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -167,7 +186,11 @@ export function OfficerRegistrationForm() {
             <div className="flex flex-col items-center space-y-4">
               <div className="relative h-32 w-32 overflow-hidden rounded-full border-2 border-primary/20">
                 {photoPreview ? (
-                  <img src={photoPreview || "/placeholder.svg"} alt="Preview" className="h-full w-full object-cover" />
+                  <img
+                    src={photoPreview || "/placeholder.svg"}
+                    alt="Preview"
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-muted">
                     <svg
@@ -189,8 +212,15 @@ export function OfficerRegistrationForm() {
                 )}
               </div>
               <div>
-                <Input type="file" accept="image/*" onChange={handlePhotoChange} className="w-auto cursor-pointer" />
-                <p className="mt-1 text-xs text-muted-foreground">Зураг оруулах (заавал биш)</p>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  className="w-auto cursor-pointer"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Зураг оруулах (заавал биш)
+                </p>
               </div>
             </div>
           </div>
@@ -271,15 +301,27 @@ export function OfficerRegistrationForm() {
                     <FormControl>
                       <Button
                         variant={"outline"}
-                        className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
                       >
-                        {field.value ? format(field.value, "yyyy-MM-dd") : <span>Огноо сонгох</span>}
+                        {field.value ? (
+                          format(field.value, "yyyy-MM-dd")
+                        ) : (
+                          <span>Огноо сонгох</span>
+                        )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                    />
                   </PopoverContent>
                 </Popover>
                 <FormMessage />
@@ -293,7 +335,10 @@ export function OfficerRegistrationForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Цол</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Цол сонгох" />
@@ -318,7 +363,10 @@ export function OfficerRegistrationForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Хэлтэс</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Хэлтэс сонгох" />
@@ -326,7 +374,10 @@ export function OfficerRegistrationForm() {
                   </FormControl>
                   <SelectContent>
                     {departments.map((department) => (
-                      <SelectItem key={department.value} value={department.value}>
+                      <SelectItem
+                        key={department.value}
+                        value={department.value}
+                      >
                         {department.label}
                       </SelectItem>
                     ))}
@@ -343,7 +394,10 @@ export function OfficerRegistrationForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Албан тушаал</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Албан тушаал сонгох" />
@@ -373,15 +427,27 @@ export function OfficerRegistrationForm() {
                     <FormControl>
                       <Button
                         variant={"outline"}
-                        className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
                       >
-                        {field.value ? format(field.value, "yyyy-MM-dd") : <span>Огноо сонгох</span>}
+                        {field.value ? (
+                          format(field.value, "yyyy-MM-dd")
+                        ) : (
+                          <span>Огноо сонгох</span>
+                        )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                    />
                   </PopoverContent>
                 </Popover>
                 <FormMessage />
@@ -439,7 +505,12 @@ export function OfficerRegistrationForm() {
               <FormItem className="md:col-span-2">
                 <FormLabel>Товч танилцуулга</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Товч танилцуулга" className="resize-none" rows={4} {...field} />
+                  <Textarea
+                    placeholder="Товч танилцуулга"
+                    className="resize-none"
+                    rows={4}
+                    {...field}
+                  />
                 </FormControl>
                 <FormDescription>Заавал биш</FormDescription>
                 <FormMessage />
@@ -449,14 +520,18 @@ export function OfficerRegistrationForm() {
         </div>
 
         <div className="flex justify-end space-x-4">
-          <Button type="button" variant="outline" onClick={() => router.push("/dashboard/officers")}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push("/dashboard/officers")}
+          >
             Цуцлах
           </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Хадгалж байна...
+                Хадгал�� байна...
               </>
             ) : (
               "Хадгалах"
@@ -465,6 +540,5 @@ export function OfficerRegistrationForm() {
         </div>
       </form>
     </Form>
-  )
+  );
 }
-

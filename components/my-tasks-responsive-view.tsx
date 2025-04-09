@@ -1,13 +1,20 @@
-"use client"
+"use client";
 
-import { useMediaQuery } from "@/hooks/use-media-query"
-import { JobListCards } from "@/components/job-list-cards"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { format } from "date-fns"
-import { Search, MoreHorizontal } from "lucide-react"
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { JobListCards } from "@/components/job-list-cards";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { Search, MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,9 +22,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useState, useEffect } from "react"
-import { JobRegistrationDialog } from "@/components/job-registration-dialog"
+} from "@/components/ui/dropdown-menu";
+import { useState, useEffect } from "react";
+import { JobRegistrationDialog } from "@/components/job-registration-dialog";
 
 // Mock data for tasks
 const mockTasks = [
@@ -94,46 +101,56 @@ const mockTasks = [
     system: "Криминалистик",
     description: "Цуглуулсан нотлох баримтыг шинжлэх, дүгнэлт гаргах",
   },
-]
+];
 
 type MyTasksResponsiveViewProps = {
-  status?: string
-}
+  status?: string;
+};
 
-export function MyTasksResponsiveView({ status = "all" }: MyTasksResponsiveViewProps) {
-  const isMobile = useMediaQuery("(max-width: 768px)")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filteredTasks, setFilteredTasks] = useState(mockTasks)
+export function MyTasksResponsiveView({
+  status = "all",
+}: MyTasksResponsiveViewProps) {
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredTasks, setFilteredTasks] = useState(mockTasks);
 
   // Filter tasks based on status and search query
   useEffect(() => {
-    let filtered = [...mockTasks]
+    let filtered = [...mockTasks];
 
     // Filter by status if not "all"
     if (status !== "all") {
-      filtered = filtered.filter((task) => task.status === status)
+      filtered = filtered.filter((task) => task.status === status);
     }
 
     // Filter by search query
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (task) =>
           task.title.toLowerCase().includes(query) ||
           task.id.toLowerCase().includes(query) ||
           task.type?.toLowerCase().includes(query) ||
-          task.system?.toLowerCase().includes(query),
-      )
+          task.system?.toLowerCase().includes(query)
+      );
     }
 
-    setFilteredTasks(filtered)
-  }, [status, searchQuery])
+    setFilteredTasks(filtered);
+  }, [status, searchQuery]);
 
   // Status mapping for display
   const getStatusInfo = (status: string) => {
     const statusMap: Record<
       string,
-      { label: string; variant: "default" | "destructive" | "outline" | "secondary" | "success" }
+      {
+        label: string;
+        variant:
+          | "default"
+          | "destructive"
+          | "outline"
+          | "secondary"
+          | "success";
+      }
     > = {
       planned: { label: "Эхлээгүй", variant: "outline" },
       assigned: { label: "Хуваарилагдсан", variant: "default" },
@@ -141,21 +158,21 @@ export function MyTasksResponsiveView({ status = "all" }: MyTasksResponsiveViewP
       checking: { label: "Шалгаж буй", variant: "secondary" },
       completed: { label: "Дууссан", variant: "success" },
       cancelled: { label: "Цуцалсан", variant: "destructive" },
-    }
+    };
 
-    return statusMap[status] || { label: status, variant: "default" }
-  }
+    return statusMap[status] || { label: status, variant: "default" };
+  };
 
   // If mobile, show card view
   if (isMobile) {
-    return <JobListCards status={status} />
+    return <JobListCards status={status} />;
   }
 
   // Otherwise show list view
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="relative w-full max-w-sm">
+        {/* <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
@@ -164,7 +181,8 @@ export function MyTasksResponsiveView({ status = "all" }: MyTasksResponsiveViewP
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-        </div>
+        </div> */}
+        <div></div>
         <JobRegistrationDialog>
           <Button>Даалгавар нэмэх</Button>
         </JobRegistrationDialog>
@@ -193,7 +211,7 @@ export function MyTasksResponsiveView({ status = "all" }: MyTasksResponsiveViewP
               </TableRow>
             ) : (
               filteredTasks.map((task) => {
-                const { label, variant } = getStatusInfo(task.status)
+                const { label, variant } = getStatusInfo(task.status);
 
                 return (
                   <TableRow key={task.id}>
@@ -209,8 +227,12 @@ export function MyTasksResponsiveView({ status = "all" }: MyTasksResponsiveViewP
                     </TableCell>
                     <TableCell>{task.type || "-"}</TableCell>
                     <TableCell>{task.system || "-"}</TableCell>
-                    <TableCell>{format(new Date(task.startDate), "yyyy/MM/dd")}</TableCell>
-                    <TableCell>{format(new Date(task.endDate), "yyyy/MM/dd")}</TableCell>
+                    <TableCell>
+                      {format(new Date(task.startDate), "yyyy/MM/dd")}
+                    </TableCell>
+                    <TableCell>
+                      {format(new Date(task.endDate), "yyyy/MM/dd")}
+                    </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -221,25 +243,34 @@ export function MyTasksResponsiveView({ status = "all" }: MyTasksResponsiveViewP
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Үйлдлүүд</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => navigator.clipboard.writeText(task.id)}>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              navigator.clipboard.writeText(task.id)
+                            }
+                          >
                             ID хуулах
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <JobRegistrationDialog editJob={task}>
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Засах</DropdownMenuItem>
+                            <DropdownMenuItem
+                              onSelect={(e) => e.preventDefault()}
+                            >
+                              Засах
+                            </DropdownMenuItem>
                           </JobRegistrationDialog>
-                          <DropdownMenuItem className="text-destructive">Устгах</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive">
+                            Устгах
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                )
+                );
               })
             )}
           </TableBody>
         </Table>
       </div>
     </div>
-  )
+  );
 }
-

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,8 +9,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TaskList } from "@/components/task-list";
+import { TasksResponsiveView } from "@/components/tasks-responsive-view";
 import { Plus } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const metadata: Metadata = {
   title: "Tasks - Task Management System",
@@ -18,9 +20,9 @@ export const metadata: Metadata = {
 
 export default function TasksPage() {
   return (
-    <div className="flex-1 space-y-4 pt-6 ">
+    <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight mb-4">Даалгаврууд</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Ажлын жагсаалт</h2>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
           Шинэ даалгавар
@@ -35,49 +37,57 @@ export default function TasksPage() {
         </TabsList>
         <TabsContent value="all" className="space-y-4">
           <Card>
-            <CardHeader>
+            {/* <CardHeader>
               <CardTitle>Бүх даалгаврууд</CardTitle>
               <CardDescription>
                 Таны бүх даалгаврууд энд харагдаж байна
               </CardDescription>
-            </CardHeader>
+            </CardHeader> */}
             <CardContent>
-              <TaskList status="all" />
+              <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+                <TasksResponsiveView status="all" />
+              </Suspense>
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="active" className="space-y-4">
           <Card>
-            <CardHeader>
+            {/* <CardHeader>
               <CardTitle>Идэвхтэй даалгаврууд</CardTitle>
               <CardDescription>Одоо хийгдэж буй даалгаврууд</CardDescription>
-            </CardHeader>
+            </CardHeader> */}
             <CardContent>
-              <TaskList status="active" />
+              <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+                <TasksResponsiveView status="active" />
+              </Suspense>
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="completed" className="space-y-4">
           <Card>
-            <CardHeader>
+            {/* <CardHeader>
               <CardTitle>Дууссан даалгаврууд</CardTitle>
               <CardDescription>Амжилттай дууссан даалгаврууд</CardDescription>
-            </CardHeader>
+            </CardHeader> */}
             <CardContent>
-              <TaskList status="completed" />
+              <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+                <TasksResponsiveView status="completed" />
+              </Suspense>
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="overdue" className="space-y-4">
           <Card>
-            <CardHeader>
+            {/* <CardHeader>
               <CardTitle>Хугацаа хэтэрсэн даалгаврууд</CardTitle>
               <CardDescription>
                 Хугацаа хэтэрсэн даалгаврууд энд харагдана
               </CardDescription>
-            </CardHeader>
+            </CardHeader> */}
             <CardContent>
-              <TaskList status="overdue" />
+              <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+                <TasksResponsiveView status="overdue" />
+              </Suspense>
             </CardContent>
           </Card>
         </TabsContent>

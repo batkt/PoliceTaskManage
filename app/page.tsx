@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { LoginForm } from "@/components/login-form";
 import { ThemeToggle } from "@/components/theme-toggle";
+import moment from "moment";
 
 export const metadata: Metadata = {
   title: "Login - Task Management System",
@@ -10,6 +11,10 @@ export const metadata: Metadata = {
 };
 
 export default function LoginPage() {
+  function moment(arg0: Date) {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
       <div className="container relative flex min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
@@ -81,7 +86,7 @@ export default function LoginPage() {
               </div> */}
             </div>
             <LoginForm />
-            <p className="px-8 text-center text-sm text-muted-foreground">
+            {/* <p className="px-8 text-center text-sm text-muted-foreground">
               Техникийн асуудал гарвал{" "}
               <Link
                 href="/support"
@@ -90,11 +95,11 @@ export default function LoginPage() {
                 Дэмжлэг
               </Link>{" "}
               хэсэгт хандана уу.
-            </p>
+            </p> */}
             <div className="flex justify-center">
-              <div className="text-xs text-muted-foreground">
-                &copy; {new Date().getFullYear()} Цагдаагийн Ерөнхий Газар. Бүх
-                эрх хуулиар хамгаалагдсан.
+              <div className="text-center xl:hidden">
+                {/* © Zev-TABS LLC © {moment(new Date()).format("YYYY")}. Бүх эрх */}
+                хуулиар баталгаажсан
               </div>
             </div>
           </div>

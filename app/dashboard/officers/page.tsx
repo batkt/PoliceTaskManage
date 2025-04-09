@@ -21,11 +21,9 @@ export default function OfficersPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">
-            Цагдаагийн бүртгэл
-          </h2>
+          <h2 className="text-3xl font-bold tracking-tight">Алба хаагчид</h2>
           <p className="text-muted-foreground">
-            Цагдаагийн газрын ажилтнуудын бүртгэл
+            Цагдаагийн газрын алба хаагчид
           </p>
         </div>
         <Button asChild>
@@ -37,12 +35,10 @@ export default function OfficersPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Бүх ажилтан</CardTitle>
+        {/* <CardTitle>Бүх ажилтан</CardTitle>
           <CardDescription>
             Цагдаагийн газрын бүх ажилтнуудын жагсаалт
-          </CardDescription>
-        </CardHeader>
+          </CardDescription> */}
         <CardContent>
           <OfficerList />
         </CardContent>

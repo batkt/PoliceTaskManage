@@ -1,14 +1,19 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { JobCard } from "@/components/job-card"
-import { JobCardSkeleton } from "@/components/job-card-skeleton"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { JobRegistrationDialog } from "@/components/job-registration-dialog"
-import { Plus, Filter, Search } from "lucide-react"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useState, useEffect } from "react";
+import { JobCard } from "@/components/job-card";
+import { JobCardSkeleton } from "@/components/job-card-skeleton";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { JobRegistrationDialog } from "@/components/job-registration-dialog";
+import { Plus, Filter } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Sample data for job cards
 const jobsData = [
@@ -87,11 +92,32 @@ const jobsData = [
     system: "traffic",
     description: "Тээврийн Цагдаагийн Газарт ажиллах",
   },
-]
+];
 
-export function JobListCards({ status, isLoading = false }: { status: string; isLoading?: boolean }) {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [sortBy, setSortBy] = useState("newest")
+export function JobListCards({
+  status,
+  isLoading = false,
+}: {
+  status: string;
+  isLoading?: boolean;
+}) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
+
+  useEffect(() => {
+    const handleGlobalSearch = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const term = customEvent.detail;
+      if (term) {
+        setSearchTerm(term);
+      }
+    };
+
+    window.addEventListener("globalSearch", handleGlobalSearch);
+    return () => {
+      window.removeEventListener("globalSearch", handleGlobalSearch);
+    };
+  }, []);
 
   // Map the status from URL to the actual status values in the data
   const statusMapping: Record<string, string[]> = {
@@ -100,29 +126,31 @@ export function JobListCards({ status, isLoading = false }: { status: string; is
     assigned: ["assigned"],
     checking: ["checking"],
     completed: ["completed"],
-  }
+  };
 
   // Filter data based on status prop and search term
   const filteredJobs =
     status === "all" || !statusMapping[status]
       ? jobsData
-      : jobsData.filter((job) => statusMapping[status].includes(job.status))
+      : jobsData.filter((job) => statusMapping[status].includes(job.status));
 
   const searchFilteredJobs = searchTerm
-    ? filteredJobs.filter((job) => job.title.toLowerCase().includes(searchTerm.toLowerCase()))
-    : filteredJobs
+    ? filteredJobs.filter((job) =>
+        job.title.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : filteredJobs;
 
   // Sort jobs
   const sortedJobs = [...searchFilteredJobs].sort((a, b) => {
     if (sortBy === "newest") {
-      return new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+      return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
     } else if (sortBy === "oldest") {
-      return new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+      return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
     } else if (sortBy === "title") {
-      return a.title.localeCompare(b.title)
+      return a.title.localeCompare(b.title);
     }
-    return 0
-  })
+    return 0;
+  });
 
   if (isLoading) {
     return (
@@ -143,21 +171,13 @@ export function JobListCards({ status, isLoading = false }: { status: string; is
           ))}
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative flex-1">
-          <Input
-            placeholder="Ажлын нэрээр хайх..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        </div>
+        <div className="flex-1"></div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4" />
@@ -193,6 +213,5 @@ export function JobListCards({ status, isLoading = false }: { status: string; is
         </div>
       )}
     </div>
-  )
+  );
 }
-

@@ -1,22 +1,18 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { OfficerList } from "@/components/officer-list";
-import { Plus } from "lucide-react";
+import type { Metadata } from 'next';
+// import Link from 'next/link';
+// import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { OfficerList } from '@/components/officer-list';
+import { getUserList } from '@/actions/user.action';
 
 export const metadata: Metadata = {
-  title: "Officers - Task Management System",
-  description: "Police Department Task Management System Officers",
+  title: 'Officers - Task Management System',
+  description: 'Police Department Task Management System Officers',
 };
 
-export default function OfficersPage() {
+export default async function OfficersPage() {
+  const data = await getUserList();
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -26,11 +22,11 @@ export default function OfficersPage() {
             Цагдаагийн газрын алба хаагчид
           </p>
         </div>
-        <Button asChild>
+        {/* <Button asChild>
           <Link href="/dashboard/officers/new">
             <Plus className=" h-4 w-4" />
           </Link>
-        </Button>
+        </Button> */}
       </div>
 
       <Card>
@@ -39,7 +35,7 @@ export default function OfficersPage() {
             Цагдаагийн газрын бүх ажилтнуудын жагсаалт
           </CardDescription> */}
         <CardContent>
-          <OfficerList />
+          <OfficerList initData={data?.data} />
         </CardContent>
       </Card>
     </div>

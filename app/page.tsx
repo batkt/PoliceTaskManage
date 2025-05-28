@@ -1,18 +1,21 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import Image from "next/image";
-import { LoginForm } from "@/components/login-form";
-import { ThemeToggle } from "@/components/theme-toggle";
-import moment from "moment";
+import type { Metadata } from 'next';
+import Image from 'next/image';
+import { LoginForm } from '@/components/login-form';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
-  title: "Login - Task Management System",
-  description: "Login to the Police Department Task Management System",
+  title: 'Login - Task Management System',
+  description: 'Login to the Police Department Task Management System',
 };
 
-export default function LoginPage() {
-  function moment(arg0: Date) {
-    throw new Error("Function not implemented.");
+export default async function LoginPage() {
+  const cookie = await cookies();
+  const accessToken = cookie.get('accessToken')?.value || '';
+
+  if (accessToken) {
+    redirect('/dashboard');
   }
 
   return (

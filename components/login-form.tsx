@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Shield, Loader2 } from "lucide-react";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { Loader2 } from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -15,56 +15,69 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/auth-context';
 
 const formSchema = z.object({
-  phone: z
+  workerId: z
     .string()
     .min(5, {
-      message: "Утасны дугаар 5-аас дээш тэмдэгт байх ёстой",
+      message: 'Ажилтны дугаар 5-аас дээш тэмдэгт байх ёстой',
     })
     .max(12, {
-      message: "Утасны дугаар 12-оос бага тэмдэгт байх ёстой",
+      message: 'Ажилтны дугаар 12-оос бага тэмдэгт байх ёстой',
     })
     .regex(/^[0-9]+$/, {
-      message: "Утасны дугаар зөвхөн тоо байх ёстой",
+      message: 'Ажилтны дугаар зөвхөн тоо байх ёстой',
     }),
   password: z.string().min(3, {
-    message: "Нууц үг 6-аас дээш тэмдэгт байх ёстой",
+    message: 'Нууц үг 6-аас дээш тэмдэгт байх ёстой',
   }),
 });
 
 export function LoginForm() {
-  const router = useRouter();
   const { toast } = useToast();
+  const { login } = useAuth();
+  const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      phone: "",
-      password: "",
+      workerId: '',
+      password: '',
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const res = await login(values);
 
-      // For demo purposes, always succeed
+      if (res?.code !== 200) {
+        toast({
+          title: 'Алдаа гарлаа',
+          description: res?.message,
+        });
+        return;
+      }
+
       toast({
-        title: "Амжилттай нэвтэрлээ",
-        description: "Системд тавтай морил",
+        title: 'Амжилттай нэвтэрлээ',
+        description: 'Системд тавтай морил',
       });
 
-      router.push("/dashboard");
-    }, 1500);
-  }
+      router.replace('/dashboard');
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="rounded-lg border bg-card p-6 shadow-sm">
@@ -86,7 +99,7 @@ export function LoginForm() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
-            name="phone"
+            name="workerId"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Хувийн дугаар</FormLabel>
@@ -140,9 +153,9 @@ export function LoginForm() {
               className="px-0 font-normal text-primary"
               onClick={() => {
                 toast({
-                  title: "Нууц үг сэргээх",
+                  title: 'Нууц үг сэргээх',
                   description:
-                    "Таны утасны дугаарт нууц үг сэргээх холбоос илгээгдлээ.",
+                    'Таны утасны дугаарт нууц үг сэргээх холбоос илгээгдлээ.',
                 });
               }}
             >
@@ -156,7 +169,7 @@ export function LoginForm() {
                 Нэвтрэх...
               </>
             ) : (
-              "Нэвтрэх"
+              'Нэвтрэх'
             )}
           </Button>
         </form>

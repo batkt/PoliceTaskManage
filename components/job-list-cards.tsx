@@ -1,96 +1,96 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { JobCard } from "@/components/job-card";
-import { JobCardSkeleton } from "@/components/job-card-skeleton";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from 'react';
+import { JobCard } from '@/components/job-card';
+import { JobCardSkeleton } from '@/components/job-card-skeleton';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { JobRegistrationDialog } from "@/components/job-registration-dialog";
-import { Plus, Filter } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+} from '@/components/ui/select';
+import { JobRegistrationDialog } from '@/components/job-registration-dialog';
+import { Plus, Filter } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Sample data for job cards
 const jobsData = [
   {
-    id: "JOB-001",
-    title: "Гэмт хэргийн газар дээр очих",
-    status: "completed",
-    startDate: "2023-12-01",
-    endDate: "2023-12-01",
+    id: 'JOB-001',
+    title: 'Гэмт хэргийн газар дээр очих',
+    status: 'completed',
+    startDate: '2023-12-01',
+    endDate: '2023-12-01',
     assignees: [
-      { id: "1", name: "Түвшин", color: "blue" },
-      { id: "2", name: "Дэлгэр", color: "red" },
-      { id: "3", name: "Пүрэв", color: "green" },
-      { id: "4", name: "Анар", color: "purple" },
+      { id: '1', name: 'Түвшин', color: 'blue' },
+      { id: '2', name: 'Дэлгэр', color: 'red' },
+      { id: '3', name: 'Пүрэв', color: 'green' },
+      { id: '4', name: 'Анар', color: 'purple' },
     ],
-    type: "investigation",
-    system: "criminal",
-    description: "Гэмт хэргийн газар дээр очиж нөхцөл байдлыг шалгах",
+    type: 'investigation',
+    system: 'criminal',
+    description: 'Гэмт хэргийн газар дээр очиж нөхцөл байдлыг шалгах',
     isUrgent: true,
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
   },
   {
-    id: "JOB-002",
-    title: "Гэрч нараас мэдүүлэг авах",
-    status: "in_progress",
-    startDate: "2023-12-05",
-    endDate: "2023-12-10",
+    id: 'JOB-002',
+    title: 'Гэрч нараас мэдүүлэг авах',
+    status: 'in_progress',
+    startDate: '2023-12-05',
+    endDate: '2023-12-10',
     assignees: [
-      { id: "1", name: "Түвшин", color: "blue" },
-      { id: "2", name: "Дэлгэр", color: "red" },
+      { id: '1', name: 'Түвшин', color: 'blue' },
+      { id: '2', name: 'Дэлгэр', color: 'red' },
     ],
-    type: "investigation",
-    system: "criminal",
-    description: "Гэрч нараас мэдүүлэг авч тэмдэглэл хөтлөх",
+    type: 'investigation',
+    system: 'criminal',
+    description: 'Гэрч нараас мэдүүлэг авч тэмдэглэл хөтлөх',
   },
   {
-    id: "JOB-003",
-    title: "Шөнийн эргүүл",
-    status: "planned",
-    startDate: "2023-12-15",
-    endDate: "2023-12-16",
+    id: 'JOB-003',
+    title: 'Шөнийн эргүүл',
+    status: 'planned',
+    startDate: '2023-12-15',
+    endDate: '2023-12-16',
     assignees: [
-      { id: "3", name: "Пүрэв", color: "green" },
-      { id: "4", name: "Анар", color: "purple" },
+      { id: '3', name: 'Пүрэв', color: 'green' },
+      { id: '4', name: 'Анар', color: 'purple' },
     ],
-    type: "patrol",
-    system: "administrative",
-    description: "Шөнийн эргүүл хийж хяналт тавих",
+    type: 'patrol',
+    system: 'administrative',
+    description: 'Шөнийн эргүүл хийж хяналт тавих',
   },
   {
-    id: "JOB-004",
-    title: "Сарын тайлан бэлтгэх",
-    status: "checking",
-    startDate: "2023-12-20",
-    endDate: "2023-12-25",
+    id: 'JOB-004',
+    title: 'Сарын тайлан бэлтгэх',
+    status: 'checking',
+    startDate: '2023-12-20',
+    endDate: '2023-12-25',
     assignees: [
-      { id: "1", name: "Түвшин", color: "blue" },
-      { id: "4", name: "Анар", color: "purple" },
+      { id: '1', name: 'Түвшин', color: 'blue' },
+      { id: '4', name: 'Анар', color: 'purple' },
     ],
-    type: "administrative",
-    system: "administrative",
-    description: "Сарын тайлан бэлтгэж удирдлагад танилцуулах",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    type: 'administrative',
+    system: 'administrative',
+    description: 'Сарын тайлан бэлтгэж удирдлагад танилцуулах',
+    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
   },
   {
-    id: "JOB-005",
-    title: "Тээврийн Цагдаагийн Газар",
-    status: "assigned",
-    startDate: "2023-12-18",
-    endDate: "2023-12-20",
+    id: 'JOB-005',
+    title: 'Тээврийн Цагдаагийн Газар',
+    status: 'assigned',
+    startDate: '2023-12-18',
+    endDate: '2023-12-20',
     assignees: [
-      { id: "2", name: "Дэлгэр", color: "red" },
-      { id: "3", name: "Пүрэв", color: "green" },
+      { id: '2', name: 'Дэлгэр', color: 'red' },
+      { id: '3', name: 'Пүрэв', color: 'green' },
     ],
-    type: "special",
-    system: "traffic",
-    description: "Тээврийн Цагдаагийн Газарт ажиллах",
+    type: 'special',
+    system: 'traffic',
+    description: 'Тээврийн Цагдаагийн Газарт ажиллах',
   },
 ];
 
@@ -101,8 +101,8 @@ export function JobListCards({
   status: string;
   isLoading?: boolean;
 }) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("newest");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
 
   useEffect(() => {
     const handleGlobalSearch = (event: Event) => {
@@ -113,24 +113,24 @@ export function JobListCards({
       }
     };
 
-    window.addEventListener("globalSearch", handleGlobalSearch);
+    window.addEventListener('globalSearch', handleGlobalSearch);
     return () => {
-      window.removeEventListener("globalSearch", handleGlobalSearch);
+      window.removeEventListener('globalSearch', handleGlobalSearch);
     };
   }, []);
 
   // Map the status from URL to the actual status values in the data
   const statusMapping: Record<string, string[]> = {
     all: [],
-    planned: ["planned"],
-    assigned: ["assigned"],
-    checking: ["checking"],
-    completed: ["completed"],
+    planned: ['planned'],
+    assigned: ['assigned'],
+    checking: ['checking'],
+    completed: ['completed'],
   };
 
   // Filter data based on status prop and search term
   const filteredJobs =
-    status === "all" || !statusMapping[status]
+    status === 'all' || !statusMapping[status]
       ? jobsData
       : jobsData.filter((job) => statusMapping[status].includes(job.status));
 
@@ -142,11 +142,11 @@ export function JobListCards({
 
   // Sort jobs
   const sortedJobs = [...searchFilteredJobs].sort((a, b) => {
-    if (sortBy === "newest") {
+    if (sortBy === 'newest') {
       return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
-    } else if (sortBy === "oldest") {
+    } else if (sortBy === 'oldest') {
       return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
-    } else if (sortBy === "title") {
+    } else if (sortBy === 'title') {
       return a.title.localeCompare(b.title);
     }
     return 0;

@@ -24,3 +24,14 @@ export type Task = {
   type: string;
   priority: 'medium' | 'low' | 'high' | 'very-high';
 };
+
+export type CreateWorkGroupTaskType = {
+  title: string;
+  description?: string;
+  assigner: string;
+  startDate: string;
+  endDate: string;
+  name: string;
+  leader: string;
+  members: string[];
+};

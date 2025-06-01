@@ -243,7 +243,6 @@ export function OfficerList({
   }, [sorting]);
 
   useEffect(() => {
-    console.log('wtf');
     if (columnFilters?.length > 0) {
       const filters = columnFilters.reduce<Record<string, unknown>>(
         (acc, cur) => {

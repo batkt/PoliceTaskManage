@@ -5,8 +5,8 @@ import { FieldError } from 'react-hook-form';
 
 interface MultiUserSelectProps {
   users: User[];
-  value?: User[];
-  onChange?: (users: User[]) => void;
+  value?: string[];
+  onChange?: (userIds: string[]) => void;
   placeholder?: string;
   maxHeight?: string;
   error?: FieldError;
@@ -71,13 +71,13 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
   const handleToggleUser = (user: User) => {
     if (disabled) return;
 
-    const isSelected = value.some((selected) => selected._id === user._id);
-    let newValue: User[];
+    const isSelected = value.some((selected) => selected === user._id);
+    let newValue: string[];
 
     if (isSelected) {
-      newValue = value.filter((selected) => selected._id !== user._id);
+      newValue = value.filter((selected) => selected !== user._id);
     } else {
-      newValue = [...value, user];
+      newValue = [...value, user._id];
     }
 
     onChange?.(newValue);
@@ -86,12 +86,12 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
   const handleRemoveUser = (userId: string, e?: React.MouseEvent) => {
     if (disabled) return;
     e?.stopPropagation();
-    const newValue = value.filter((user) => user._id !== userId);
+    const newValue = value.filter((_userId) => _userId !== userId);
     onChange?.(newValue);
   };
 
   const isUserSelected = (userId: string) => {
-    return value.some((user) => user._id === userId);
+    return value.some((_userId) => _userId === userId);
   };
 
   const handleContainerClick = () => {
@@ -116,7 +116,7 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
       <input
         type="hidden"
         name={name}
-        value={JSON.stringify(value.map((user) => user._id))}
+        value={JSON.stringify(value.map((user) => user))}
       />
 
       {/* Main Select Container */}
@@ -144,29 +144,36 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
             {placeholder}
           </span>
         ) : (
-          value.map((user) => (
-            <div
-              key={user._id}
-              className="inline-flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-sm text-xs"
-            >
-              <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
-                <UserIcon className="w-2 h-2" />
+          value.map((userId) => {
+            const user = users.find((u) => u._id === userId);
+            if (!user) {
+              return null;
+            }
+
+            return (
+              <div
+                key={user._id}
+                className="inline-flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-sm text-xs"
+              >
+                <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
+                  <UserIcon className="w-2 h-2" />
+                </div>
+                <span className="max-w-[120px] truncate">
+                  {user.givenname} {user.surname}
+                </span>
+                {!disabled && (
+                  <button
+                    type="button"
+                    onClick={(e) => handleRemoveUser(user._id, e)}
+                    className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5 transition-colors"
+                    aria-label={`Remove ${user.givenname} ${user.surname}`}
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
               </div>
-              <span className="max-w-[120px] truncate">
-                {user.givenname} {user.surname}
-              </span>
-              {!disabled && (
-                <button
-                  type="button"
-                  onClick={(e) => handleRemoveUser(user._id, e)}
-                  className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5 transition-colors"
-                  aria-label={`Remove ${user.givenname} ${user.surname}`}
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-            </div>
-          ))
+            );
+          })
         )}
         <Search className="w-4 h-4 text-muted-foreground ml-auto flex-shrink-0" />
       </div>

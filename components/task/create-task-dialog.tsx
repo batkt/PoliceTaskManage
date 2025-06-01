@@ -17,9 +17,12 @@ import MemoTaskForm from './memo-task-form';
 import WorkGroupTaskForm from './work-group-task-form';
 import { Button } from '../ui/button';
 import { LucideLoader2 } from 'lucide-react';
-import { CreateMemoTaskType } from '@/lib/types/task.types';
+import {
+  CreateMemoTaskType,
+  CreateWorkGroupTaskType,
+} from '@/lib/types/task.types';
 import { useToast } from '../ui/use-toast';
-import { createMemoTask } from '@/ssr/actions/task';
+import { createMemoTask, createWorkGroupTask } from '@/ssr/actions/task';
 import { usePathname } from 'next/navigation';
 
 const CreateTaskDialog = ({
@@ -94,7 +97,7 @@ const CreateTaskDialog = ({
       }
 
       console.log('Merged Form Data:', cleanedData);
-      //   toast(requestResponse);
+      toast(requestResponse);
 
       handleHide();
     } catch (err) {
@@ -121,12 +124,18 @@ const CreateTaskDialog = ({
     };
   };
 
-  const createWorkGroupTaskSubmit = async (data: CreateMemoTaskType) => {
-    const res = await createMemoTask(data, pathname);
+  const createWorkGroupTaskSubmit = async (data: CreateWorkGroupTaskType) => {
+    const res = await createWorkGroupTask(data, pathname);
 
+    if (res.code === 200) {
+      return {
+        title: 'Амжилттай',
+        description: 'Ажлын хэсэг даалгавар амжилттай үүслээ.',
+      };
+    }
     return {
       title: 'Амжилтгүй',
-      description: 'Албан бичгийн даалгавар үүсгэхэд алдаа гарлаа.',
+      description: 'Ажлын хэсэг даалгавар үүсгэхэд алдаа гарлаа.',
       variant: 'destructive',
     };
   };

@@ -4,7 +4,7 @@ import { MyTasksResponsiveView } from '../my-tasks-responsive-view';
 
 const TaskList = async ({ status }: { status: string }) => {
   const res = await getAllTasks(status);
-  console.log(res);
+
   return (
     <MyTasksResponsiveView
       status={status}

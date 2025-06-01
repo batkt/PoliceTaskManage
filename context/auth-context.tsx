@@ -1,24 +1,9 @@
 'use client';
 
-// import { loginAction, LoginResponseType } from '@/actions/auth.action';
-// import { getUserProfile } from '@/actions/user.action';
-import { useToast } from '@/hooks/use-toast';
-import {
-  checkAuth,
-  LoginResponseType,
-  login as loginAction,
-} from '@/lib/service/auth';
+import { LoginResponseType, login as loginAction } from '@/lib/service/auth';
 import { CustomResponse } from '@/lib/types/global.types';
 import { User } from '@/lib/types/user.types';
-import { useRouter } from 'next/navigation';
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, ReactNode, useContext, useState } from 'react';
 
 interface ILoginData {
   workerId: string;
@@ -28,7 +13,7 @@ interface ILoginData {
 interface IAuthContext {
   isAuthenticated: boolean;
   accessToken?: string;
-  login: (data: ILoginData) => Promise<CustomResponse<LoginResponseType>>; // Optional login function
+  login: (data: ILoginData) => Promise<CustomResponse<LoginResponseType>>;
   authUser?: User;
   clearUserData: () => void;
 }
@@ -36,8 +21,7 @@ interface IAuthContext {
 const AuthContext = createContext<IAuthContext>({
   isAuthenticated: false,
   accessToken: undefined,
-  // login: () => {},
-  login: () => Promise.reject({ message: '' }), // Default value for login function
+  login: () => Promise.reject({ message: '' }),
   authUser: undefined,
   clearUserData: () => {},
 });
@@ -57,55 +41,7 @@ const AuthProvider = ({
   isAuthenticated = false,
   accessToken,
 }: IAAuthProviderProps) => {
-  // const [token, setToken] = useState(accessToken);
-  // const { toast } = useToast();
   const [authUser, setAuthUser] = useState<User | undefined>();
-  // const [loading, setLoading] = useState(true);
-  // const [isAuthenticated, setIsAuthenticated] = useState(true);
-  // const router = useRouter();
-
-  // const getUserProfileData = useCallback(async () => {
-  //   if (token && !authUser) {
-  //     const res = await getUserProfile();
-  //     setAuthUser(res.data);
-  //   }
-  // }, [token, authUser]);
-
-  // useEffect(() => {
-  //   getUserProfileData();
-  // }, [getUserProfileData]);
-
-  // useEffect(() => {
-  //   const verifyAuth = async () => {
-  //     try {
-  //       const _isAuthenticated = await checkAuth();
-  //       console.log('check res', _isAuthenticated);
-  //       setIsAuthenticated(_isAuthenticated);
-  //       if (!_isAuthenticated) {
-  //         console.log('wtf');
-  //         router.push('/');
-  //         setLoading(false);
-  //       } else {
-  //         setLoading(false);
-  //       }
-  //     } catch (error) {
-  //       setIsAuthenticated(false);
-  //       console.log(error);
-  //       // router.push('/login');
-  //     }
-  //   };
-
-  //   verifyAuth();
-  // }, [router, toast]);
-
-  // console.log(loading);
-  // if (loading) {
-  //   return (
-  //     <div className="container flex items-center justify-center min-h-screen">
-  //       <p>Loading...</p>
-  //     </div>
-  //   );
-  // }
 
   const login = async (data: ILoginData) => {
     const res = await loginAction(data);
@@ -124,7 +60,7 @@ const AuthProvider = ({
     <AuthContext.Provider
       value={{
         accessToken: accessToken,
-        isAuthenticated, // Default value, can be updated with state management
+        isAuthenticated,
         login,
         authUser,
         clearUserData,

@@ -2,22 +2,13 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { LoginForm } from '@/components/login-form';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: 'Login - Task Management System',
   description: 'Login to the Police Department Task Management System',
 };
 
-export default async function LoginPage() {
-  const cookie = await cookies();
-  const accessToken = cookie.get('accessToken')?.value || '';
-
-  if (accessToken) {
-    redirect('/dashboard');
-  }
-
+export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
       <div className="container relative flex min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">

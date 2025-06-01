@@ -1,38 +1,32 @@
-'use server';
-import { cookies } from 'next/headers';
+'use client';
+
 import { CustomResponse } from './types/global.types';
 
-export const reponseChecker = async (response: Response) => {
+const API_URL = '/custom-api';
+export const TOKEN_KEY = 'atok';
+
+const reponseChecker = async (response: Response) => {
   const data = await response.json();
 
   if (data.code === 401) {
-    const cookie = await cookies();
-    cookie.delete('accessToken');
+    localStorage.removeItem(TOKEN_KEY);
   }
   return data;
 };
 
-export const getRequest = async <T>(
+const getRequest = async <T>(
   url: string,
   config?: ResponseInit
 ): Promise<CustomResponse<T>> => {
   try {
     const { headers, ...otherConfig } = config || {};
-    const cookie = await cookies();
-    const token = cookie.get('accessToken')?.value;
 
-    let authHeaders = {};
-    if (token) {
-      authHeaders = {
-        Authorization: `Bearer ${token}`,
-      };
-    }
-    const response = await fetch(url, {
+    const response = await fetch(`${API_URL}/${url}`, {
       method: 'GET',
       headers: {
+        ...getAuthHeaders(),
         'Content-Type': 'application/json',
         ...headers,
-        ...authHeaders,
       },
       ...otherConfig,
     });
@@ -48,16 +42,17 @@ export const getRequest = async <T>(
   }
 };
 
-export const postRequest = async <T>(
+const postRequest = async <T>(
   url: string,
   data?: any,
   config?: ResponseInit
 ): Promise<CustomResponse<T>> => {
   try {
     const { headers, ...otherConfig } = config || {};
-    const response = await fetch(url, {
+    const response = await fetch(`${API_URL}/${url}`, {
       method: 'POST',
       headers: {
+        ...getAuthHeaders(),
         'Content-Type': 'application/json',
         ...headers,
       },
@@ -74,4 +69,24 @@ export const postRequest = async <T>(
     console.error('Error in getRequest:', error);
     throw error;
   }
+};
+
+export function getAuthHeaders(): Record<string, string> {
+  const token = getToken();
+  return {
+    Authorization: token ? `Bearer ${token}` : '',
+  };
+}
+
+export function getToken(): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export const httpRequest = {
+  post: postRequest,
+  get: getRequest,
 };

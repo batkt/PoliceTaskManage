@@ -1,27 +1,44 @@
-import type { Metadata } from "next";
-import { Suspense } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { MyTasksResponsiveView } from "@/components/my-tasks-responsive-view";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
+import type { Metadata } from 'next';
+import { Suspense } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import TaskList from '@/components/task/task-list';
+import AddTaskButton from '@/components/task/add-task-button';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: "My Tasks - Task Management System",
-  description: "Police Department Task Management System My Tasks",
+  title: 'My Tasks - Task Management System',
+  description: 'Police Department Task Management System My Tasks',
 };
 
-export default function MyTasksPage({
-  searchParams,
-}: {
-  searchParams: { status?: string };
+const statuses = [
+  {
+    key: 'all',
+    name: 'Бүгд',
+  },
+  {
+    key: 'pending',
+    name: 'Эхлээгүй',
+  },
+  {
+    key: 'active',
+    name: 'Идэвхитэй',
+  },
+  {
+    key: 'processing',
+    name: 'Хийгдэж байгаа',
+  },
+  {
+    key: 'completed',
+    name: 'Дууссан',
+  },
+];
+export default async function MyTasksPage(props: {
+  searchParams: Promise<{ status?: string }>;
 }) {
-  const status = searchParams.status || "all";
+  const searchParams = await props.searchParams;
+  const status = searchParams.status || 'all';
 
   return (
     <div className="space-y-4">
@@ -30,87 +47,37 @@ export default function MyTasksPage({
         <p className="text-muted-foreground">Танд оноогдсон даалгаврууд</p>
       </div>
 
-      <Tabs defaultValue={status} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="all">Бүгд</TabsTrigger>
-          <TabsTrigger value="planned">Эхлээгүй</TabsTrigger>
-          <TabsTrigger value="assigned">Хуваарилагдсан</TabsTrigger>
-          <TabsTrigger value="checking">Шалгах</TabsTrigger>
-          <TabsTrigger value="completed">Дууссан</TabsTrigger>
-        </TabsList>
+      <div defaultValue={status} className="space-y-4">
+        <div className="flex justify-between">
+          <div className="flex gap-1 bg-muted rounded-md p-1">
+            {statuses?.map((s) => {
+              return (
+                <Link key={s.key} href={`/dashboard/my-tasks?status=${s.key}`}>
+                  <div
+                    className={cn(
+                      'rounded-sm px-3 py-1.5 text-sm',
+                      status !== s.key ? 'bg-transparent' : 'bg-background'
+                    )}
+                  >
+                    {s.name}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+          <div className="max-md:hidden">
+            <AddTaskButton />
+          </div>
+        </div>
 
-        <TabsContent value="all" className="space-y-4">
-          <Card>
-            {/* <CardHeader>
-              <CardTitle>Бүх даалгавар</CardTitle>
-              <CardDescription>Танд оноогдсон бүх даалгаврын жагсаалт</CardDescription>
-            </CardHeader> */}
-            <CardContent className="mt-4">
-              <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-                <MyTasksResponsiveView status="all" />
-              </Suspense>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="planned" className="space-y-4">
-          <Card>
-            {/* <CardHeader>
-              <CardTitle>Эхлээгүй даалгаврууд</CardTitle>
-              <CardDescription>
-                Төлөвлөгдсөн боловч эхлээгүй байгаа даалгаврууд
-              </CardDescription>
-            </CardHeader> */}
-            <CardContent>
-              <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-                <MyTasksResponsiveView status="planned" />
-              </Suspense>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="assigned" className="space-y-4">
-          <Card>
-            {/* <CardHeader>
-              <CardTitle>Хуваарилагдсан даалгаврууд</CardTitle>
-              <CardDescription>Танд хуваарилагдсан даалгаврууд</CardDescription>
-            </CardHeader> */}
-            <CardContent>
-              <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-                <MyTasksResponsiveView status="assigned" />
-              </Suspense>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="checking" className="space-y-4">
-          <Card>
-            {/* <CardHeader>
-              <CardTitle>Шалгах даалгаврууд</CardTitle>
-              <CardDescription>Шалгагдаж буй даалгаврууд</CardDescription>
-            </CardHeader> */}
-            <CardContent>
-              <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-                <MyTasksResponsiveView status="checking" />
-              </Suspense>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="completed" className="space-y-4">
-          <Card>
-            {/* <CardHeader>
-              <CardTitle>Дууссан даалгаврууд</CardTitle>
-              <CardDescription>Амжилттай дууссан даалгаврууд</CardDescription>
-            </CardHeader> */}
-            <CardContent>
-              <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-                <MyTasksResponsiveView status="completed" />
-              </Suspense>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        <Card>
+          <CardContent className="mt-4">
+            <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+              <TaskList status={status} />
+            </Suspense>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

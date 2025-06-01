@@ -2,8 +2,8 @@ import type React from 'react';
 import type { Metadata } from 'next';
 import { SidebarNavigation } from '@/components/sidebar-navigation';
 import { Header } from '@/components/header';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { isAuthenticated } from '@/ssr/util';
 
 export const metadata: Metadata = {
   title: 'Dashboard - Task Management System',
@@ -15,10 +15,8 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const cookie = await cookies();
-  const accessToken = cookie.get('accessToken')?.value || '';
-
-  if (!accessToken) {
+  const token = await isAuthenticated();
+  if (!token) {
     redirect('/');
   }
 

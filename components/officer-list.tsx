@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -12,7 +12,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
+import { ArrowUpDown, ChevronDown } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -32,10 +32,12 @@ import {
 } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { List } from '@/lib/types/global.types';
+import { List, Pagination, Sort } from '@/lib/types/global.types';
 import { User } from '@/lib/types/user.types';
 import { format } from 'date-fns';
 import { Branch } from '@/lib/types/branch.types';
+import { usePathname, useRouter } from 'next/navigation';
+import { queryStringBuilder } from '@/lib/query.util';
 
 const columnInformations = [
   {
@@ -118,7 +120,9 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     accessorKey: 'status',
-    header: 'Төлөв',
+    header: () => {
+      return <div className="text-center">Төлөв</div>;
+    },
     cell: ({ row }) => {
       return <Badge variant={'success'}>Идэвхитэй</Badge>;
     },
@@ -141,7 +145,11 @@ export const columns: ColumnDef<User>[] = [
       if (!dateValue) {
         return null;
       }
-      return <div>{format(new Date(dateValue), 'yyyy-MM-dd')}</div>;
+      return (
+        <div className="text-center">
+          {format(new Date(dateValue), 'yyyy-MM-dd')}
+        </div>
+      );
     },
   },
   // {
@@ -174,30 +182,111 @@ export const columns: ColumnDef<User>[] = [
 ];
 
 export function OfficerList({
-  initData = {
-    currentPage: 1,
-    total: 10,
-    totalPages: 1,
-    rows: [],
-  },
+  data,
+  pagination,
+  sort,
+  filters,
 }: {
-  initData: List<User>;
+  data?: List<User>;
+  pagination?: Pagination;
+  sort?: Sort;
+  filters?: Record<string, string | number>;
 }) {
+  const total = data?.total || 1;
+  const totalPages = data?.totalPages || 1;
+  const rows = data?.rows || [];
+  const page = pagination?.page ?? 1;
+  const pageSize = pagination?.pageSize ?? 2;
+
+  const router = useRouter();
+  const pathname = usePathname();
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+    filters
+      ? Object.keys(filters).map((fKey) => {
+          return {
+            id: fKey,
+            value: filters[fKey],
+          };
+        })
+      : []
+  );
+
+  const [paginationState, setPaginationState] = useState({
+    pageIndex: page - 1,
+    pageSize: pageSize,
+  });
+
+  const filterRoute = useCallback(
+    (filter: Record<string, string | number | undefined | null>) => {
+      const q = {
+        page: page,
+        pageSize,
+        sortBy: sort?.sortBy,
+        sortOrder: sort?.sortOrder,
+        filters: filters ? encodeURIComponent(JSON.stringify(filters)) : '',
+        ...filter,
+      };
+      router.push(`${pathname}?${queryStringBuilder(q)}`);
+    },
+    [page, pageSize, sort, filters]
+  );
+
+  useEffect(() => {
+    if (sorting?.length > 0) {
+      filterRoute({
+        sortBy: sorting[0].id,
+        sortOrder: sorting[0].desc ? 'desc' : 'asc',
+        page: 1,
+      });
+    }
+  }, [sorting]);
+
+  useEffect(() => {
+    console.log('wtf');
+    if (columnFilters?.length > 0) {
+      const filters = columnFilters.reduce<Record<string, unknown>>(
+        (acc, cur) => {
+          acc[cur.id] = cur.value;
+          return acc;
+        },
+        {}
+      );
+
+      filterRoute({
+        page: 1,
+        filters: encodeURIComponent(JSON.stringify(filters)),
+      });
+    } else {
+      filterRoute({
+        page: 1,
+        filters: '',
+      });
+    }
+  }, [columnFilters]);
 
   const table = useReactTable({
-    data: initData.rows,
+    data: rows,
     columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
+
     getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPaginationState,
+    pageCount: totalPages,
+    manualPagination: true,
+
     getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+    manualSorting: true,
+
     getFilteredRowModel: getFilteredRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    manualFiltering: true,
+
     state: {
       sorting,
       columnFilters,
+      pagination: paginationState,
     },
   });
 
@@ -296,22 +385,26 @@ export function OfficerList({
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          Нийт {table.getFilteredRowModel().rows.length} ажилтан
+          Нийт {total} ажилтан
         </div>
         <div className="space-x-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => {
+              filterRoute({ page: page - 1 });
+            }}
+            disabled={page <= 1}
           >
             Өмнөх
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => {
+              filterRoute({ page: page + 1 });
+            }}
+            disabled={totalPages <= page}
           >
             Дараах
           </Button>

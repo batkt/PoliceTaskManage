@@ -4,7 +4,9 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import './globals.css';
 import { AuthProvider } from '@/context/auth-context';
-import { cookies } from 'next/headers';
+import UserProvider from '@/context/user-context';
+import { isAuthenticated } from '@/ssr/util';
+import { getAllUsers } from '@/ssr/service/user';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,11 +21,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const cookie = await cookies();
-  const accessToken = cookie.get('accessToken')?.value || '';
+  const token = await isAuthenticated();
+  const usersRes = await getAllUsers();
 
-  if (!accessToken) {
-  }
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
@@ -33,7 +33,11 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider accessToken={accessToken}>{children}</AuthProvider>
+          <AuthProvider isAuthenticated={!!token} accessToken={token}>
+            <UserProvider data={usersRes.code === 200 ? usersRes.data : []}>
+              {children}
+            </UserProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

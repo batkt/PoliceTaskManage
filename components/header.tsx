@@ -23,7 +23,7 @@ import { SearchNav } from '@/components/search-nav';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
-import { logoutAction } from '@/actions/auth.action';
+import { logoutAction } from '@/ssr/actions/auth';
 
 export function Header() {
   const router = useRouter();
@@ -64,7 +64,6 @@ export function Header() {
   const logout = async () => {
     const res = await logoutAction();
     if (res) {
-      clearUserData();
       router.replace('/');
     }
   };

@@ -19,6 +19,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-context';
+import { loginAction } from '@/ssr/actions/auth';
 
 const formSchema = z.object({
   workerId: z
@@ -56,7 +57,7 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      const res = await login(values);
+      const res = await loginAction(values);
 
       if (res?.code !== 200) {
         toast({

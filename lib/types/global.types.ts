@@ -11,3 +11,13 @@ export type CustomResponse<T> = {
   message?: string;
   data: T;
 };
+
+export type Pagination = {
+  page: number;
+  pageSize: number;
+};
+
+export type Sort = {
+  sortBy: string;
+  sortOrder: 'desc' | 'asc';
+};

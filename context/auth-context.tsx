@@ -1,9 +1,17 @@
 'use client';
 
-import { LoginResponseType, login as loginAction } from '@/lib/service/auth';
+import { getUserProfile } from '@/lib/service/user';
 import { CustomResponse } from '@/lib/types/global.types';
 import { User } from '@/lib/types/user.types';
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { LoginResponseType, loginAction } from '@/ssr/actions/auth';
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
 interface ILoginData {
   workerId: string;
@@ -42,6 +50,19 @@ const AuthProvider = ({
   accessToken,
 }: IAAuthProviderProps) => {
   const [authUser, setAuthUser] = useState<User | undefined>();
+
+  const fetchProfile = useCallback(async () => {
+    const res = await getUserProfile(accessToken);
+    if (res.code === 200) {
+      setAuthUser(res.data);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!authUser) {
+      fetchProfile();
+    }
+  }, [authUser, fetchProfile]);
 
   const login = async (data: ILoginData) => {
     const res = await loginAction(data);

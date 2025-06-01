@@ -64,6 +64,7 @@ export function Header() {
   const logout = async () => {
     const res = await logoutAction();
     if (res) {
+      clearUserData();
       router.replace('/');
     }
   };

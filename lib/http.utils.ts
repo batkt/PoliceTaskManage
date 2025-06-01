@@ -3,19 +3,20 @@
 import { CustomResponse } from './types/global.types';
 
 const API_URL = '/custom-api';
-export const TOKEN_KEY = 'atok';
 
 const reponseChecker = async (response: Response) => {
   const data = await response.json();
 
   if (data.code === 401) {
-    localStorage.removeItem(TOKEN_KEY);
+    // localStorage.removeItem(TOKEN_KEY);
+    console.log('401');
   }
   return data;
 };
 
 const getRequest = async <T>(
   url: string,
+  token?: string,
   config?: ResponseInit
 ): Promise<CustomResponse<T>> => {
   try {
@@ -24,7 +25,7 @@ const getRequest = async <T>(
     const response = await fetch(`${API_URL}/${url}`, {
       method: 'GET',
       headers: {
-        ...getAuthHeaders(),
+        ...getAuthHeaders(token),
         'Content-Type': 'application/json',
         ...headers,
       },
@@ -45,6 +46,7 @@ const getRequest = async <T>(
 const postRequest = async <T>(
   url: string,
   data?: any,
+  token?: string,
   config?: ResponseInit
 ): Promise<CustomResponse<T>> => {
   try {
@@ -52,7 +54,7 @@ const postRequest = async <T>(
     const response = await fetch(`${API_URL}/${url}`, {
       method: 'POST',
       headers: {
-        ...getAuthHeaders(),
+        ...getAuthHeaders(token),
         'Content-Type': 'application/json',
         ...headers,
       },
@@ -71,19 +73,10 @@ const postRequest = async <T>(
   }
 };
 
-export function getAuthHeaders(): Record<string, string> {
-  const token = getToken();
+export function getAuthHeaders(token?: string): Record<string, string> {
   return {
     Authorization: token ? `Bearer ${token}` : '',
   };
-}
-
-export function getToken(): string | null {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  return localStorage.getItem(TOKEN_KEY);
 }
 
 export const httpRequest = {

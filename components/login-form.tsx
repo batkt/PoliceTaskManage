@@ -19,7 +19,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-context';
-import { loginAction } from '@/ssr/actions/auth';
 
 const formSchema = z.object({
   workerId: z
@@ -29,10 +28,10 @@ const formSchema = z.object({
     })
     .max(12, {
       message: 'Ажилтны дугаар 12-оос бага тэмдэгт байх ёстой',
-    })
-    .regex(/^[0-9]+$/, {
-      message: 'Ажилтны дугаар зөвхөн тоо байх ёстой',
     }),
+  // .regex(/^[0-9]+$/, {
+  //   message: 'Ажилтны дугаар зөвхөн тоо байх ёстой',
+  // }),
   password: z.string().min(3, {
     message: 'Нууц үг 6-аас дээш тэмдэгт байх ёстой',
   }),
@@ -57,7 +56,7 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      const res = await loginAction(values);
+      const res = await login(values);
 
       if (res?.code !== 200) {
         toast({

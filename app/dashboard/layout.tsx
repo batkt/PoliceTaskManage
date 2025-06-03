@@ -25,7 +25,7 @@ export default async function DashboardLayout({
       <SidebarNavigation />
       <div className="flex-1 md:ml-64">
         <Header />
-        <main className="flex-1 p-2 md:p-6">{children}</main>
+        <main className="flex-1 px-4 py-6 md:p-6">{children}</main>
       </div>
     </div>
   );

@@ -15,13 +15,17 @@ import { JobListCards } from '@/components/job-list-cards';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getTaskCounts } from '@/ssr/service/dashboard';
 
 export const metadata: Metadata = {
   title: 'Dashboard - Task Management System',
   description: 'Police Department Task Management System Dashboard',
 };
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const res = await getTaskCounts();
+  const taskCounts = res.code === 200 ? res.data : undefined;
+
   return (
     <div className="space-y-4">
       <div>
@@ -51,7 +55,7 @@ export default function DashboardPage() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">142</div>
+            <div className="text-2xl font-bold">{taskCounts?.total || 0}</div>
             <p className="text-xs text-muted-foreground">+12.5% өмнөх сараас</p>
           </CardContent>
         </Card>
@@ -74,7 +78,9 @@ export default function DashboardPage() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">48</div>
+            <div className="text-2xl font-bold">
+              {taskCounts?.processing || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               33.8% нийт даалгавраас
             </p>
@@ -98,7 +104,9 @@ export default function DashboardPage() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">87</div>
+            <div className="text-2xl font-bold">
+              {taskCounts?.completed || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               61.3% нийт даалгавраас
             </p>
@@ -123,7 +131,7 @@ export default function DashboardPage() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">7</div>
+            <div className="text-2xl font-bold">{taskCounts?.overdue || 0}</div>
             <p className="text-xs text-muted-foreground">
               4.9% нийт даалгавраас
             </p>

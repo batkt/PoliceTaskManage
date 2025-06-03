@@ -1,82 +1,68 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import TaskList from '@/components/task/task-list';
-import AddTaskButton from '@/components/task/add-task-button';
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import Statusbar from '@/components/task/list/statusbar';
+import { TableParams } from '@/components/data-table-v2';
+import { getTaskList } from '@/ssr/service/task';
+import TaskTableList from '@/components/task/list/task-table';
+import { queryStringBuilder } from '@/lib/query.util';
+import { isEmptyObject } from '@/lib/utils';
+import { MyTaskCardList } from '@/components/task/list/card-list';
 
 export const metadata: Metadata = {
-  title: 'My Tasks - Task Management System',
-  description: 'Police Department Task Management System My Tasks',
+  title: 'Миний даалгавал - Төлөвлөгөөний систем',
+  // description: 'Police Department Task Management System My Tasks',
 };
 
-const statuses = [
-  {
-    key: 'all',
-    name: 'Бүгд',
-  },
-  {
-    key: 'pending',
-    name: 'Эхлээгүй',
-  },
-  {
-    key: 'active',
-    name: 'Идэвхитэй',
-  },
-  {
-    key: 'processing',
-    name: 'Хийгдэж байгаа',
-  },
-  {
-    key: 'completed',
-    name: 'Дууссан',
-  },
-];
 export default async function MyTasksPage(props: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<Record<string, string>>;
 }) {
   const searchParams = await props.searchParams;
-  const status = searchParams.status || 'all';
+  const params: TableParams = {
+    page: Number(searchParams.page ?? 1),
+    pageSize: Number(searchParams.pageSize ?? 10),
+    sort: searchParams?.sort ?? '',
+    order: (searchParams?.order as 'asc' | 'desc' | null) ?? null,
+    filters: Object.fromEntries(
+      Object.entries(searchParams).filter(
+        ([k]) => !['page', 'pageSize', 'sort', 'order'].includes(k)
+      )
+    ),
+  };
+
+  const status = (searchParams?.status as string) || 'all';
+
+  const { filters, ...other } = params;
+  const otherFilter = isEmptyObject(filters)
+    ? {}
+    : {
+        ...filters,
+      };
+
+  const query = queryStringBuilder({
+    ...other,
+    ...otherFilter,
+  });
+
+  const res2 = await getTaskList(query);
 
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Минии даалгавар</h2>
-        <p className="text-muted-foreground">Танд оноогдсон даалгаврууд</p>
+        <h2 className="text-2xl font-bold tracking-tight">Миний даалгавар</h2>
+        <p className="text-muted-foreground">Танд хуваарилагдсан даалгаврууд</p>
       </div>
 
-      <div defaultValue={status} className="space-y-4">
-        <div className="flex justify-between">
-          <div className="flex gap-1 bg-muted rounded-md p-1">
-            {statuses?.map((s) => {
-              return (
-                <Link key={s.key} href={`/dashboard/my-tasks?status=${s.key}`}>
-                  <div
-                    className={cn(
-                      'rounded-sm px-3 py-1.5 text-sm',
-                      status !== s.key ? 'bg-transparent' : 'bg-background'
-                    )}
-                  >
-                    {s.name}
-                  </div>
-                </Link>
-              );
-            })}
+      <div className="space-y-4">
+        <Statusbar status={status} />
+        <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+          <div className="lg:hidden">
+            <MyTaskCardList params={params} data={res2.data} />
           </div>
-          <div className="max-md:hidden">
-            <AddTaskButton />
+          <div className="max-lg:hidden">
+            <TaskTableList params={params} data={res2.data} />
           </div>
-        </div>
-
-        <Card>
-          <CardContent className="mt-4">
-            <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-              <TaskList status={status} />
-            </Suspense>
-          </CardContent>
-        </Card>
+        </Suspense>
       </div>
     </div>
   );

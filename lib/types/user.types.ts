@@ -9,5 +9,5 @@ export type User = {
   rank: string;
   position: string;
   role: 'user' | 'super-admin' | 'admin';
-  joinedDate?: Date;
+  joinedDate?: string;
 };

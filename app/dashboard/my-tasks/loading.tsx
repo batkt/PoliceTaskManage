@@ -1,37 +1,21 @@
-import { Skeleton } from "@/components/ui/skeleton"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Loading() {
   return (
     <div className="space-y-4">
       <div>
-        <Skeleton className="h-8 w-[250px]" />
-        <Skeleton className="h-4 w-[350px] mt-2" />
+        <h2 className="text-2xl font-bold tracking-tight">Миний даалгавар</h2>
+        <p className="text-muted-foreground">Танд хуваарилагдсан даалгаврууд</p>
       </div>
 
-      <Tabs defaultValue="all" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="all">Бүгд</TabsTrigger>
-          <TabsTrigger value="planned">Эхлээгүй</TabsTrigger>
-          <TabsTrigger value="assigned">Хуваарилагдсан</TabsTrigger>
-          <TabsTrigger value="checking">Шалгах</TabsTrigger>
-          <TabsTrigger value="completed">Дууссан</TabsTrigger>
-        </TabsList>
+      <div className="space-y-4">
+        <div className="flex justify-between gap-4">
+          <Skeleton className="h-10 max-md:flex-1 md:w-full md:max-w-[400px]"></Skeleton>
+          <Skeleton className="h-10 w-10 md:w-[150px] rounded-md"></Skeleton>
+        </div>
 
-        <TabsContent value="all" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Бүх даалгавар</CardTitle>
-              <CardDescription>Танд оноогдсон бүх даалгаврын жагсаалт</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-[400px] w-full" />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        <Skeleton className="h-[400px] w-full" />
+      </div>
     </div>
-  )
+  );
 }
-

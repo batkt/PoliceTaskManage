@@ -90,7 +90,7 @@ export function Header() {
           </div>
         ) : (
           <>
-            <div className="md:hidden">
+            {/* <div className="md:hidden">
               <Button
                 variant="ghost"
                 size="icon"
@@ -101,7 +101,8 @@ export function Header() {
             </div>
             <div className="hidden md:block">
               <SearchNav />
-            </div>
+            </div> */}
+            <div></div>
             <div className="flex items-center gap-2">
               <Popover>
                 <PopoverTrigger asChild>

@@ -42,6 +42,7 @@ export default async function MyTasksPage(props: {
   const query = queryStringBuilder({
     ...other,
     ...otherFilter,
+    onlyMe: true,
   });
 
   const res2 = await getTaskList(query);
@@ -54,7 +55,7 @@ export default async function MyTasksPage(props: {
       </div>
 
       <div className="space-y-4">
-        <Statusbar status={status} />
+        <Statusbar status={status} me={true} />
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
           <div className="lg:hidden">
             <MyTaskCardList params={params} data={res2.data} />

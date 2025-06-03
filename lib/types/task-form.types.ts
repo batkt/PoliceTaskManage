@@ -6,7 +6,7 @@ export interface BaseFormData {
   startDate?: Date;
   endDate?: Date;
   description?: string;
-  assigner: '';
+  assigner: string;
   priority: 'low' | 'medium' | 'high';
 }
 

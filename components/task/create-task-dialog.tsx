@@ -24,19 +24,23 @@ import {
 import { useToast } from '../ui/use-toast';
 import { createMemoTask, createWorkGroupTask } from '@/ssr/actions/task';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
 
 const CreateTaskDialog = ({
   isEdit = false,
+  me = false,
   open = false,
   onHide = () => {},
 }: {
   isEdit?: boolean;
   onHide: () => void;
   open: boolean;
+  me: boolean;
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const pathname = usePathname();
+  const { authUser } = useAuth();
 
   const { register, control, setValue, watch, handleSubmit, reset } =
     useForm<TaskFormData>({
@@ -45,7 +49,7 @@ const CreateTaskDialog = ({
         title: '',
         description: '',
         type: 'memo',
-        assigner: '',
+        assigner: me ? authUser?._id : '',
         startDate: undefined,
         endDate: undefined,
         priority: 'medium',
@@ -172,7 +176,13 @@ const CreateTaskDialog = ({
 
         <ScrollArea className="max-h-[60vh] md:max-h-[70vh] pt-0">
           <div className="space-y-4 m-2">
-            <MainTaskForm control={control} watch={watch} />
+            <MainTaskForm
+              control={control}
+              watch={watch}
+              disabled={{
+                assigner: me,
+              }}
+            />
             {renderSubForm()}
           </div>
         </ScrollArea>

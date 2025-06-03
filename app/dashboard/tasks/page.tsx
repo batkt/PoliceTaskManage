@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { isEmptyObject } from '@/lib/utils';
 import { queryStringBuilder } from '@/lib/query.util';
@@ -10,6 +8,7 @@ import Statusbar from '@/components/task/list/statusbar';
 import { MyTaskCardList } from '@/components/task/list/card-list';
 import TaskTableList from '@/components/task/list/task-table';
 import { TableParams } from '@/components/data-table-v2';
+import AddTaskButton from '@/components/task/add-task-button';
 
 export const metadata: Metadata = {
   title: 'Tasks - Task Management System',
@@ -70,9 +69,7 @@ export default async function TasksPage(props: {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Ажлын жагсаалт</h2>
-        <Button size="icon">
-          <Plus className="h-4 w-4" />
-        </Button>
+        <AddTaskButton onlyIconButton={true} />
       </div>
       <div className="space-y-4">
         <Statusbar status={status} data={statuses} hideButton={true} />

@@ -106,15 +106,26 @@ export function DataTableV2<T extends Record<string, any>>({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((row, idx) => (
-              <TableRow key={idx}>
-                {columns.map((col) => (
-                  <TableCell key={String(col.key)}>
-                    {col.renderCell(row)}
-                  </TableCell>
-                ))}
+            {data?.length > 0 ? (
+              data.map((row, idx) => (
+                <TableRow key={idx}>
+                  {columns.map((col) => (
+                    <TableCell key={String(col.key)}>
+                      {col.renderCell(row)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  Дата байхгүй.
+                </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </div>

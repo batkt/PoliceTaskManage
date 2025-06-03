@@ -39,7 +39,11 @@ const jobTypes = [
   },
 ];
 
-const MainTaskForm: React.FC<FormComponentProps> = ({ control, watch }) => {
+const MainTaskForm: React.FC<
+  FormComponentProps & {
+    disabled?: Record<string, boolean>;
+  }
+> = ({ control, watch, disabled }) => {
   const { users } = useUsers();
   return (
     <div>
@@ -143,7 +147,7 @@ const MainTaskForm: React.FC<FormComponentProps> = ({ control, watch }) => {
           control={control}
           name="assigner"
           rules={{
-            required: 'Ажлын төрөл сонгоно уу',
+            required: 'Хариуцах алба хаагч  сонгоно уу',
           }}
           render={({ field, fieldState: { error } }) => {
             return (
@@ -152,9 +156,13 @@ const MainTaskForm: React.FC<FormComponentProps> = ({ control, watch }) => {
                   Хариуцах алба хаагч{' '}
                   <span className="text-destructive">*</span>
                 </Label>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value}
+                  disabled={disabled?.assigner}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Ажилтан сонгох" />
+                    <SelectValue placeholder="Хариуцах алба хаагч сонгох" />
                   </SelectTrigger>
                   <SelectContent>
                     {users.map((user) => (

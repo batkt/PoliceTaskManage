@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, Search, X } from 'lucide-react';
+import { Bell, PackageOpen, Search, X } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -19,47 +19,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { SearchNav } from '@/components/search-nav';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { cn, formatRelativeTime } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
 import { logoutAction } from '@/ssr/actions/auth';
+import { useNotifications } from '@/context/notification-context';
 
 export function Header() {
   const router = useRouter();
   const { authUser, clearUserData } = useAuth();
   const [showMobileSearch, setShowMobileSearch] = useState(false);
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: 'Шинэ даалгавар',
-      description: 'Танд шинэ даалгавар оноогдлоо',
-      time: '10 минутын өмнө',
-      read: false,
-    },
-    {
-      id: 2,
-      title: 'Тайлангийн хугацаа',
-      description: 'Сарын тайлан илгээх хугацаа дөхөж байна',
-      time: '1 цагийн өмнө',
-      read: false,
-    },
-    {
-      id: 3,
-      title: 'Хурлын мэдэгдэл',
-      description: 'Маргааш 10:00 цагт хэлтсийн хурал болно',
-      time: '3 цагийн өмнө',
-      read: true,
-    },
-  ]);
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
-  const markAsRead = (id: number) => {
-    setNotifications(
-      notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
-  };
+  const { notifications, markAsRead, unseenCount, markAllAsSeen } =
+    useNotifications();
 
   const logout = async () => {
     const res = await logoutAction();
@@ -106,11 +77,20 @@ export function Header() {
             <div className="flex items-center gap-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="icon" className="relative">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="relative"
+                    onClick={() => {
+                      if (unseenCount > 0) {
+                        markAllAsSeen();
+                      }
+                    }}
+                  >
                     <Bell className="h-5 w-5" />
-                    {unreadCount > 0 && (
+                    {unseenCount > 0 && (
                       <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-xs text-destructive-foreground">
-                        {unreadCount}
+                        {unseenCount}
                       </span>
                     )}
                   </Button>
@@ -122,49 +102,63 @@ export function Header() {
                   <div className="border-b p-3">
                     <div className="flex items-center justify-between">
                       <h4 className="font-semibold">Мэдэгдэл</h4>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-auto p-0 text-xs"
-                      >
+                      {/* <Button size="sm" className="h-auto px-1.5 py-1 text-xs">
                         Бүгдийг уншсан болгох
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                   <div className="max-h-[60vh] overflow-auto">
-                    {notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={cn(
-                          'flex cursor-pointer gap-3 border-b p-3 hover:bg-muted',
-                          !notification.read && 'bg-muted/50'
-                        )}
-                        onClick={() => markAsRead(notification.id)}
-                      >
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                          <Bell className="h-5 w-5" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <p className="font-medium truncate">
-                              {notification.title}
-                            </p>
-                            <p className="text-xs text-muted-foreground whitespace-nowrap ml-2">
-                              {notification.time}
+                    {notifications?.length > 0 ? (
+                      notifications.map((notification) => (
+                        <div
+                          key={notification._id}
+                          className={cn(
+                            'flex cursor-pointer gap-3 border-b p-3',
+                            notification.read
+                              ? 'bg-transparent hover:bg-muted/30'
+                              : 'bg-muted/50 hover:bg-muted'
+                          )}
+                          onClick={() => markAsRead(notification)}
+                        >
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                            <Bell className="h-5 w-5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p
+                                className={cn(
+                                  'text-sm truncate',
+                                  notification.read
+                                    ? 'font-normal'
+                                    : 'font-medium'
+                                )}
+                              >
+                                {notification.title}
+                              </p>
+                              <p className="text-sm text-muted-foreground whitespace-nowrap ml-2">
+                                {formatRelativeTime(notification.createdAt)}
+                              </p>
+                            </div>
+                            <p className="text-sm text-muted-foreground truncate">
+                              {notification?.message}
                             </p>
                           </div>
-                          <p className="text-sm text-muted-foreground truncate">
-                            {notification.description}
-                          </p>
                         </div>
+                      ))
+                    ) : (
+                      <div className="flex flex-col gap-4 items-center justify-center py-16 px-10 text-muted-foreground">
+                        <PackageOpen className="size-16" />
+                        Танд мэдэгдэл ирээгүй байна.
                       </div>
-                    ))}
+                    )}
                   </div>
-                  <div className="p-3 text-center">
-                    <Button variant="ghost" size="sm" className="w-full">
-                      Бүх мэдэгдэл харах
-                    </Button>
-                  </div>
+                  {notifications.length > 5 ? (
+                    <div className="p-3 text-center">
+                      <Button variant="ghost" size="sm" className="w-full">
+                        Бүх мэдэгдэл харах
+                      </Button>
+                    </div>
+                  ) : null}
                 </PopoverContent>
               </Popover>
 

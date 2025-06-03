@@ -40,10 +40,12 @@ const Statusbar = ({
   status,
   data,
   hideButton = false,
+  me = false,
 }: {
   status: string;
   data?: { key: string; name: string }[];
   hideButton?: boolean;
+  me?: boolean;
 }) => {
   const router = useRouter();
   return (
@@ -87,7 +89,7 @@ const Statusbar = ({
           </SelectContent>
         </Select>
       </div>
-      {hideButton ? null : <AddTaskButton />}
+      {hideButton ? null : <AddTaskButton me={me} />}
     </div>
   );
 };

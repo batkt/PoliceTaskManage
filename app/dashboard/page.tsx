@@ -1,20 +1,20 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { Suspense } from 'react';
+// import Link from 'next/link';
+// import { Suspense } from 'react';
 import {
   Card,
   CardContent,
-  CardDescription,
+  // CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TaskCompletionChart } from '@/components/task-completion-chart';
-import { TaskPerformanceChart } from '@/components/task-performance-chart';
-import { JobListCards } from '@/components/job-list-cards';
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// import { TaskCompletionChart } from '@/components/task-completion-chart';
+// import { TaskPerformanceChart } from '@/components/task-performance-chart';
+// import { JobListCards } from '@/components/job-list-cards';
+// import { Button } from '@/components/ui/button';
+// import { ArrowRight } from 'lucide-react';
+// import { Skeleton } from '@/components/ui/skeleton';
 import { getTaskCounts } from '@/ssr/service/dashboard';
 
 export const metadata: Metadata = {
@@ -56,7 +56,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{taskCounts?.total || 0}</div>
-            <p className="text-xs text-muted-foreground">+12.5% өмнөх сараас</p>
+            {/* <p className="text-xs text-muted-foreground">+12.5% өмнөх сараас</p> */}
           </CardContent>
         </Card>
         <Card>
@@ -81,9 +81,9 @@ export default async function DashboardPage() {
             <div className="text-2xl font-bold">
               {taskCounts?.processing || 0}
             </div>
-            <p className="text-xs text-muted-foreground">
+            {/* <p className="text-xs text-muted-foreground">
               33.8% нийт даалгавраас
-            </p>
+            </p> */}
           </CardContent>
         </Card>
         <Card>
@@ -107,9 +107,9 @@ export default async function DashboardPage() {
             <div className="text-2xl font-bold">
               {taskCounts?.completed || 0}
             </div>
-            <p className="text-xs text-muted-foreground">
+            {/* <p className="text-xs text-muted-foreground">
               61.3% нийт даалгавраас
-            </p>
+            </p> */}
           </CardContent>
         </Card>
         <Card>
@@ -132,9 +132,9 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{taskCounts?.overdue || 0}</div>
-            <p className="text-xs text-muted-foreground">
+            {/* <p className="text-xs text-muted-foreground">
               4.9% нийт даалгавраас
-            </p>
+            </p> */}
           </CardContent>
         </Card>
       </div>

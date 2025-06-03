@@ -73,7 +73,7 @@ export default function TaskTableList({
 }) {
   const rows = data?.rows || [];
   const total = data?.total || 0;
-  const totalPages = data?.totalPages || 0;
+  const totalPages = data?.totalPages || 1;
   const router = useRouter();
 
   const handleSortChange = (key: string, direction: 'asc' | 'desc' | null) => {

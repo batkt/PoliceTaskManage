@@ -1,5 +1,3 @@
-import { hostname } from 'os';
-
 let userConfig = undefined;
 try {
   // try to import ESM first
@@ -23,7 +21,6 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',

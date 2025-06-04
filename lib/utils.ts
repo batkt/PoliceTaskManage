@@ -28,3 +28,8 @@ export function formatRelativeTime(date: Date | string): string {
 
   return format(inputDate, 'yyyy-MM-dd HH:mm:ss');
 }
+
+export function isOverdue(endDate: Date | undefined): boolean {
+  if (!endDate) return false;
+  return new Date() > endDate;
+}

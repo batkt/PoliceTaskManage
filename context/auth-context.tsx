@@ -4,6 +4,7 @@ import { getUserProfile } from '@/lib/service/user';
 import { CustomResponse } from '@/lib/types/global.types';
 import { User } from '@/lib/types/user.types';
 import { LoginResponseType, loginAction } from '@/ssr/actions/auth';
+import { useRouter } from 'next/navigation';
 import {
   createContext,
   ReactNode,
@@ -50,11 +51,15 @@ const AuthProvider = ({
   accessToken,
 }: IAAuthProviderProps) => {
   const [authUser, setAuthUser] = useState<User | undefined>();
+  const router = useRouter();
 
   const fetchProfile = useCallback(async () => {
     const res = await getUserProfile(accessToken);
     if (res.code === 200) {
       setAuthUser(res.data);
+    }
+    if (res.code === 401) {
+      router.push('/');
     }
   }, []);
 

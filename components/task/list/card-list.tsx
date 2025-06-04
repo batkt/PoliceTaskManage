@@ -5,9 +5,7 @@ import { MoreVertical, Trash } from 'lucide-react';
 import { Task } from '@/lib/types/task.types';
 import { List } from '@/lib/types/global.types';
 import { Card } from '../../ui/card';
-import { Badge } from '../../ui/badge';
 import { cn } from '@/lib/utils';
-import { priorities, statuses } from './task-table';
 import { format } from 'date-fns';
 import { Avatar, AvatarFallback } from '../../ui/avatar';
 import {
@@ -20,6 +18,8 @@ import MobilePagination from '../../data-table-v2/mobile-pagination';
 import { usePathname, useRouter } from 'next/navigation';
 import { queryStringBuilder } from '@/lib/query.util';
 import { TableParams } from '../../data-table-v2';
+import StatusBadge from '../status-badge';
+import PriorityBadge from '../priority-badge';
 
 export function MyTaskCardList({
   data,
@@ -128,13 +128,6 @@ export function MyTaskCardList({
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {rows.map((task) => {
-              const status = statuses.find(
-                (status) => status.value === task.status
-              );
-              const priority = priorities.find(
-                (priority) => priority.value === task.priority
-              );
-
               const now = new Date();
               const today = new Date(now.toDateString());
               const endDate = new Date(task.endDate);
@@ -179,14 +172,10 @@ export function MyTaskCardList({
                         </svg>
                       </div>
                       <div className="min-w-0">
-                        <p className="flex items-center text-sm font-medium truncate">
-                          {status?.icon && (
-                            <status.icon
-                              className={cn('mr-2 size-4', status.color)}
-                            />
-                          )}
+                        <div className="flex items-center text-sm font-medium truncate">
+                          <StatusBadge status={task.status} />
                           {task.title}
-                        </p>
+                        </div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs text-muted-foreground truncate">
                             {task._id}
@@ -269,11 +258,7 @@ export function MyTaskCardList({
                           </Avatar>
                         )}
                       </div>
-                      {priority && (
-                        <Badge variant={priority.variant}>
-                          {priority.label}
-                        </Badge>
-                      )}
+                      <PriorityBadge priority={task.priority} />
                     </div>
                   </div>
                 </Card>

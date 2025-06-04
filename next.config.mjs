@@ -1,3 +1,5 @@
+import { hostname } from 'os';
+
 let userConfig = undefined;
 try {
   // try to import ESM first
@@ -22,6 +24,12 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.dribbble.com',
+      },
+    ],
   },
   experimental: {
     webpackBuildWorker: true,

@@ -1,5 +1,7 @@
 import { User } from './user.types';
 
+export type TaskStatus = 'pending' | 'active' | 'processing' | 'completed';
+export type TaskPriority = 'medium' | 'low' | 'high' | 'very-high';
 export type CreateMemoTaskType = {
   title: string;
   description?: string;
@@ -19,10 +21,11 @@ export type Task = {
   startDate: string; //
   endDate: string; //
   description?: string;
+  createdBy: User;
   completedDate?: string;
-  status: 'pending' | 'active' | 'processing' | 'completed';
+  status: TaskStatus;
   type: string;
-  priority: 'medium' | 'low' | 'high' | 'very-high';
+  priority: TaskPriority;
 };
 
 export type CreateWorkGroupTaskType = {
@@ -34,4 +37,27 @@ export type CreateWorkGroupTaskType = {
   name: string;
   leader: string;
   members: string[];
+};
+
+export type TaskStatusChangeType = {
+  status: TaskStatus;
+  taskId: string;
+};
+
+export type Memo = {
+  _id: string;
+  documentNumber?: string;
+  marking?: string;
+  markingVoiceUrl?: string;
+  markingDate?: string;
+};
+
+export type WorkGroup = {
+  _id: string;
+  name: string;
+  leader?: User;
+  members: User[];
+  marking?: string;
+  markingVoiceUrl?: string;
+  markingDate?: string;
 };

@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { getSocketInstanse } from '@/lib/socket';
 import { useAuth } from './auth-context';
-import { getNotifications, getUnseenCount } from '@/lib/service/notification';
+import { getNotifications } from '@/lib/service/notification';
 import { Notification } from '@/lib/types/notification.types';
 import { allNotifSeen, notifRead } from '@/ssr/actions/notification';
 import { List } from '@/lib/types/global.types';
@@ -30,10 +30,10 @@ const NotificationContext = createContext<NotificationContextType | null>(null);
 
 export const NotificationProvider = ({
   children,
-  baseUrl,
+  socketUrl,
 }: {
   children: React.ReactNode;
-  baseUrl: string;
+  socketUrl: string;
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unseenCount, setUnseenCount] = useState(0);
@@ -41,8 +41,7 @@ export const NotificationProvider = ({
   const router = useRouter();
 
   useEffect(() => {
-    console.log('baseUrl ', baseUrl);
-    const socket = getSocketInstanse(baseUrl);
+    const socket = getSocketInstanse(socketUrl);
     socket.connect();
 
     if (authUser?._id) {

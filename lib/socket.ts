@@ -6,6 +6,9 @@ const getSocketInstanse = (url: string) => {
   if (!socket) {
     socket = io(url, {
       autoConnect: false,
+      path: '/socket.io',
+      transports: ['websocket'],
+      withCredentials: true,
     });
   }
   return socket;

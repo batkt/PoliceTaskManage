@@ -27,6 +27,9 @@ const nextConfig = {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
+    serverActions: {
+      allowedOrigins: ['task.zevtabs.mn', '127.0.0.1:3000'],
+    },
   },
   async rewrites() {
     return [

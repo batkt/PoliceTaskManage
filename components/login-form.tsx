@@ -61,6 +61,7 @@ export function LoginForm() {
       if (res?.code !== 200) {
         toast({
           title: 'Алдаа гарлаа',
+          variant: 'destructive',
           description: res?.message,
         });
         return;
@@ -68,6 +69,7 @@ export function LoginForm() {
 
       toast({
         title: 'Амжилттай нэвтэрлээ',
+        variant: 'success',
         description: 'Системд тавтай морил',
       });
 

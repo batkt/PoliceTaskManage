@@ -7,6 +7,7 @@ import { AuthProvider } from '@/context/auth-context';
 import UserProvider from '@/context/user-context';
 import { isAuthenticated } from '@/ssr/util';
 import { getAllUsers } from '@/ssr/service/user';
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -36,6 +37,7 @@ export default async function RootLayout({
           <AuthProvider isAuthenticated={!!token} accessToken={token}>
             <UserProvider data={usersRes.code === 200 ? usersRes.data : []}>
               {children}
+              <Toaster />
             </UserProvider>
           </AuthProvider>
         </ThemeProvider>

@@ -21,10 +21,10 @@ import {
   CreateMemoTaskType,
   CreateWorkGroupTaskType,
 } from '@/lib/types/task.types';
-import { useToast } from '../ui/use-toast';
 import { createMemoTask, createWorkGroupTask } from '@/ssr/actions/task';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
+import { useToast } from '@/hooks/use-toast';
 
 const CreateTaskDialog = ({
   isEdit = false,
@@ -86,6 +86,7 @@ const CreateTaskDialog = ({
         title: 'Даалгавар',
         description: '',
       };
+
       // Add type-specific values
       if (values.type === 'memo') {
         cleanedData.marking = values.marking;
@@ -117,6 +118,7 @@ const CreateTaskDialog = ({
     if (res.code === 200) {
       return {
         title: 'Амжилттай',
+        variant: 'success',
         description: 'Албан бичгийн даалгавар амжилттай үүслээ.',
       };
     }

@@ -24,11 +24,13 @@ import { cn, formatRelativeTime } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
 import { logoutAction } from '@/ssr/actions/auth';
 import { useNotifications } from '@/context/notification-context';
+import { useToast } from '@/hooks/use-toast';
 
 export function Header() {
   const router = useRouter();
   const { authUser, clearUserData } = useAuth();
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const { toast } = useToast();
   const { notifications, markAsRead, unseenCount, markAllAsSeen } =
     useNotifications();
 
@@ -192,7 +194,13 @@ export function Header() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={() => router.push('/dashboard/profile')}
+                    onClick={() => {
+                      toast({
+                        title: 'Амжилттай нэвтэрлээ',
+                        variant: 'success',
+                        description: 'Системд тавтай морил',
+                      });
+                    }}
                   >
                     Профайл
                   </DropdownMenuItem>

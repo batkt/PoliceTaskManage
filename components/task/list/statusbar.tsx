@@ -11,7 +11,7 @@ import {
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import AddTaskButton from '../add-task-button';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const statuses = [
   {
@@ -48,12 +48,13 @@ const Statusbar = ({
   me?: boolean;
 }) => {
   const router = useRouter();
+  const pathname = usePathname();
   return (
     <div className="flex justify-between gap-4">
       <div className="flex gap-1 bg-muted rounded-md p-1 max-lg:hidden">
         {(data || statuses)?.map((s) => {
           return (
-            <Link key={s.key} href={`/dashboard/my-tasks?status=${s.key}`}>
+            <Link key={s.key} href={`${pathname}?status=${s.key}`}>
               <div
                 className={cn(
                   'rounded-sm px-3 py-1.5 text-sm',

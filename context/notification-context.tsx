@@ -30,10 +30,10 @@ const NotificationContext = createContext<NotificationContextType | null>(null);
 
 export const NotificationProvider = ({
   children,
-  backendUrl,
+  baseUrl,
 }: {
   children: React.ReactNode;
-  backendUrl: string;
+  baseUrl: string;
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unseenCount, setUnseenCount] = useState(0);
@@ -41,7 +41,8 @@ export const NotificationProvider = ({
   const router = useRouter();
 
   useEffect(() => {
-    const socket = getSocketInstanse(backendUrl);
+    console.log('baseUrl ', baseUrl);
+    const socket = getSocketInstanse(baseUrl);
     socket.connect();
 
     if (authUser?._id) {

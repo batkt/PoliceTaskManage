@@ -5,7 +5,7 @@ import { Header } from '@/components/header';
 import { redirect } from 'next/navigation';
 import { isAuthenticated } from '@/ssr/util';
 import { NotificationProvider } from '@/context/notification-context';
-import { BACKEND_URL } from '@/lib/config';
+import { BACKEND_URL, SOCKET_URL } from '@/lib/config';
 
 export const metadata: Metadata = {
   title: 'Dashboard - Task Management System',
@@ -23,7 +23,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <NotificationProvider backendUrl={BACKEND_URL}>
+    <NotificationProvider baseUrl={SOCKET_URL}>
       <div className="flex min-h-screen flex-col">
         <SidebarNavigation />
         <div className="flex-1 md:ml-64">

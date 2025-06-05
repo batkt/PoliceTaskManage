@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { User } from '@/lib/types/user.types';
-import type {
+import {
   Task,
+  TaskDetail,
   TaskPriority,
   TaskStatus,
   TaskStatusChangeType,
@@ -49,15 +50,18 @@ import {
   DownloadIcon,
   TrashIcon,
 } from 'lucide-react';
-import { isOverdue } from '@/lib/utils';
+import { formatDateFull, isOverdue } from '@/lib/utils';
 import StatusBadge from './status-badge';
 import PriorityBadge from './priority-badge';
 import { format } from 'date-fns';
 import { useUsers } from '@/context/user-context';
 import { Label } from '../ui/label';
+import { getTaskDetail } from '@/lib/service/task';
+import { useAuth } from '@/context/auth-context';
+import { FileUploader } from '../file-uploader';
 
 interface TaskDetailModalProps {
-  task: Task;
+  taskId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   handleStatusChange: (data: TaskStatusChangeType) => Promise<void>;
@@ -78,26 +82,31 @@ const statusColors = {
 };
 
 export function TaskDetailModal({
-  task,
+  taskId,
   open,
   onOpenChange,
   handleStatusChange,
 }: TaskDetailModalProps) {
   const { users } = useUsers();
+  const { accessToken, authUser } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [editedTask, setEditedTask] = useState<Task>(task);
+  const [detailData, setDetailData] = useState<TaskDetail>();
   const [newNote, setNewNote] = useState('');
-  const [startDate, setStartDate] = useState<Date | undefined>(
-    new Date(task.startDate)
-  );
-  const [endDate, setEndDate] = useState<Date | undefined>(
-    new Date(task.endDate)
-  );
 
-  const assignedUsers = users.filter((user) =>
-    [editedTask.assigner].map((u) => u._id).includes(user._id)
-  );
-  const overdue = isOverdue(new Date(editedTask.endDate));
+  const fetchTaskDetail = useCallback(async () => {
+    setLoading(true);
+    if (taskId) {
+      const res = await getTaskDetail(taskId, accessToken);
+      if (res.code === 200) {
+        setDetailData(res.data);
+      }
+    }
+    setLoading(false);
+  }, [taskId]);
+
+  useEffect(() => {
+    fetchTaskDetail();
+  }, [fetchTaskDetail]);
 
   const handleSave = () => {
     // const updatedTask = {
@@ -143,18 +152,29 @@ export function TaskDetailModal({
     // }
   };
 
+  if (!detailData) {
+    return '';
+  }
+
+  const assignedUsers = users?.filter((user) =>
+    detailData?.assignees?.map((u) => u._id).includes(user._id)
+  );
+
+  const isMeAssigner = assignedUsers.find((item) => item._id === authUser?._id);
+  const overdue = isOverdue(new Date(detailData?.dueDate || ''));
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-8">
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <DialogTitle className="text-xl font-semibold mb-2">
-                {editedTask.title}
+              <DialogTitle className="text-xl font-semibold mb-2 text-start">
+                {detailData?.title}
               </DialogTitle>
               <div className="flex items-center gap-2 flex-wrap">
-                <StatusBadge status={editedTask.status} />
-                <PriorityBadge priority={editedTask.priority} />
+                <StatusBadge status={detailData?.status} />
+                <PriorityBadge priority={detailData?.priority} />
                 {overdue && (
                   <Badge
                     variant="destructive"
@@ -169,10 +189,10 @@ export function TaskDetailModal({
           </div>
         </DialogHeader>
 
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs defaultValue="overview" className="w-full pb-6 pt-4">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">Ерөнхий</TabsTrigger>
-            <TabsTrigger disabled={true} value="files">
+            <TabsTrigger disabled={loading} value="files">
               Файлууд
             </TabsTrigger>
             <TabsTrigger disabled={true} value="notes">
@@ -187,7 +207,7 @@ export function TaskDetailModal({
                 <div className="space-y-4">
                   <Label className="text-sm font-medium">Тайлбар</Label>
                   <p className="text-sm text-muted-foreground">
-                    {editedTask?.description}
+                    {detailData?.description}
                   </p>
                 </div>
                 <div className="space-y-4">
@@ -195,7 +215,7 @@ export function TaskDetailModal({
                     Хариуцсан алба хаагчид
                   </Label>
                   <div className="flex gap-x-2 gap-4 flex-wrap">
-                    {users.map((user) => (
+                    {assignedUsers.map((user) => (
                       <div
                         key={user._id}
                         className="flex items-center gap-2 bg-muted rounded-full px-3 py-1 pe-4"
@@ -232,7 +252,13 @@ export function TaskDetailModal({
                   <div className="flex items-center gap-2">
                     <CalendarIcon />
                     <div className="flex gap-6 items-center text-sm">
-                      <div>2025-10-23</div>-<div>2025-10-23</div>
+                      <div>
+                        {format(new Date(detailData.startDate), 'yyyy-MM-dd')}
+                      </div>
+                      -
+                      <div>
+                        {format(new Date(detailData.dueDate), 'yyyy-MM-dd')}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -241,7 +267,7 @@ export function TaskDetailModal({
                   <Label className="text-sm font-medium">Үүсгэгч</Label>
                   <div className="flex gap-x-2 gap-4 flex-wrap">
                     {users.map((user) => {
-                      if (user._id === editedTask.createdBy._id) {
+                      if (user._id === detailData.createdBy._id) {
                         return (
                           <div
                             key={user._id}
@@ -282,63 +308,9 @@ export function TaskDetailModal({
 
           <TabsContent value="files" className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium">Attachments</h3>
-              <Button size="sm" className="flex items-center gap-2">
-                <PlusIcon className="h-4 w-4" />
-                Upload File
-              </Button>
+              <h3 className="text-lg font-medium">Файлууд</h3>
             </div>
-            <div className="grid gap-3">
-              {[
-                {
-                  id: '2',
-                  size: '123kb',
-                  uploadedBy: '23423423',
-                  name: 'Test-Хавсралт.pdf',
-                  uploadedAt: '2025-06-02',
-                },
-              ].map((file) => {
-                const uploader = users.find((u) => u._id === file.uploadedBy);
-                return (
-                  <Card key={file.id}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-gray-100 rounded">
-                            <FileIcon className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <p className="font-medium">{file.name}</p>
-                            <p className="text-sm text-gray-500">
-                              {file.size} • Uploaded by {uploader?.givenname} on{' '}
-                              {format(new Date(file.uploadedAt), 'yyyy-MM-dd')}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm">
-                            <DownloadIcon className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-              {[0].length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <PaperclipIcon className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p>No files attached</p>
-                </div>
-              )}
-            </div>
+            <FileUploader value={detailData?.files || []} onlyRead />
           </TabsContent>
 
           <TabsContent value="notes" className="space-y-4">
@@ -419,34 +391,40 @@ export function TaskDetailModal({
           <DialogClose asChild>
             <Button variant={'secondary'}>Хаах</Button>
           </DialogClose>
-          {['pending', 'active'].includes(task.status) ? (
-            <Button
-              onClick={async () => {
-                setLoading(true);
-                await handleStatusChange({
-                  status: 'processing',
-                  taskId: task._id,
-                });
-                setLoading(false);
-              }}
-            >
-              Эхлүүлэх
-            </Button>
-          ) : null}
-          {task.status !== 'completed' ? (
-            <Button
-              className="bg-green-500 text-foreground hover:bg-green-600"
-              onClick={async () => {
-                setLoading(true);
-                await handleStatusChange({
-                  status: 'completed',
-                  taskId: task._id,
-                });
-                setLoading(false);
-              }}
-            >
-              Дуусгах
-            </Button>
+          {isMeAssigner ? (
+            <>
+              {[TaskStatus.PENDING, TaskStatus.ACTIVE].includes(
+                detailData.status
+              ) ? (
+                <Button
+                  onClick={async () => {
+                    setLoading(true);
+                    await handleStatusChange({
+                      status: TaskStatus.IN_PROGRESS,
+                      taskId: detailData._id,
+                    });
+                    setLoading(false);
+                  }}
+                >
+                  Хийх эхлэх
+                </Button>
+              ) : null}
+              {detailData.status === TaskStatus.IN_PROGRESS ? (
+                <Button
+                  className="bg-green-500 text-foreground hover:bg-green-600"
+                  onClick={async () => {
+                    setLoading(true);
+                    await handleStatusChange({
+                      status: TaskStatus.COMPLETED,
+                      taskId: detailData._id,
+                    });
+                    setLoading(false);
+                  }}
+                >
+                  Дуусгах
+                </Button>
+              ) : null}
+            </>
           ) : null}
         </DialogFooter>
       </DialogContent>

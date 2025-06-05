@@ -8,6 +8,11 @@ import TaskTableList from '@/components/task/list/task-table';
 import { queryStringBuilder } from '@/lib/query.util';
 import { isEmptyObject } from '@/lib/utils';
 import { MyTaskCardList } from '@/components/task/list/card-list';
+import { Button } from '@/components/ui/button';
+import { Plus, Search } from 'lucide-react';
+import Link from 'next/link';
+import { Input } from '@/components/ui/input';
+import SearchInput from '@/components/task/search-input';
 
 export const metadata: Metadata = {
   title: 'Миний даалгавал - Төлөвлөгөөний систем',
@@ -31,6 +36,7 @@ export default async function MyTasksPage(props: {
   };
 
   const status = (searchParams?.status as string) || 'all';
+  const title = (searchParams?.title as string) || '';
 
   const { filters, ...other } = params;
   const otherFilter = isEmptyObject(filters)
@@ -49,13 +55,28 @@ export default async function MyTasksPage(props: {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">Миний даалгавар</h2>
-        <p className="text-muted-foreground">Танд хуваарилагдсан даалгаврууд</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Миний даалгавар</h2>
+          <p className="text-muted-foreground">
+            Танд хуваарилагдсан даалгаврууд
+          </p>
+        </div>
+        <Link href="/dashboard/task/create-own">
+          <Button type="button" size="icon" className="size-10">
+            <Plus />
+          </Button>
+        </Link>
       </div>
-
       <div className="space-y-4">
-        <Statusbar status={status} me={true} />
+        <div className="flex max-md:flex-col-reverse md:justify-between gap-4">
+          <Statusbar status={status} />
+          <SearchInput
+            searchKey="title"
+            placeholder="Даалгаврын нэрээр хайх..."
+            value={title}
+          />
+        </div>
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
           <div className="lg:hidden">
             <MyTaskCardList params={params} data={res2.data} />

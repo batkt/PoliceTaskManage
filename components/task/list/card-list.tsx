@@ -1,8 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { MoreVertical, Trash } from 'lucide-react';
-import { Task } from '@/lib/types/task.types';
+import { MoreVertical } from 'lucide-react';
+import { Task, TaskStatus, TaskStatusChangeType } from '@/lib/types/task.types';
 import { List } from '@/lib/types/global.types';
 import { Card } from '../../ui/card';
 import { cn } from '@/lib/utils';
@@ -12,6 +12,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../../ui/dropdown-menu';
 import MobilePagination from '../../data-table-v2/mobile-pagination';
@@ -20,16 +21,25 @@ import { queryStringBuilder } from '@/lib/query.util';
 import { TableParams } from '../../data-table-v2';
 import StatusBadge from '../status-badge';
 import PriorityBadge from '../priority-badge';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { changeStatusAction } from '@/ssr/actions/task';
+import { TaskDetailModal } from '../task-detail-modal';
 
 export function MyTaskCardList({
   data,
   params,
+  noAction = false,
+  clickToDetail = false,
 }: {
   data?: List<Task>;
   params: TableParams;
+  noAction?: boolean;
+  clickToDetail?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { toast } = useToast();
   // const [searchTerm, setSearchTerm] = useState('');
   // const [sortBy, setSortBy] = useState('newest');
   const rows = data?.rows || [];
@@ -37,6 +47,8 @@ export function MyTaskCardList({
   const total = data?.total || 0;
   const totalPages = data?.totalPages || 0;
   const pageSize = params.pageSize || 10;
+  const [isOpenDetailDialog, setOpenDetailDialog] = useState(true);
+  const [currentTask, setCurrentTask] = useState<Task | null>(null);
 
   //   useEffect(() => {
   //     const handleGlobalSearch = (event: Event) => {
@@ -62,6 +74,32 @@ export function MyTaskCardList({
     completed: ['completed'],
   };
 
+  const handleChangeStatus = async (data: TaskStatusChangeType) => {
+    const res = await changeStatusAction(data, pathname);
+
+    if (res.code === 200) {
+      let text = 'Төлөвлөгөөг амжилттай эхлүүллээ';
+      if (data.status === 'completed') {
+        text = 'Төлөвлөгөөг амжилттай гүйцэтгэж дууслаа';
+      }
+      toast({
+        variant: 'success',
+        title: 'Амжилттай.',
+        description: text,
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Алдаа гарлаа.',
+        description: res.message || 'Системийн алдаа',
+      });
+    }
+  };
+
+  const goToDetail = (row: Task) => {
+    setCurrentTask(row);
+    setOpenDetailDialog(true);
+  };
   //   if (isLoading) {
   //     return (
   //       <div className="space-y-4">
@@ -130,11 +168,18 @@ export function MyTaskCardList({
             {rows.map((task) => {
               const now = new Date();
               const today = new Date(now.toDateString());
-              const endDate = new Date(task.endDate);
-              const assignees = [task.assigner];
+              const dueDate = task?.dueDate
+                ? new Date(task.dueDate)
+                : Date.now();
+              const assignees = task.assignees;
               return (
                 <Card
                   key={task._id}
+                  onClick={() => {
+                    if (clickToDetail) {
+                      goToDetail(task);
+                    }
+                  }}
                   className="overflow-hidden bg-card dark:bg-slate-800 border dark:border-slate-700"
                 >
                   {/* {audioUrl && (
@@ -173,7 +218,7 @@ export function MyTaskCardList({
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center text-sm font-medium truncate">
-                          <StatusBadge status={task.status} />
+                          <StatusBadge status={task.status} onlyIcon />
                           {task.title}
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
@@ -183,24 +228,51 @@ export function MyTaskCardList({
                         </div>
                       </div>
                     </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 flex-shrink-0 ml-2"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                          <span className="sr-only">Цэс нээх</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem className="text-destructive hover:!bg-destructive/10 hover:!text-destructive">
-                          <Trash className="mr-2 h-4 w-4" />
-                          Устгах
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {!noAction ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Цэс нээх</span>
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => goToDetail(task)}>
+                            Дэлгэрэнгүй
+                          </DropdownMenuItem>
+                          {['pending', 'active'].includes(task.status) ? (
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleChangeStatus({
+                                  status: TaskStatus.IN_PROGRESS,
+                                  taskId: task._id,
+                                })
+                              }
+                            >
+                              Хийж эхлэх
+                            </DropdownMenuItem>
+                          ) : null}
+
+                          {task.status === TaskStatus.IN_PROGRESS ? (
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleChangeStatus({
+                                  status: TaskStatus.COMPLETED,
+                                  taskId: task._id,
+                                })
+                              }
+                            >
+                              Дуусгах
+                            </DropdownMenuItem>
+                          ) : null}
+
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="!text-red-600 hover:!bg-red-500/20">
+                            Устгах
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : null}
                   </div>
                   <div className="p-4">
                     <div className="mb-4 flex justify-between text-sm">
@@ -216,7 +288,7 @@ export function MyTaskCardList({
                         <p
                           className={cn(
                             'text-xs text-muted-foreground',
-                            today > endDate && 'text-destructive'
+                            today > dueDate && 'text-destructive'
                           )}
                         >
                           Дуусах огноо
@@ -224,10 +296,10 @@ export function MyTaskCardList({
                         <p
                           className={cn(
                             'truncate font-medium',
-                            now > endDate && 'text-destructive'
+                            now > dueDate && 'text-destructive'
                           )}
                         >
-                          {format(new Date(task.endDate), 'yyyy-MM-dd')}
+                          {format(dueDate, 'yyyy-MM-dd')}
                         </p>
                       </div>
                     </div>
@@ -277,6 +349,16 @@ export function MyTaskCardList({
           />
         </div>
       )}
+      {isOpenDetailDialog && currentTask ? (
+        <TaskDetailModal
+          taskId={currentTask._id}
+          open={isOpenDetailDialog}
+          onOpenChange={(e) => {
+            setOpenDetailDialog(e);
+          }}
+          handleStatusChange={handleChangeStatus}
+        />
+      ) : null}
     </div>
   );
 }

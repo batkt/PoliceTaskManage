@@ -16,6 +16,7 @@ import {
 // import { ArrowRight } from 'lucide-react';
 // import { Skeleton } from '@/components/ui/skeleton';
 import { getTaskCounts } from '@/ssr/service/dashboard';
+import { TaskStatus } from '@/lib/types/task.types';
 
 export const metadata: Metadata = {
   title: 'Dashboard - Task Management System',
@@ -79,7 +80,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {taskCounts?.processing || 0}
+              {taskCounts?.[TaskStatus.IN_PROGRESS] || 0}
             </div>
             {/* <p className="text-xs text-muted-foreground">
               33.8% нийт даалгавраас
@@ -105,7 +106,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {taskCounts?.completed || 0}
+              {taskCounts?.[TaskStatus.COMPLETED] || 0}
             </div>
             {/* <p className="text-xs text-muted-foreground">
               61.3% нийт даалгавраас

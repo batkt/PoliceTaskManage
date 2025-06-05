@@ -15,6 +15,7 @@ import { FC, useCallback, useEffect, useState } from 'react';
 import {
   Memo,
   Task,
+  TaskStatus,
   TaskStatusChangeType,
   WorkGroup,
 } from '@/lib/types/task.types';
@@ -52,21 +53,18 @@ const TaskDetailDialog: FC<TaskDetailDialogProps> = ({
 
   const fetchWorkGroup = useCallback(async (taskId: string) => {
     const res = await getWorkGroupTask(taskId, accessToken);
-    console.log('------------ workgroup -------- ', res.data);
     if (res.code === 200) {
-      console.log('------------ workgroup -------- ', res.data);
       setWorkgroup(res.data);
     }
   }, []);
 
-  useEffect(() => {
-    console.log('chi yr n amid baina uu?', task);
-    if (task.type === 'memo') {
-      fetchMemo(task._id);
-    } else if (task.type === 'work-group') {
-      fetchWorkGroup(task._id);
-    }
-  }, [fetchWorkGroup, fetchMemo, task]);
+  // useEffect(() => {
+  //   if (task.type === 'memo') {
+  //     fetchMemo(task._id);
+  //   } else if (task.type === 'work-group') {
+  //     fetchWorkGroup(task._id);
+  //   }
+  // }, [fetchWorkGroup, fetchMemo, task]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -75,7 +73,7 @@ const TaskDetailDialog: FC<TaskDetailDialogProps> = ({
           <DialogTitle>{task.title}</DialogTitle>
           <DialogDescription>{task?.description}</DialogDescription>
         </DialogHeader>
-        <ScrollArea className="mt-6">
+        {/* <ScrollArea className="mt-6">
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-4 text-sm mb-6">
               <div className="flex items-center gap-4">
@@ -89,8 +87,8 @@ const TaskDetailDialog: FC<TaskDetailDialogProps> = ({
               <div className="flex items-center gap-4">
                 <span>Дуусах огноо:</span>
                 <span>
-                  {task.endDate
-                    ? format(new Date(task.endDate), 'yyyy-MM-dd')
+                  {task.dueDate
+                    ? format(new Date(task.dueDate), 'yyyy-MM-dd')
                     : 'Байхгүй'}
                 </span>
               </div>
@@ -165,7 +163,7 @@ const TaskDetailDialog: FC<TaskDetailDialogProps> = ({
               </div>
             )}
           </div>
-        </ScrollArea>
+        </ScrollArea> */}
         <DialogFooter className="flex justify-end gap-2">
           <DialogClose>
             <Button variant={'secondary'}>Хаах</Button>
@@ -175,7 +173,7 @@ const TaskDetailDialog: FC<TaskDetailDialogProps> = ({
               onClick={async () => {
                 setLoading(true);
                 await handleStatusChange({
-                  status: 'processing',
+                  status: TaskStatus.IN_PROGRESS,
                   taskId: task._id,
                 });
                 setLoading(false);
@@ -190,7 +188,7 @@ const TaskDetailDialog: FC<TaskDetailDialogProps> = ({
               onClick={async () => {
                 setLoading(true);
                 await handleStatusChange({
-                  status: 'completed',
+                  status: TaskStatus.COMPLETED,
                   taskId: task._id,
                 });
                 setLoading(false);

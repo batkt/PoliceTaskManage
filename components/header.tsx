@@ -25,14 +25,41 @@ import { useAuth } from '@/context/auth-context';
 import { logoutAction } from '@/ssr/actions/auth';
 import { useNotifications } from '@/context/notification-context';
 import { useToast } from '@/hooks/use-toast';
+import { TaskDetailModal } from './task/task-detail-modal';
+import { TaskStatusChangeType } from '@/lib/types/task.types';
+import { changeStatusAction } from '@/ssr/actions/task';
 
 export function Header() {
   const router = useRouter();
   const { authUser, clearUserData } = useAuth();
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const { toast } = useToast();
+  const [isOpenDetailDialog, setOpenDetailDialog] = useState(true);
+  const [currentTaskId, setCurrentTaskId] = useState<string>('');
   const { notifications, markAsRead, unseenCount, markAllAsSeen } =
     useNotifications();
+
+  const handleChangeStatus = async (data: TaskStatusChangeType) => {
+    const res = await changeStatusAction(data);
+
+    if (res.code === 200) {
+      let text = 'Төлөвлөгөөг амжилттай эхлүүллээ';
+      if (data.status === 'completed') {
+        text = 'Төлөвлөгөөг амжилттай гүйцэтгэж дууслаа';
+      }
+      toast({
+        variant: 'success',
+        title: 'Амжилттай.',
+        description: text,
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Алдаа гарлаа.',
+        description: res.message || 'Системийн алдаа',
+      });
+    }
+  };
 
   const logout = async () => {
     const res = await logoutAction();
@@ -120,7 +147,12 @@ export function Header() {
                               ? 'bg-transparent hover:bg-muted/30'
                               : 'bg-muted/50 hover:bg-muted'
                           )}
-                          onClick={() => markAsRead(notification)}
+                          onClick={() => {
+                            markAsRead(notification);
+                            if (notification.type === 'task') {
+                              setCurrentTaskId(notification.taskId!);
+                            }
+                          }}
                         >
                           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                             <Bell className="h-5 w-5" />
@@ -175,7 +207,7 @@ export function Header() {
                         src="/placeholder.svg?height=32&width=32"
                         alt="@user"
                       />
-                      <AvatarFallback>ЦЕГ</AvatarFallback>
+                      <AvatarFallback>{authUser?.givenname[0]}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
@@ -193,22 +225,7 @@ export function Header() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => {
-                      toast({
-                        title: 'Амжилттай нэвтэрлээ',
-                        variant: 'success',
-                        description: 'Системд тавтай морил',
-                      });
-                    }}
-                  >
-                    Профайл
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => router.push('/dashboard/settings')}
-                  >
-                    Тохиргоо
-                  </DropdownMenuItem>
+                  <DropdownMenuItem>Профайл</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => logout()}>
                     Гарах
@@ -216,6 +233,16 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+            {isOpenDetailDialog ? (
+              <TaskDetailModal
+                taskId={currentTaskId}
+                open={isOpenDetailDialog}
+                onOpenChange={(e) => {
+                  setOpenDetailDialog(e);
+                }}
+                handleStatusChange={handleChangeStatus}
+              />
+            ) : null}
           </>
         )}
       </div>

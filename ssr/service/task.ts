@@ -9,6 +9,6 @@ export const getAllTasks = async (status: string) => {
 
 export const getTaskList = async (queryString?: string) => {
   return ssrClient.get<List<Task>>(
-    `${BACKEND_URL}/api/task/list${queryString ? `?${queryString}` : ''}`
+    `${BACKEND_URL}/api/task-v2/${queryString ? `?${queryString}` : ''}`
   );
 };

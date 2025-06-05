@@ -126,13 +126,13 @@ export function MyTasksResponsiveView({
                   <TableCell>
                     <div className="font-medium">{task.title}</div>
                     <div className="text-xs text-muted-foreground">
-                      {task.assigner?.givenname}
+                      {task.assignees?.[0].givenname}
                     </div>
                   </TableCell>
                   <TableCell>
                     <Badge variant={variant}>{label}</Badge>
                   </TableCell>
-                  <TableCell>{renderType(task.type)}</TableCell>
+                  <TableCell>{''}</TableCell>
                   <TableCell>
                     <Badge variant={priorityData.variant}>
                       {priorityData.label}
@@ -142,7 +142,7 @@ export function MyTasksResponsiveView({
                     {format(new Date(task.startDate), 'yyyy-MM-dd')}
                   </TableCell>
                   <TableCell>
-                    {format(new Date(task.endDate), 'yyyy-MM-dd')}
+                    {format(new Date(task.dueDate), 'yyyy-MM-dd')}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -155,10 +155,9 @@ export function MyTasksResponsiveView({
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Үйлдлүүд</DropdownMenuLabel>
                         <DropdownMenuItem
-                          onClick={() =>
+                          onClick={() => {
                             // navigator.clipboard.writeText(task._id)
-                            console.log(task)
-                          }
+                          }}
                         >
                           Дэлгэрэнгүй харах
                         </DropdownMenuItem>

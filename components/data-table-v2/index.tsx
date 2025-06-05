@@ -43,6 +43,7 @@ type TableProps<T> = {
   onPageChange?: (page: number) => void;
   onSortChange?: (sortKey: string, direction: SortDirection) => void;
   onFilterChange?: (key: string, value: string) => void;
+  onRowClick?: (data: T) => void;
 };
 
 export function DataTableV2<T extends Record<string, any>>({
@@ -52,6 +53,7 @@ export function DataTableV2<T extends Record<string, any>>({
   params,
   onSortChange,
   onFilterChange,
+  onRowClick = () => {},
 }: TableProps<T>) {
   const { sort, order, filters } = params;
 
@@ -108,7 +110,7 @@ export function DataTableV2<T extends Record<string, any>>({
           <TableBody>
             {data?.length > 0 ? (
               data.map((row, idx) => (
-                <TableRow key={idx}>
+                <TableRow key={idx} onClick={() => onRowClick(row)}>
                   {columns.map((col) => (
                     <TableCell key={String(col.key)}>
                       {col.renderCell(row)}

@@ -10,4 +10,4 @@ export type Notification = {
   createdAt: string;
 };
 
-export type NotificationType = 'job' | 'message' | 'system';
+export type NotificationType = 'task' | 'message' | 'system';

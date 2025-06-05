@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Search, X, Check, User as UserIcon, UserCogIcon } from 'lucide-react';
 import { User } from '@/lib/types/user.types';
 import { FieldError } from 'react-hook-form';
+import { cn } from '@/lib/utils';
 
 interface MultiUserSelectProps {
   users: User[];
@@ -121,15 +122,17 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
 
       {/* Main Select Container */}
       <div
-        className={`min-h-[42px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background flex flex-wrap gap-1 items-center transition-colors ${
-          disabled
-            ? 'cursor-not-allowed opacity-50'
-            : 'cursor-pointer hover:bg-accent/50'
-        } ${
-          error
-            ? 'border-destructive focus-within:ring-destructive'
-            : 'border-input focus-within:ring-2 focus-within:ring-ring'
-        } ${isOpen ? 'ring-2 ring-ring' : ''}`}
+        className={cn(
+          `min-h-[42px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background flex flex-wrap gap-1 items-center transition-colors ${
+            disabled
+              ? 'cursor-not-allowed opacity-50'
+              : 'cursor-pointer hover:bg-accent/50'
+          } ${
+            error
+              ? 'border-destructive focus-within:ring-destructive'
+              : 'border-input focus-within:ring-2 focus-within:ring-ring'
+          } ${isOpen ? 'ring-2 ring-ring' : ''}`
+        )}
         onClick={handleContainerClick}
         onKeyDown={handleKeyDown}
         tabIndex={disabled ? -1 : 0}

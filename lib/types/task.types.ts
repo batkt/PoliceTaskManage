@@ -1,6 +1,13 @@
+import { UploadedFile } from './file.types';
 import { User } from './user.types';
 
-export type TaskStatus = 'pending' | 'active' | 'processing' | 'completed';
+export enum TaskStatus {
+  PENDING = 'pending',
+  ACTIVE = 'active',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  REVIEWED = 'reviewed',
+}
 export type TaskPriority = 'medium' | 'low' | 'high' | 'very-high';
 export type CreateMemoTaskType = {
   title: string;
@@ -16,15 +23,14 @@ export type CreateMemoTaskType = {
 
 export type Task = {
   _id: string;
-  assigner: User;
+  assignees: User[];
   title: string;
   startDate: string; //
-  endDate: string; //
+  dueDate: string; //
   description?: string;
   createdBy: User;
   completedDate?: string;
   status: TaskStatus;
-  type: string;
   priority: TaskPriority;
 };
 
@@ -60,4 +66,29 @@ export type WorkGroup = {
   marking?: string;
   markingVoiceUrl?: string;
   markingDate?: string;
+};
+
+export interface ICreateTaskInput {
+  title: string;
+  description?: string;
+  assignees: string[];
+  startDate: Date;
+  dueDate?: Date;
+  fileIds?: string[]; // optional
+  priority: 'low' | 'medium' | 'high' | 'urgent'; // added priority field
+}
+
+export type TaskDetail = {
+  _id: string;
+  assignees: User[];
+  title: string;
+  startDate: string; //
+  dueDate: string; //
+  description?: string;
+  createdBy: User;
+  completedDate?: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  files: UploadedFile[];
+  notes: any[];
 };

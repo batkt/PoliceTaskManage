@@ -39,19 +39,15 @@ const statuses = [
 const Statusbar = ({
   status,
   data,
-  hideButton = false,
-  me = false,
 }: {
   status: string;
   data?: { key: string; name: string }[];
-  hideButton?: boolean;
-  me?: boolean;
 }) => {
   const router = useRouter();
   const pathname = usePathname();
   return (
-    <div className="flex justify-between gap-4">
-      <div className="flex gap-1 bg-muted rounded-md p-1 max-lg:hidden">
+    <>
+      <div className="flex gap-1 bg-muted rounded-md p-1 w-fit max-lg:hidden">
         {(data || statuses)?.map((s) => {
           return (
             <Link key={s.key} href={`${pathname}?status=${s.key}`}>
@@ -90,8 +86,7 @@ const Statusbar = ({
           </SelectContent>
         </Select>
       </div>
-      {hideButton ? null : <AddTaskButton me={me} />}
-    </div>
+    </>
   );
 };
 

@@ -45,6 +45,10 @@ const nextConfig = {
         source: '/custom-api/:slug*',
         destination: `${process.env.BACKEND_URL}/api/:slug*`,
       },
+      {
+        source: '/uploads/:slug*',
+        destination: `${process.env.BACKEND_URL}/uploads/:slug*`,
+      },
     ];
   },
 };

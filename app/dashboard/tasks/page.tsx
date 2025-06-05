@@ -9,6 +9,9 @@ import { MyTaskCardList } from '@/components/task/list/card-list';
 import TaskTableList from '@/components/task/list/task-table';
 import { TableParams } from '@/components/data-table-v2';
 import AddTaskButton from '@/components/task/add-task-button';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Tasks - Task Management System',
@@ -69,16 +72,30 @@ export default async function TasksPage(props: {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Ажлын жагсаалт</h2>
-        <AddTaskButton onlyIconButton={true} />
+        <Link href="/dashboard/task/create">
+          <Button type="button" size="icon" className="size-10">
+            <Plus />
+          </Button>
+        </Link>
       </div>
       <div className="space-y-4">
-        <Statusbar status={status} data={statuses} hideButton={true} />
+        <Statusbar status={status} data={statuses} />
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
           <div className="lg:hidden">
-            <MyTaskCardList params={params} data={res2.data} />
+            <MyTaskCardList
+              params={params}
+              data={res2.data}
+              noAction
+              clickToDetail
+            />
           </div>
           <div className="max-lg:hidden">
-            <TaskTableList params={params} data={res2.data} />
+            <TaskTableList
+              params={params}
+              data={res2.data}
+              noAction
+              clickToDetail
+            />
           </div>
         </Suspense>
       </div>

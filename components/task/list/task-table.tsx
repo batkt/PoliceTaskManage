@@ -6,7 +6,7 @@ import {
   ColumnDef,
 } from '@/components/data-table-v2';
 import { usePathname, useRouter } from 'next/navigation';
-import { Task, TaskStatusChangeType } from '@/lib/types/task.types';
+import { Task, TaskStatus, TaskStatusChangeType } from '@/lib/types/task.types';
 import { ColumnHeader } from '../../data-table-v2/column-header';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { changStatusAction } from '@/ssr/actions/task';
+import { changeStatusAction } from '@/ssr/actions/task';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import TaskDetailDialog from '../task-detail';
@@ -34,9 +34,13 @@ type TaskWithAction = Task & { action?: '' };
 export default function TaskTableList({
   data,
   params,
+  noAction = false,
+  clickToDetail = false,
 }: {
   data?: List<TaskWithAction>;
   params: TableParams;
+  noAction?: boolean;
+  clickToDetail?: boolean;
 }) {
   const rows = data?.rows || [];
   const total = data?.total || 0;
@@ -81,7 +85,7 @@ export default function TaskTableList({
   };
 
   const handleChangeStatus = async (data: TaskStatusChangeType) => {
-    const res = await changStatusAction(data, pathname);
+    const res = await changeStatusAction(data, pathname);
 
     if (res.code === 200) {
       let text = 'Төлөвлөгөөг амжилттай эхлүүллээ';
@@ -102,6 +106,10 @@ export default function TaskTableList({
     }
   };
 
+  const goToDetail = (row: Task) => {
+    setCurrentTask(row);
+    setOpenDetailDialog(true);
+  };
   const columns: ColumnDef<TaskWithAction>[] = [
     {
       key: '_id',
@@ -149,17 +157,17 @@ export default function TaskTableList({
       },
     },
     {
-      key: 'assigner',
+      key: 'assignees',
       header: (props) => <ColumnHeader {...props} title="Хариуцагч" />,
       renderCell: (row) => {
-        return <div>{row?.assigner?.givenname}</div>;
+        return <div>{row?.assignees?.[0].givenname}</div>;
       },
     },
     {
       key: 'createdBy',
       header: (props) => <ColumnHeader {...props} title="Үүсгэсэн" />,
       renderCell: (row) => {
-        return <div>{row?.assigner?.givenname}</div>;
+        return <div>{row?.createdBy?.givenname}</div>;
       },
     },
     {
@@ -177,7 +185,7 @@ export default function TaskTableList({
       enableSort: true,
     },
     {
-      key: 'endDate',
+      key: 'dueDate',
       header: (props) => (
         <div className="flex justify-center">
           <ColumnHeader {...props} title="Дуусах огноо" />
@@ -186,22 +194,25 @@ export default function TaskTableList({
       renderCell: (row) => {
         const now = new Date();
         const today = new Date(now.toDateString());
-        const endDate = new Date(row.endDate);
+        const dueDate = row?.dueDate ? new Date(row?.dueDate) : new Date();
 
         return (
           <div
             className={cn(
               'text-center',
-              today > endDate ? 'text-destructive' : ''
+              today > dueDate ? 'text-destructive' : ''
             )}
           >
-            {format(endDate, 'yyyy-MM-dd')}
+            {format(dueDate, 'yyyy-MM-dd')}
           </div>
         );
       },
       enableSort: true,
     },
-    {
+  ];
+
+  if (!noAction) {
+    columns.push({
       key: 'action',
       header: (props) => (
         <div className="flex justify-center">
@@ -218,32 +229,27 @@ export default function TaskTableList({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => {
-                  setCurrentTask(row);
-                  setOpenDetailDialog(true);
-                }}
-              >
+              <DropdownMenuItem onClick={() => goToDetail(row)}>
                 Дэлгэрэнгүй
               </DropdownMenuItem>
               {['pending', 'active'].includes(row.status) ? (
                 <DropdownMenuItem
                   onClick={() =>
                     handleChangeStatus({
-                      status: 'processing',
+                      status: TaskStatus.IN_PROGRESS,
                       taskId: row._id,
                     })
                   }
                 >
-                  Эхлүүлэх
+                  Хийж эхлэх
                 </DropdownMenuItem>
               ) : null}
 
-              {row.status !== 'completed' ? (
+              {row.status === TaskStatus.IN_PROGRESS ? (
                 <DropdownMenuItem
                   onClick={() =>
                     handleChangeStatus({
-                      status: 'completed',
+                      status: TaskStatus.COMPLETED,
                       taskId: row._id,
                     })
                   }
@@ -260,8 +266,8 @@ export default function TaskTableList({
           </DropdownMenu>
         );
       },
-    },
-  ];
+    });
+  }
 
   return (
     <div className="space-y-4">
@@ -271,6 +277,7 @@ export default function TaskTableList({
         params={params}
         onSortChange={handleSortChange}
         onFilterChange={handleFilterChange}
+        onRowClick={clickToDetail ? goToDetail : undefined}
         //   toolbar={
         //     <TableToolbar
         //       filters={params.filters}
@@ -300,7 +307,7 @@ export default function TaskTableList({
       ) : null} */}
       {isOpenDetailDialog && currentTask ? (
         <TaskDetailModal
-          task={currentTask}
+          taskId={currentTask._id}
           open={isOpenDetailDialog}
           onOpenChange={(e) => {
             setOpenDetailDialog(e);

@@ -73,6 +73,36 @@ const postRequest = async <T>(
   }
 };
 
+const postFormDataRequest = async <T>(
+  url: string,
+  data?: FormData,
+  token?: string,
+  config?: ResponseInit
+): Promise<CustomResponse<T>> => {
+  try {
+    const { headers, ...otherConfig } = config || {};
+    const response = await fetch(`${API_URL}/${url}`, {
+      method: 'POST',
+      headers: {
+        ...getAuthHeaders(token),
+        ...headers,
+      },
+      ...otherConfig,
+      body: data,
+    });
+
+    console.log(response);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return reponseChecker(response);
+  } catch (error) {
+    console.error('Error in getRequest:', error);
+    throw error;
+  }
+};
+
 export function getAuthHeaders(token?: string): Record<string, string> {
   return {
     Authorization: token ? `Bearer ${token}` : '',
@@ -81,5 +111,6 @@ export function getAuthHeaders(token?: string): Record<string, string> {
 
 export const httpRequest = {
   post: postRequest,
+  postFormData: postFormDataRequest,
   get: getRequest,
 };

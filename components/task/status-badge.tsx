@@ -1,28 +1,29 @@
 import React from 'react';
 import { CheckCircle, CircleDot, Circle, Hourglass } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { TaskStatus } from '@/lib/types/task.types';
 
 export const statuses = [
   {
-    value: 'pending',
+    value: TaskStatus.PENDING,
     label: 'Эхлээгүй',
     icon: Circle,
     color: 'text-muted-foreground',
   },
   {
-    value: 'active',
+    value: TaskStatus.ACTIVE,
     label: 'Идэвхитэй',
     icon: CircleDot,
     color: 'text-lime-400',
   },
   {
-    value: 'processing',
+    value: TaskStatus.IN_PROGRESS,
     label: 'Хийгдэж байгаа',
     icon: Hourglass,
     color: 'text-blue-500',
   },
   {
-    value: 'completed',
+    value: TaskStatus.COMPLETED,
     label: 'Дууссан',
     icon: CheckCircle,
     color: 'text-green-500',
@@ -32,9 +33,11 @@ export const statuses = [
 const StatusBadge = ({
   status,
   className,
+  onlyIcon = false,
 }: {
   status: string;
   className?: string;
+  onlyIcon?: boolean;
 }) => {
   const found = statuses.find((_s) => _s.value === status);
 
@@ -43,9 +46,17 @@ const StatusBadge = ({
   }
 
   return (
-    <div className={cn('flex w-[100px] items-center min-w-fit', className)}>
+    <div
+      className={cn(
+        'flex items-center min-w-fit',
+        onlyIcon ? 'w-fit' : 'w-[100px]',
+        className
+      )}
+    >
       {found.icon && <found.icon className={cn('mr-2 h-4 w-4', found.color)} />}
-      <span className="flex-1 whitespace-nowrap">{found.label}</span>
+      {!onlyIcon ? (
+        <span className="flex-1 whitespace-nowrap">{found.label}</span>
+      ) : null}
     </div>
   );
 };

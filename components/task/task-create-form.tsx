@@ -96,6 +96,9 @@ export function TaskForm({ type }: { type?: string }) {
     }
   };
 
+  const selectDataUser =
+    type === 'own' ? users : users.filter((u) => u._id !== authUser?._id);
+
   return (
     <Card className="w-full bg-transparent border-none max-md:px-0">
       <form onSubmit={handleSubmit(onSubmit)} className="w-full">
@@ -176,7 +179,7 @@ export function TaskForm({ type }: { type?: string }) {
                       <span className="text-destructive">*</span>
                     </Label>
                     <MultiUserSelect
-                      users={users}
+                      users={selectDataUser}
                       value={value}
                       disabled={type === 'own'}
                       onChange={onChange}
@@ -360,6 +363,7 @@ export function TaskForm({ type }: { type?: string }) {
                     value={value}
                     onChange={onChange}
                     error={error}
+                    isEdit={true}
                   />
                 );
               }}
@@ -368,7 +372,7 @@ export function TaskForm({ type }: { type?: string }) {
         </CardContent>
         <CardFooter className="flex justify-between w-full max-w-2xl mx-auto">
           <Button variant="outline" type="button" onClick={() => router.back()}>
-            Cancel
+            Буцах
           </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Үүсгэж байна...' : 'Даалгавар үүсгэх'}

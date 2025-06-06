@@ -310,7 +310,11 @@ export function TaskDetailModal({
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-medium">Файлууд</h3>
             </div>
-            <FileUploader value={detailData?.files || []} onlyRead />
+            <FileUploader
+              value={detailData?.files || []}
+              onlyRead
+              isEdit={false}
+            />
           </TabsContent>
 
           <TabsContent value="notes" className="space-y-4">
@@ -406,7 +410,7 @@ export function TaskDetailModal({
                     setLoading(false);
                   }}
                 >
-                  Хийх эхлэх
+                  Хийж эхлэх
                 </Button>
               ) : null}
               {detailData.status === TaskStatus.IN_PROGRESS ? (

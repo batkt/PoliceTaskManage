@@ -97,6 +97,7 @@ export default function TaskTableList({
         title: 'Амжилттай.',
         description: text,
       });
+      setOpenDetailDialog(false);
     } else {
       toast({
         variant: 'destructive',

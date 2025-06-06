@@ -34,6 +34,7 @@ interface FileUploaderProps {
   fileList?: UploadedFile[];
   error?: FieldError;
   onlyRead?: boolean;
+  isEdit?: boolean;
 }
 
 export function FileUploader({
@@ -43,6 +44,7 @@ export function FileUploader({
   warningTime = 100, // Warning at 1:40
   showFileList = true,
   onlyRead = false,
+  isEdit = true,
   className = '',
   error,
 }: FileUploaderProps) {
@@ -327,6 +329,7 @@ export function FileUploader({
                             />
                           </audio>
                           <Button
+                            type="button"
                             variant="outline"
                             size="sm"
                             className="h-8 w-8 rounded-full p-0 flex-shrink-0"
@@ -343,15 +346,17 @@ export function FileUploader({
                           </Button>
                         </>
                       ) : (
-                        <a
-                          href={getProxyUrl(file.url)}
-                          download
-                          className="h-8 w-8 flex items-center justify-center hover:bg-slate-500/20 dark:hover:bg-background/30 rounded-sm"
-                        >
-                          <Download className="h-4 w-4" />
-                        </a>
+                        !isEdit && (
+                          <a
+                            href={getProxyUrl(file.url)}
+                            download
+                            className="h-8 w-8 flex items-center justify-center hover:bg-slate-500/20 dark:hover:bg-background/30 rounded-sm"
+                          >
+                            <Download className="h-4 w-4" />
+                          </a>
+                        )
                       )}
-                      {!onlyRead && (
+                      {!onlyRead && isEdit && (
                         <button
                           type="button"
                           onClick={() => removeFile(file._id)}

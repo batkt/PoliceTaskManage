@@ -45,10 +45,11 @@ export const changeStatusAction = async (
     res = await ssrClient.post(`${BACKEND_URL}/api/task-v2/complete`, {
       taskId,
     });
+  } else {
+    res = await ssrClient.post(`${BACKEND_URL}/api/task-v2/start`, {
+      taskId,
+    });
   }
-  res = await ssrClient.post(`${BACKEND_URL}/api/task-v2/start`, {
-    taskId,
-  });
 
   if (path) revalidatePath(path);
   return res;

@@ -42,6 +42,7 @@ export default function TaskTableList({
   noAction?: boolean;
   clickToDetail?: boolean;
 }) {
+  console.log('date shalga', data);
   const rows = data?.rows || [];
   const total = data?.total || 0;
   const totalPages = data?.totalPages || 1;

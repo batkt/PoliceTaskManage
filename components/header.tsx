@@ -36,7 +36,7 @@ export function Header() {
   const { toast } = useToast();
   const [isOpenDetailDialog, setOpenDetailDialog] = useState(true);
   const [currentTaskId, setCurrentTaskId] = useState<string>('');
-  const { notifications, markAsRead, unseenCount, markAllAsSeen } =
+  const { notifications, markAsRead, notSeenCount, markAllAsSeen } =
     useNotifications();
 
   const handleChangeStatus = async (data: TaskStatusChangeType) => {
@@ -111,15 +111,15 @@ export function Header() {
                     size="icon"
                     className="relative"
                     onClick={() => {
-                      if (unseenCount > 0) {
+                      if (notSeenCount > 0) {
                         markAllAsSeen();
                       }
                     }}
                   >
                     <Bell className="h-5 w-5" />
-                    {unseenCount > 0 && (
+                    {notSeenCount > 0 && (
                       <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-xs text-destructive-foreground">
-                        {unseenCount}
+                        {notSeenCount}
                       </span>
                     )}
                   </Button>
@@ -151,6 +151,7 @@ export function Header() {
                             markAsRead(notification);
                             if (notification.type === 'task') {
                               setCurrentTaskId(notification.taskId!);
+                              setOpenDetailDialog(true);
                             }
                           }}
                         >

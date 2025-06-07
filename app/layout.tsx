@@ -4,10 +4,10 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import './globals.css';
 import { AuthProvider } from '@/context/auth-context';
-import UserProvider from '@/context/user-context';
 import { isAuthenticated } from '@/ssr/util';
-import { getAllUsers } from '@/ssr/service/user';
 import { Toaster } from '@/components/ui/toaster';
+import SocketProvider from '@/context/socket-context';
+import { SOCKET_URL } from '@/lib/config';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,7 +23,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const token = await isAuthenticated();
-  const usersRes = await getAllUsers();
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -35,10 +34,10 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider isAuthenticated={!!token} accessToken={token}>
-            <UserProvider data={usersRes.code === 200 ? usersRes.data : []}>
+            <SocketProvider socketUrl={SOCKET_URL}>
               {children}
               <Toaster />
-            </UserProvider>
+            </SocketProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

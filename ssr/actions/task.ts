@@ -57,6 +57,5 @@ export const changeStatusAction = async (
 
 export const createTask = async (data: ICreateTaskInput) => {
   const res = await ssrClient.post(`${BACKEND_URL}/api/task-v2/`, data);
-  console.log(res);
   return res;
 };

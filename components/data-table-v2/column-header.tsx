@@ -2,6 +2,7 @@ import React from 'react';
 import { ColumnDef } from '.';
 import { Button } from '../ui/button';
 import { ArrowDown, ArrowUp, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export type SortDirection = 'asc' | 'desc' | null;
 
@@ -19,8 +20,10 @@ export function ColumnHeader<T>({
   colConfig,
   sorting,
   onSortChange,
+  className = '',
 }: {
   title: string;
+  className?: string;
 } & ColumnHeaderProps<T>) {
   const sort = sorting?.sort;
   const order = sorting?.order;
@@ -38,26 +41,30 @@ export function ColumnHeader<T>({
   };
 
   if (!colConfig?.enableSort && !colConfig?.enableFilter) {
-    return <div className="whitespace-nowrap truncate">{title}</div>;
+    return (
+      <div className={cn('whitespace-nowrap truncate', className)}>{title}</div>
+    );
   }
 
   if (colConfig?.enableSort) {
     return (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => handleSort(colConfig?.key?.toString())}
-      >
-        <span className="whitespace-nowrap truncate">{title}</span>
-        {order === 'desc' ? (
-          <ArrowDown />
-        ) : order === 'asc' ? (
-          <ArrowUp />
-        ) : (
-          <ChevronsUpDown />
-        )}
-      </Button>
+      <div className={className}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => handleSort(colConfig?.key?.toString())}
+        >
+          <span className="whitespace-nowrap truncate">{title}</span>
+          {order === 'desc' ? (
+            <ArrowDown />
+          ) : order === 'asc' ? (
+            <ArrowUp />
+          ) : (
+            <ChevronsUpDown />
+          )}
+        </Button>
+      </div>
     );
   }
-  return <div>sdfsdf</div>;
+  return <div></div>;
 }

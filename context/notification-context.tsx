@@ -11,19 +11,13 @@ import { useAuth } from './auth-context';
 import { getNotifications } from '@/lib/service/notification';
 import { Notification } from '@/lib/types/notification.types';
 import { allNotifSeen, notifRead } from '@/ssr/actions/notification';
-import { List } from '@/lib/types/global.types';
-import { useRouter } from 'next/navigation';
 import { useSocket } from './socket-context';
 
 type NotificationContextType = {
   notifications: Notification[];
-  fetchNotifications: () => Promise<void>;
   markAllAsSeen: () => Promise<void>;
-  markAsRead: (notif: Notification) => Promise<void>;
+  markAsRead: (notif: Notification, pathname?: string) => Promise<void>;
   notSeenCount: number;
-  //   sendNotification: (userId: string, message: string) => Promise<void>;
-  //   sendToMultiple: (userIds: string[], message: string) => Promise<void>;
-  //   broadcastNotification: (message: string) => Promise<void>;
 };
 
 const NotificationContext = createContext<NotificationContextType | null>(null);
@@ -36,50 +30,58 @@ export const NotificationProvider = ({
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notSeenCount, setNotseenCount] = useState(0);
   const { authUser, accessToken } = useAuth();
-  const { socket } = useSocket();
-  const router = useRouter();
+  const { socket, isConnected } = useSocket();
 
   useEffect(() => {
     if (!authUser?._id) {
       return;
     }
 
-    if (!socket) {
-      return;
-    }
+    if (!socket || !isConnected) return;
 
-    socket.on('notification', (data) => {
+    const handleListenNewNotification = (data: Notification) => {
       setNotifications((prev) => [data, ...prev]);
       setNotseenCount((prev) => prev + 1);
-    });
+    };
 
-    socket.on('notifications', (data: List<Notification>) => {
-      setNotifications(data.rows);
-    });
-
-    socket.on('notSeenCount', (data: number) => {
+    const handleGetNotSeenCount = (data: number) => {
       setNotseenCount(data);
-    });
+    };
+
+    socket.off('notification', handleListenNewNotification);
+    socket.on('notification', handleListenNewNotification);
+
+    socket.off('notSeenCount', handleGetNotSeenCount);
+    socket.on('notSeenCount', handleGetNotSeenCount);
+
+    return () => {
+      socket.off('notification', handleListenNewNotification);
+      socket.off('notSeenCount', handleGetNotSeenCount);
+    };
   }, [authUser, socket]);
 
   const fetchNotifications = useCallback(async () => {
     const res = await getNotifications(accessToken);
     if (res.code === 200) {
-      setNotifications(res.data?.rows);
+      setNotifications((prev) => {
+        if (!prev || prev?.length === 0) {
+          return res.data?.rows;
+        }
+        const ids = prev.map((n) => n._id);
+        const newNotifications: Notification[] = [];
+        res.data?.rows?.map((n) => {
+          if (!ids.includes(n._id)) {
+            newNotifications.push(n);
+          }
+        });
+        return [...prev, ...newNotifications];
+      });
     }
   }, []);
 
-  //   const getUnseenNotificationsCount = useCallback(async () => {
-  //     const res = await getUnseenCount(accessToken);
-  //     if (res.code === 200) {
-  //       setUnseenCount(res?.data || 0);
-  //     }
-  //   }, []);
-
-  //   useEffect(() => {
-  //     fetchNotifications();
-  //     getUnseenNotificationsCount();
-  //   }, [fetchNotifications, getUnseenNotificationsCount]);
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const markAllAsSeen = async () => {
     const res = await allNotifSeen();
@@ -89,39 +91,20 @@ export const NotificationProvider = ({
     }
   };
 
-  const markAsRead = async (notif: Notification) => {
-    await notifRead({ id: notif._id });
+  const markAsRead = async (notif: Notification, path?: string) => {
+    await notifRead({ notificationId: notif._id }, path);
     setNotifications((prev) =>
       prev.map((n) => (n._id === notif._id ? { ...n, read: true } : n))
     );
-    if (notif?.taskId) {
-      router.push('/dashboard/my-tasks');
-    }
   };
-
-  //   const sendNotification = async (userId: string, message: string) => {
-  //     await axios.post('/api/notify', { userId, message });
-  //   };
-
-  //   const sendToMultiple = async (userIds: string[], message: string) => {
-  //     await axios.post('/api/notify/multiple', { userIds, message });
-  //   };
-
-  //   const broadcastNotification = async (message: string) => {
-  //     await axios.post('/api/notify/broadcast', { message });
-  //   };
 
   return (
     <NotificationContext.Provider
       value={{
         notifications,
-        fetchNotifications,
         markAllAsSeen,
         markAsRead,
         notSeenCount,
-        // sendNotification,
-        // sendToMultiple,
-        // broadcastNotification,
       }}
     >
       {children}

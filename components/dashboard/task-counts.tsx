@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { useDashboard } from '@/context/dashboard.context';
+import { useDashboard } from '@/context/dashboard-context';
 import { TaskStatus } from '@/lib/types/task.types';
 
 const TaskCounts = () => {

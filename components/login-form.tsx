@@ -98,7 +98,7 @@ export function LoginForm() {
       </div>
 
       <Form {...form}>
-        <div className="space-y-4">
+        <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
             name="workerId"
@@ -149,6 +149,7 @@ export function LoginForm() {
               </label>
             </div>
             <Button
+              type="button"
               variant="link"
               size="sm"
               className="px-0 font-normal text-primary"
@@ -163,11 +164,7 @@ export function LoginForm() {
               Нууц үг мартсан?
             </Button>
           </div>
-          <Button
-            onClick={form.handleSubmit(onSubmit)}
-            className="w-full"
-            disabled={isLoading}
-          >
+          <Button className="w-full" disabled={isLoading}>
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -177,7 +174,7 @@ export function LoginForm() {
               'Нэвтрэх'
             )}
           </Button>
-        </div>
+        </form>
       </Form>
     </div>
   );

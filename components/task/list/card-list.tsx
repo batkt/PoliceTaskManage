@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { MoreVertical } from 'lucide-react';
-import { Task, TaskStatus, TaskStatusChangeType } from '@/lib/types/task.types';
+import { Task, TaskStatus } from '@/lib/types/task.types';
 import { List } from '@/lib/types/global.types';
 import { Card } from '../../ui/card';
 import { cn } from '@/lib/utils';
@@ -21,34 +21,28 @@ import { queryStringBuilder } from '@/lib/query.util';
 import { TableParams } from '../../data-table-v2';
 import StatusBadge from '../status-badge';
 import PriorityBadge from '../priority-badge';
-import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { changeStatusAction } from '@/ssr/actions/task';
-import { TaskDetailModal } from '../task-detail-modal';
+import { useTasks } from '@/context/task-context';
+import TaskListToolbar from './toolbar';
 
 export function MyTaskCardList({
   data,
   params,
-  noAction = false,
+  tableKey = 'my-tasks',
   clickToDetail = false,
 }: {
   data?: List<Task>;
   params: TableParams;
-  noAction?: boolean;
+  tableKey?: string;
   clickToDetail?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { toast } = useToast();
-  // const [searchTerm, setSearchTerm] = useState('');
-  // const [sortBy, setSortBy] = useState('newest');
   const rows = data?.rows || [];
   const page = params.page || 1;
   const total = data?.total || 0;
   const totalPages = data?.totalPages || 0;
   const pageSize = params.pageSize || 10;
-  const [isOpenDetailDialog, setOpenDetailDialog] = useState(true);
-  const [currentTask, setCurrentTask] = useState<Task | null>(null);
+  const { openTaskDetailModal, handleChangeStatus } = useTasks();
 
   //   useEffect(() => {
   //     const handleGlobalSearch = (event: Event) => {
@@ -74,31 +68,16 @@ export function MyTaskCardList({
     completed: ['completed'],
   };
 
-  const handleChangeStatus = async (data: TaskStatusChangeType) => {
-    const res = await changeStatusAction(data, pathname);
-
-    if (res.code === 200) {
-      let text = 'Төлөвлөгөөг амжилттай эхлүүллээ';
-      if (data.status === 'completed') {
-        text = 'Төлөвлөгөөг амжилттай гүйцэтгэж дууслаа';
-      }
-      toast({
-        variant: 'success',
-        title: 'Амжилттай.',
-        description: text,
-      });
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Алдаа гарлаа.',
-        description: res.message || 'Системийн алдаа',
-      });
-    }
+  const handleFilterChange = (key: string, value: string) => {
+    const url = new URL(window.location.href);
+    if (value) url.searchParams.set(key, value);
+    else url.searchParams.delete(key);
+    url.searchParams.set('page', '1');
+    router.push(url.toString());
   };
 
   const goToDetail = (row: Task) => {
-    setCurrentTask(row);
-    setOpenDetailDialog(true);
+    openTaskDetailModal(row._id);
   };
   //   if (isLoading) {
   //     return (
@@ -132,6 +111,11 @@ export function MyTaskCardList({
 
   return (
     <div className="space-y-4">
+      <TaskListToolbar
+        tableKey={tableKey}
+        filters={params.filters}
+        onChangeFilter={handleFilterChange}
+      />
       {/* <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1"></div>
         <div className="flex flex-wrap justify-between items-center gap-2">
@@ -228,7 +212,7 @@ export function MyTaskCardList({
                         </div>
                       </div>
                     </div>
-                    {!noAction ? (
+                    {tableKey === 'my-tasks' ? (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
@@ -349,16 +333,6 @@ export function MyTaskCardList({
           />
         </div>
       )}
-      {isOpenDetailDialog && currentTask ? (
-        <TaskDetailModal
-          taskId={currentTask._id}
-          open={isOpenDetailDialog}
-          onOpenChange={(e) => {
-            setOpenDetailDialog(e);
-          }}
-          handleStatusChange={handleChangeStatus}
-        />
-      ) : null}
     </div>
   );
 }

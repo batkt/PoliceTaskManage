@@ -5,6 +5,9 @@ import { getUserList } from '@/ssr/service/user';
 import { queryStringBuilder } from '@/lib/query.util';
 import { TableParams } from '@/components/data-table-v2';
 import { isEmptyObject } from '@/lib/utils';
+import OfficerRegisterButton from '@/components/officer/officer-register-button';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const metadata: Metadata = {
   title: 'Officers - Task Management System',
@@ -45,16 +48,21 @@ export default async function OfficersPage(props: {
   const res = await getUserList(query);
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Алба хаагчид</h2>
-        <p className="text-muted-foreground">Цагдаагийн газрын алба хаагчид</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Алба хаагчид</h2>
+          <p className="text-muted-foreground">
+            Цагдаагийн газрын алба хаагчид
+          </p>
+        </div>
+        <OfficerRegisterButton />
       </div>
 
-      <Card>
-        <CardContent>
+      <div className="space-y-4">
+        <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
           <OfficerList data={res.data} params={params} />
-        </CardContent>
-      </Card>
+        </Suspense>
+      </div>
     </div>
   );
 }

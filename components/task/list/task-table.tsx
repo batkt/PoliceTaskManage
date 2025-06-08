@@ -5,8 +5,8 @@ import {
   TableParams,
   ColumnDef,
 } from '@/components/data-table-v2';
-import { usePathname, useRouter } from 'next/navigation';
-import { Task, TaskStatus, TaskStatusChangeType } from '@/lib/types/task.types';
+import { useRouter } from 'next/navigation';
+import { Task, TaskStatus } from '@/lib/types/task.types';
 import { ColumnHeader } from '../../data-table-v2/column-header';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -22,35 +22,28 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { changeStatusAction } from '@/ssr/actions/task';
-import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
-import TaskDetailDialog from '../task-detail';
 import StatusBadge from '../status-badge';
 import PriorityBadge from '../priority-badge';
-import { TaskDetailModal } from '../task-detail-modal';
+import { useTasks } from '@/context/task-context';
+import TaskListToolbar from './toolbar';
 
 type TaskWithAction = Task & { action?: '' };
 export default function TaskTableList({
   data,
   params,
-  noAction = false,
+  tableKey = 'my-tasks',
   clickToDetail = false,
 }: {
   data?: List<TaskWithAction>;
   params: TableParams;
-  noAction?: boolean;
   clickToDetail?: boolean;
+  tableKey?: string;
 }) {
-  console.log('date shalga', data);
   const rows = data?.rows || [];
   const total = data?.total || 0;
   const totalPages = data?.totalPages || 1;
   const router = useRouter();
-  const pathname = usePathname();
-  const { toast } = useToast();
-  const [isOpenDetailDialog, setOpenDetailDialog] = useState(true);
-  const [currentTask, setCurrentTask] = useState<Task | null>(null);
+  const { openTaskDetailModal, handleChangeStatus } = useTasks();
 
   const handleSortChange = (key: string, direction: 'asc' | 'desc' | null) => {
     const url = new URL(window.location.href);
@@ -85,46 +78,31 @@ export default function TaskTableList({
     router.push(url.toString());
   };
 
-  const handleChangeStatus = async (data: TaskStatusChangeType) => {
-    const res = await changeStatusAction(data, pathname);
-
-    if (res.code === 200) {
-      let text = 'Төлөвлөгөөг амжилттай эхлүүллээ';
-      if (data.status === 'completed') {
-        text = 'Төлөвлөгөөг амжилттай гүйцэтгэж дууслаа';
-      }
-      toast({
-        variant: 'success',
-        title: 'Амжилттай.',
-        description: text,
-      });
-      setOpenDetailDialog(false);
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Алдаа гарлаа.',
-        description: res.message || 'Системийн алдаа',
-      });
-    }
-  };
-
   const goToDetail = (row: Task) => {
-    setCurrentTask(row);
-    setOpenDetailDialog(true);
+    openTaskDetailModal(row._id);
   };
+
   const columns: ColumnDef<TaskWithAction>[] = [
-    {
-      key: '_id',
-      header: (props) => <ColumnHeader {...props} title="ID" />,
-      renderCell: (row) => (
-        <div className="max-w-[80px] truncate">{row._id}</div>
-      ),
-    },
+    // {
+    //   key: '_id',
+    //   header: (props) => <ColumnHeader {...props} title="ID" />,
+    //   renderCell: (row) => (
+    //     <div className="max-w-[80px] truncate">{row._id}</div>
+    //   ),
+    // },
     {
       key: 'title',
-      header: (props) => <ColumnHeader {...props} title="Даалгаварын нэр" />,
+      header: (props) => (
+        <ColumnHeader
+          {...props}
+          title="Даалгаварын нэр"
+          className="max-w-[200px] w-[140px]"
+        />
+      ),
       renderCell: (row) => (
-        <div className="max-w-[200px] w-[140px] font-medium">{row.title}</div>
+        <div className="font-medium whitespace-nowrap truncate">
+          {row.title}
+        </div>
       ),
     },
     {
@@ -213,7 +191,7 @@ export default function TaskTableList({
     },
   ];
 
-  if (!noAction) {
+  if (tableKey === 'my-tasks') {
     columns.push({
       key: 'action',
       header: (props) => (
@@ -280,12 +258,13 @@ export default function TaskTableList({
         onSortChange={handleSortChange}
         onFilterChange={handleFilterChange}
         onRowClick={clickToDetail ? goToDetail : undefined}
-        //   toolbar={
-        //     <TableToolbar
-        //       filters={params.filters}
-        //       onChangeFilter={handleFilterChange}
-        //     />
-        //   }
+        toolbar={
+          <TaskListToolbar
+            tableKey={tableKey}
+            filters={params.filters}
+            onChangeFilter={handleFilterChange}
+          />
+        }
       />
       <DataTablePagination
         pagination={{
@@ -297,26 +276,6 @@ export default function TaskTableList({
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
       />
-      {/* {isOpenDetailDialog && currentTask ? (
-        <TaskDetailDialog
-          task={currentTask}
-          open={isOpenDetailDialog}
-          onClose={() => {
-            setOpenDetailDialog(false);
-          }}
-          handleStatusChange={handleChangeStatus}
-        />
-      ) : null} */}
-      {isOpenDetailDialog && currentTask ? (
-        <TaskDetailModal
-          taskId={currentTask._id}
-          open={isOpenDetailDialog}
-          onOpenChange={(e) => {
-            setOpenDetailDialog(e);
-          }}
-          handleStatusChange={handleChangeStatus}
-        />
-      ) : null}
     </div>
   );
 }

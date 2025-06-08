@@ -4,11 +4,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { isEmptyObject } from '@/lib/utils';
 import { queryStringBuilder } from '@/lib/query.util';
 import { getTaskList } from '@/ssr/service/task';
-import Statusbar from '@/components/task/list/statusbar';
 import { MyTaskCardList } from '@/components/task/list/card-list';
 import TaskTableList from '@/components/task/list/task-table';
 import { TableParams } from '@/components/data-table-v2';
-import AddTaskButton from '@/components/task/add-task-button';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -17,25 +15,6 @@ export const metadata: Metadata = {
   title: 'Tasks - Task Management System',
   description: 'Police Department Task Management System Tasks',
 };
-
-const statuses = [
-  {
-    key: 'all',
-    name: 'Бүгд',
-  },
-  {
-    key: 'active',
-    name: 'Идэвхитэй',
-  },
-  {
-    key: 'processing',
-    name: 'Хийгдэж байгаа',
-  },
-  {
-    key: 'completed',
-    name: 'Дууссан',
-  },
-];
 
 export default async function TasksPage(props: {
   searchParams: Promise<Record<string, string | undefined>>;
@@ -52,8 +31,6 @@ export default async function TasksPage(props: {
       )
     ),
   };
-
-  const status = (searchParams?.status as string) || 'all';
 
   const { filters, ...other } = params;
   const otherFilter = isEmptyObject(filters)
@@ -79,13 +56,12 @@ export default async function TasksPage(props: {
         </Link>
       </div>
       <div className="space-y-4">
-        <Statusbar status={status} data={statuses} />
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
           <div className="lg:hidden">
             <MyTaskCardList
               params={params}
               data={res2.data}
-              noAction
+              tableKey="all-tasks"
               clickToDetail
             />
           </div>
@@ -93,7 +69,7 @@ export default async function TasksPage(props: {
             <TaskTableList
               params={params}
               data={res2.data}
-              noAction
+              tableKey="all-tasks"
               clickToDetail
             />
           </div>

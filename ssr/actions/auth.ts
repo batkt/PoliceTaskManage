@@ -42,3 +42,10 @@ export const logoutAction = async () => {
 
   return true;
 };
+
+export const changePassword = async (data: any) => {
+  return await ssrClient.post<{}>(
+    `${BACKEND_URL}/api/auth/change-password`,
+    data
+  );
+};

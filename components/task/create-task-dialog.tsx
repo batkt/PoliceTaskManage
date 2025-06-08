@@ -101,7 +101,6 @@ const CreateTaskDialog = ({
         requestResponse = await createWorkGroupTaskSubmit(cleanedData);
       }
 
-      console.log('Merged Form Data:', cleanedData);
       toast(requestResponse);
 
       handleHide();

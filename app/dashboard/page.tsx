@@ -16,7 +16,7 @@ import {
 // import { ArrowRight } from 'lucide-react';
 // import { Skeleton } from '@/components/ui/skeleton';
 import { getTaskCounts } from '@/ssr/service/dashboard';
-import DashboardProvider from '@/context/dashboard.context';
+import DashboardProvider from '@/context/dashboard-context';
 import TaskCounts from '@/components/dashboard/task-counts';
 
 export const metadata: Metadata = {

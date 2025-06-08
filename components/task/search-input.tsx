@@ -1,48 +1,44 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Input } from '../ui/input';
-import { Button } from '../ui/button';
 import { Search } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 const SearchInput = ({
   placeholder = 'Хайх',
   value,
-  searchKey = 'name',
+  onChange,
+  className,
 }: {
   placeholder: string;
   value?: string;
-  searchKey: string;
+  onChange?: (value: string) => void;
+  className?: string;
 }) => {
-  const [searchValue, setSearchValue] = useState(value);
-  const router = useRouter();
-  const pathname = usePathname();
+  const timer = useRef<NodeJS.Timeout>(null);
+  const [text, setText] = useState(value || '');
+
   return (
-    <div className="relative md:w-[240px]">
+    <div className="relative">
       <Input
-        id="search"
-        type="text"
-        value={searchValue}
         placeholder={placeholder}
-        className="pr-10"
-        onChange={(e) => {
-          setSearchValue(e.target.value);
+        value={text}
+        type="text"
+        onChange={(event) => {
+          const val = event.target.value;
+          setText(val);
+          if (timer?.current) {
+            clearTimeout(timer.current);
+          }
+          timer.current = setTimeout(() => {
+            onChange?.(val);
+          }, 700);
         }}
+        className={cn('pl-10 max-md:w-full md:max-w-[240px]', className)}
       />
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
-        onClick={() => {
-          router.push(
-            `${pathname}${searchValue ? `?${searchKey}=${searchValue}` : ''}`
-          );
-        }}
-      >
-        <Search className="h-4 w-4" />
-        <span className="sr-only">Search</span>
-      </Button>
+      <div className="absolute top-1/2 -translate-y-1/2 left-1 h-4 w-8 flex items-start justify-center">
+        <Search className="size-4" />
+      </div>
     </div>
   );
 };

@@ -27,7 +27,7 @@ function convertDate(date: Date | string) {
     } else {
       d = date;
     }
-    if (!isNotDate(d)) return null;
+    if (isNotDate(d)) return null;
     return d;
   } catch (err) {
     return null;

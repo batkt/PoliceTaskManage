@@ -102,14 +102,14 @@ export const columns: ColumnDef<User & { status?: string }>[] = [
   {
     key: 'branch',
     header: (props) => {
-      return <ColumnHeader {...props} title="Хэлтэс" />;
+      return <ColumnHeader {...props} title="Хэлтэс" className="w-[140px]" />;
     },
     renderCell: (row) => {
       const branch = row.branch as Branch;
       if (!branch) {
         return null;
       }
-      return <div>{branch?.name}</div>;
+      return <div className="line-clamp-2">{branch?.name}</div>;
     },
   },
   {

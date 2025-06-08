@@ -69,14 +69,6 @@ export default async function MyTasksPage(props: {
         </Link>
       </div>
       <div className="space-y-4">
-        <div className="flex max-md:flex-col-reverse md:justify-between gap-4">
-          <Statusbar status={status} />
-          <SearchInput
-            searchKey="title"
-            placeholder="Даалгаврын нэрээр хайх..."
-            value={title}
-          />
-        </div>
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
           <div className="lg:hidden">
             <MyTaskCardList params={params} data={res2.data} />

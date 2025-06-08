@@ -39,27 +39,29 @@ const statuses = [
 const Statusbar = ({
   status,
   data,
+  onChange,
 }: {
   status: string;
   data?: { key: string; name: string }[];
+  onChange?: (e: string) => void;
 }) => {
-  const router = useRouter();
-  const pathname = usePathname();
   return (
     <>
       <div className="flex gap-1 bg-muted rounded-md p-1 w-fit max-lg:hidden">
         {(data || statuses)?.map((s) => {
           return (
-            <Link key={s.key} href={`${pathname}?status=${s.key}`}>
-              <div
-                className={cn(
-                  'rounded-sm px-3 py-1.5 text-sm',
-                  status !== s.key ? 'bg-transparent' : 'bg-background'
-                )}
-              >
-                {s.name}
-              </div>
-            </Link>
+            <div
+              key={s.key}
+              className={cn(
+                'rounded-sm px-3 py-1.5 text-sm cursor-pointer',
+                status !== s.key ? 'bg-transparent' : 'bg-background'
+              )}
+              onClick={() => {
+                onChange?.(s.key);
+              }}
+            >
+              {s.name}
+            </div>
           );
         })}
       </div>
@@ -67,7 +69,7 @@ const Statusbar = ({
         <Select
           value={status}
           onValueChange={(e) => {
-            router.push(`/dashboard/my-tasks?status=${e}`);
+            onChange?.(e);
           }}
         >
           <SelectTrigger className="w-full">
@@ -76,11 +78,9 @@ const Statusbar = ({
           <SelectContent>
             {(data || statuses)?.map((s) => {
               return (
-                <Link key={s.key} href={`/dashboard/my-tasks?status=${s.key}`}>
-                  <SelectItem key={s.key} value={s.key}>
-                    {s.name}
-                  </SelectItem>
-                </Link>
+                <SelectItem key={s.key} value={s.key}>
+                  {s.name}
+                </SelectItem>
               );
             })}
           </SelectContent>

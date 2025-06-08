@@ -155,6 +155,7 @@ export function TaskDetailModal({
   if (!detailData) {
     return '';
   }
+  console.log('users ', users);
 
   const assignedUsers = users?.filter((user) =>
     detailData?.assignees?.map((u) => u._id).includes(user._id)
@@ -163,6 +164,7 @@ export function TaskDetailModal({
   const isMeAssigner = assignedUsers.find((item) => item._id === authUser?._id);
   const overdue = isOverdue(new Date(detailData?.dueDate || ''));
 
+  console.log(detailData);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-8">

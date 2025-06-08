@@ -10,19 +10,15 @@ import {
   AlertTriangleIcon,
   CheckCircleIcon,
   TrashIcon,
-  Pause,
-  Play,
-  Download,
 } from 'lucide-react';
-import { getFileInfo, formatFileSize } from '@/lib/file.utils';
-import { cn, formatDateFull } from '@/lib/utils';
-import { FileIconComponent } from './file-icon';
+import { cn } from '@/lib/utils';
 import type { UploadedFile } from '@/lib/types/file.types';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '../ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { fileUpload } from '@/lib/service/file';
 import { FieldError } from 'react-hook-form';
+import FileListItem from './file-list-item';
 
 interface FileUploaderProps {
   onChange?: (files: UploadedFile[]) => void;
@@ -55,10 +51,9 @@ export function FileUploader({
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
   const [currentTime, setCurrentTime] = useState(0);
+
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [showWarning, setShowWarning] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   const { accessToken } = useAuth();
   // Refs
@@ -216,32 +211,6 @@ export function FileUploader({
     };
   }, []);
 
-  const playAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.play().catch((err) => {
-        console.error('Play error:', err);
-      });
-      setIsPlaying(true);
-    }
-  };
-
-  const pauseAudio = () => {
-    if (audioRef.current && !audioRef.current.paused) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
-  };
-
-  // Handle audio ended event
-  const handleAudioEnded = () => {
-    setIsPlaying(false);
-  };
-
-  const getProxyUrl = (url: string) => {
-    const foundIndex = url.search('/uploads/');
-    return url.substring(foundIndex);
-  };
-
   return (
     <div className={cn('space-y-3', className)}>
       {/* File List */}
@@ -264,109 +233,15 @@ export function FileUploader({
               </div>
             )}
 
-            <div className="max-h-40 overflow-y-auto space-y-1">
+            <div className="max-h-[200px] overflow-y-auto space-y-1">
               {value.map((file) => {
-                const fileInfo = file.mimetype
-                  ? getFileInfo(file.mimetype)
-                  : null;
                 return (
-                  <div
-                    key={file._id}
-                    className="flex items-center justify-between px-3 py-2 text-xs bg-muted border rounded-md group"
-                  >
-                    {/* Left side - File info */}
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <FileIconComponent
-                        mimeType={file.mimetype}
-                        className="w-4 h-4 flex-shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="truncate font-medium text-foreground">
-                          {file.originalName}
-                        </div>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          {file.mimetype === 'audio/webm' &&
-                            file.duration > 0 && (
-                              <span>{formatTime(file.duration)}</span>
-                            )}
-                          {file.size && (
-                            <span>{formatFileSize(file.size)}</span>
-                          )}
-                          {fileInfo && (
-                            <>
-                              <span>•</span>
-                              <span className={`capitalize ${fileInfo.color}`}>
-                                {fileInfo.category}
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right side - User and date info */}
-                    <div className="flex items-center gap-3 ml-4 flex-shrink-0">
-                      <div className="text-right">
-                        <div className="flex items-center gap-1 justify-end">
-                          <span className="text-foreground font-medium">
-                            {file.uploadedBy.givenname}
-                          </span>
-                        </div>
-                        <div className="text-gray-500 font-mono text-xs">
-                          {formatDateFull(file.createdAt)}
-                        </div>
-                      </div>
-                      {file.mimetype === 'audio/webm' ? (
-                        <>
-                          <audio
-                            ref={audioRef}
-                            className="hidden"
-                            onEnded={handleAudioEnded}
-                          >
-                            <source
-                              src={getProxyUrl(file.url)}
-                              type="audio/webm"
-                            />
-                          </audio>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="h-8 w-8 rounded-full p-0 flex-shrink-0"
-                            onClick={isPlaying ? pauseAudio : playAudio}
-                          >
-                            {isPlaying ? (
-                              <Pause className="h-4 w-4" />
-                            ) : (
-                              <Play className="h-4 w-4" />
-                            )}
-                            <span className="sr-only">
-                              {isPlaying ? 'Зогсоох' : 'Тоглуулах'}
-                            </span>
-                          </Button>
-                        </>
-                      ) : (
-                        !isEdit && (
-                          <a
-                            href={getProxyUrl(file.url)}
-                            download
-                            className="h-8 w-8 flex items-center justify-center hover:bg-slate-500/20 dark:hover:bg-background/30 rounded-sm"
-                          >
-                            <Download className="h-4 w-4" />
-                          </a>
-                        )
-                      )}
-                      {!onlyRead && isEdit && (
-                        <button
-                          type="button"
-                          onClick={() => removeFile(file._id)}
-                          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 transition-opacity"
-                        >
-                          <TrashIcon className="w-3 h-3" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                  <FileListItem
+                    file={file}
+                    onlyRead={onlyRead}
+                    isEdit={isEdit}
+                    removeFile={removeFile}
+                  />
                 );
               })}
             </div>

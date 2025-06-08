@@ -5,14 +5,14 @@ import SearchInput from '../task/search-input';
 
 const OfficerListToolbar = ({ filters, onChangeFilter }: ToolbarProps) => {
   return (
-    <div className="py-4">
+    <div className="pb-4 flex justify-end">
       <SearchInput
         placeholder="Хайх..."
         value={filters?.search}
         onChange={(e: string) => {
           onChangeFilter('search', e);
         }}
-        className="w-full md:max-w-[300px]"
+        className="w-full"
       />
     </div>
   );

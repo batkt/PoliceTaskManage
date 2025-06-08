@@ -87,10 +87,19 @@ export function TaskForm({ type }: { type?: string }) {
         router.push(
           type === 'own' ? '/dashboard/my-tasks' : '/dashboard/tasks'
         );
+      } else {
+        throw new Error(res.message || 'Алдаа гарлаа');
       }
-      //   router.push('/tasks'); // Redirect to tasks list
     } catch (error) {
-      console.error('Failed to create task:', error);
+      let message = 'Даалгавар үүсгэхэд алдаа гарлаа.';
+      if (error instanceof Error) {
+        message = error.message;
+      }
+      toast({
+        variant: 'destructive',
+        title: 'Амжилтгүй',
+        description: message,
+      });
     } finally {
       setIsSubmitting(false);
     }

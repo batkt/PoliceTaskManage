@@ -206,8 +206,8 @@ export function OfficerRegisterModal({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="user">Хэрэглэгч</SelectItem>
-                      <SelectItem value="manager">Менежер</SelectItem>
                       <SelectItem value="admin">Админ</SelectItem>
+                      <SelectItem value="super-admin">Cупер админ</SelectItem>
                     </SelectContent>
                   </Select>
                   {error && (
@@ -369,7 +369,7 @@ export function OfficerRegisterModal({
             />
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="w-full !flex !items-center !justify-between">
             <Button type="button" variant="outline" onClick={handleClose}>
               Болих
             </Button>

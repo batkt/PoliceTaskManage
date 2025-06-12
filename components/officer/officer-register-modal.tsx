@@ -95,6 +95,32 @@ export function OfficerRegisterModal({
     return tree;
   }, [branches]);
 
+  const rootIds = Object.keys(branchesTree).filter(
+    (parentId) =>
+      !Object.values(branchesTree)
+        .flat()
+        .some((b) => b._id === parentId)
+  );
+
+  function renderBranchOptions(
+    tree: Record<string, Branch[]>,
+    parentId: string,
+    level = 0
+  ): React.ReactNode[] {
+    if (!tree[parentId]) return [];
+
+    return tree[parentId].flatMap((branch) => [
+      <SelectItemRightIndicator
+        key={branch._id}
+        value={branch._id}
+        style={{ paddingLeft: 8 + level * 16 }}
+      >
+        {branch.name}
+      </SelectItemRightIndicator>,
+      ...renderBranchOptions(tree, branch._id, level + 1),
+    ]);
+  }
+
   const handleFormSubmit = async (data: OfficerRegistrationData) => {
     try {
       const { joinedDate, ...other } = data;
@@ -128,26 +154,6 @@ export function OfficerRegisterModal({
     onOpenChange(false);
     reset();
   };
-
-  function renderBranchOptions(
-    tree: Record<string, Branch[]>,
-    parentId = 'root',
-    level = 0
-  ): React.ReactNode[] {
-    if (!tree[parentId]) return [];
-    return tree[parentId].flatMap((branch) => [
-      <SelectItemRightIndicator
-        key={branch._id}
-        value={branch._id}
-        style={{
-          paddingLeft: 8 + level * 16,
-        }}
-      >
-        {branch.name}
-      </SelectItemRightIndicator>,
-      ...renderBranchOptions(tree, branch._id, level + 1),
-    ]);
-  }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -282,7 +288,9 @@ export function OfficerRegisterModal({
                       <SelectValue placeholder="Сонгох" />
                     </SelectTrigger>
                     <SelectContent>
-                      {renderBranchOptions(branchesTree)}
+                      {rootIds.flatMap((rootId) =>
+                        renderBranchOptions(branchesTree, rootId)
+                      )}
                     </SelectContent>
                   </Select>
                   {error && (

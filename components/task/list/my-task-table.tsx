@@ -29,10 +29,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FormTemplate } from '@/lib/types/form.types';
 
 type TaskWithAction = Task & { action?: '' };
-export default function TaskTableList({
+export default function MyTaskTableList({
   data,
   params,
-  template,
   tableKey = 'my-tasks',
   clickToDetail = false,
 }: {
@@ -40,7 +39,6 @@ export default function TaskTableList({
   params: TableParams;
   clickToDetail?: boolean;
   tableKey?: string;
-  template?: FormTemplate;
 }) {
   const rows = data?.rows || [];
   const total = data?.total || 0;
@@ -85,29 +83,14 @@ export default function TaskTableList({
     openTaskDetailModal(row._id);
   };
 
-  let dynamicColumns: ColumnDef<TaskWithAction>[] = [];
-  if (template) {
-    const dynamicColFields = template.fields?.filter(
-      (item) => item.showInTable
-    );
-
-    if (dynamicColFields.length > 0) {
-      dynamicColumns = dynamicColFields.map(
-        (item): ColumnDef<TaskWithAction> => {
-          return {
-            key: item.name,
-            header: (props) => <ColumnHeader {...props} title={item.label} />,
-            renderCell: (row) => (
-              <div className="font-medium whitespace-nowrap truncate">
-                {row.formValues?.[item.name]}
-              </div>
-            ),
-          };
-        }
-      );
-    }
-  }
   const columns: ColumnDef<TaskWithAction>[] = [
+    // {
+    //   key: '_id',
+    //   header: (props) => <ColumnHeader {...props} title="ID" />,
+    //   renderCell: (row) => (
+    //     <div className="max-w-[80px] truncate">{row._id}</div>
+    //   ),
+    // },
     {
       key: 'title',
       header: (props) => (
@@ -123,7 +106,24 @@ export default function TaskTableList({
         </div>
       ),
     },
-    ...dynamicColumns,
+    {
+      key: 'formTemplateId',
+      header: (props) => (
+        <ColumnHeader
+          {...props}
+          title="Төрөл"
+          className="max-w-[200px] w-[140px]"
+        />
+      ),
+      renderCell: (row) => {
+        const formTemplate = row.formTemplateId as FormTemplate;
+        return (
+          <div className="font-medium whitespace-nowrap truncate">
+            {formTemplate?.name}
+          </div>
+        );
+      },
+    },
     {
       key: 'status',
       header: (props) => (
@@ -301,7 +301,7 @@ export default function TaskTableList({
         params={params}
         onSortChange={handleSortChange}
         onFilterChange={handleFilterChange}
-        onRowClick={goToDetail}
+        onRowClick={clickToDetail ? goToDetail : undefined}
         toolbar={
           <TaskListToolbar
             tableKey={tableKey}

@@ -10,4 +10,5 @@ export type User = {
   position: string;
   role: 'user' | 'super-admin' | 'admin';
   joinedDate?: string;
+  profileImageUrl?: string;
 };

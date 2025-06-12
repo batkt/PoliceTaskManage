@@ -1,77 +1,47 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { isEmptyObject } from '@/lib/utils';
-import { queryStringBuilder } from '@/lib/query.util';
-import { getTaskList } from '@/ssr/service/task';
-import { MyTaskCardList } from '@/components/task/list/card-list';
-import TaskTableList from '@/components/task/list/task-table';
-import { TableParams } from '@/components/data-table-v2';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 import Link from 'next/link';
+import { getAllForms } from '@/ssr/service/form';
+import { Card, CardContent } from '@/components/ui/card';
 
 export const metadata: Metadata = {
   title: 'Tasks - Task Management System',
   description: 'Police Department Task Management System Tasks',
 };
 
-export default async function TasksPage(props: {
-  searchParams: Promise<Record<string, string | undefined>>;
-}) {
-  const searchParams = await props.searchParams;
-  const params: TableParams = {
-    page: Number(searchParams.page ?? 1),
-    pageSize: Number(searchParams.pageSize ?? 10),
-    sort: searchParams?.sort ?? '',
-    order: (searchParams?.order as 'asc' | 'desc' | null) ?? null,
-    filters: Object.fromEntries(
-      Object.entries(searchParams).filter(
-        ([k]) => !['page', 'pageSize', 'sort', 'order'].includes(k)
-      )
-    ),
-  };
+export default async function TasksPage() {
+  const resForms = await getAllForms();
 
-  const { filters, ...other } = params;
-  const otherFilter = isEmptyObject(filters)
-    ? {}
-    : {
-        ...filters,
-      };
-
-  const query = queryStringBuilder({
-    ...other,
-    ...otherFilter,
-  });
-  const res2 = await getTaskList(query);
+  const typesData = resForms?.data || [];
+  const sorted = typesData?.sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Ажлын жагсаалт</h2>
-        <Link href="/dashboard/task/create">
-          <Button type="button" size="icon" className="size-10">
-            <Plus />
-          </Button>
-        </Link>
+        <h2 className="text-3xl font-bold tracking-tight">
+          Даалгаврын жагсаалт
+        </h2>
       </div>
       <div className="space-y-4">
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-          <div className="lg:hidden">
-            <MyTaskCardList
-              params={params}
-              data={res2.data}
-              tableKey="all-tasks"
-              clickToDetail
-            />
-          </div>
-          <div className="max-lg:hidden">
-            <TaskTableList
-              params={params}
-              data={res2.data}
-              tableKey="all-tasks"
-              clickToDetail
-            />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            {sorted?.map((formTemplate) => {
+              return (
+                <Link
+                  key={formTemplate._id}
+                  href={`/dashboard/tasks/${formTemplate._id}`}
+                >
+                  <Card>
+                    <CardContent className="py-10 text-2xl font-bold text-center hover:bg-muted/50 cursor-pointer">
+                      {formTemplate.name}
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
         </Suspense>
       </div>

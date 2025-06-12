@@ -24,7 +24,7 @@ export type ToolbarProps = {
 };
 
 export type ColumnDef<T> = {
-  key: keyof T;
+  key: string;
   header: (data: ColumnHeaderProps<T>) => React.ReactNode;
   renderCell: (row: T) => React.ReactNode;
   enableSort?: boolean;

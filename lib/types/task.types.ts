@@ -1,4 +1,5 @@
 import { UploadedFile } from './file.types';
+import { FormTemplate } from './form.types';
 import { User } from './user.types';
 
 export enum TaskStatus {
@@ -23,7 +24,7 @@ export type CreateMemoTaskType = {
 
 export type Task = {
   _id: string;
-  assignees: User[];
+  assignee: User;
   title: string;
   startDate: string; //
   dueDate: string; //
@@ -32,6 +33,8 @@ export type Task = {
   completedDate?: string;
   status: TaskStatus;
   priority: TaskPriority;
+  formTemplateId?: FormTemplate | string;
+  formValues?: Record<string, string>;
 };
 
 export type CreateWorkGroupTaskType = {
@@ -71,20 +74,24 @@ export type WorkGroup = {
 export interface ICreateTaskInput {
   title: string;
   description?: string;
-  assignees: string[];
+  formTemplateId: string;
+  branchId: string;
+  assignee: string;
   startDate: Date;
   dueDate?: Date;
   fileIds?: string[]; // optional
   priority: 'low' | 'medium' | 'high' | 'urgent'; // added priority field
+  formValues?: Record<string, any>;
 }
 
 export type TaskDetail = {
   _id: string;
-  assignees: User[];
+  assignee: User;
   title: string;
   startDate: string; //
   dueDate: string; //
   description?: string;
+  formValues?: Record<string, any>[];
   createdBy: User;
   completedDate?: string;
   status: TaskStatus;

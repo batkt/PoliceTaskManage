@@ -12,3 +12,11 @@ export const getTaskList = async (queryString?: string) => {
     `${BACKEND_URL}/api/task-v2/${queryString ? `?${queryString}` : ''}`
   );
 };
+
+export const getTaskListTest = async (queryString?: string) => {
+  return ssrClient.get<List<Task>>(
+    `${BACKEND_URL}/api/task-v2/list-test/${
+      queryString ? `?${queryString}` : ''
+    }`
+  );
+};

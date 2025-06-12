@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import type React from "react";
+import type React from 'react';
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   BarChart3,
   ClipboardList,
@@ -18,12 +18,13 @@ import {
   X,
   Briefcase,
   CheckSquare,
-} from "lucide-react";
+  ClipboardType,
+} from 'lucide-react';
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { useMediaQuery } from "@/hooks/use-media-query";
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 interface NavItem {
   title: string;
@@ -36,7 +37,7 @@ export function SidebarNavigation() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const toggleSubmenu = (title: string) => {
     setOpenSubmenu(openSubmenu === title ? null : title);
@@ -46,8 +47,8 @@ export function SidebarNavigation() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isMobile && isOpen) {
-        const sidebar = document.getElementById("sidebar-navigation");
-        const toggleButton = document.getElementById("sidebar-toggle");
+        const sidebar = document.getElementById('sidebar-navigation');
+        const toggleButton = document.getElementById('sidebar-toggle');
 
         if (
           sidebar &&
@@ -60,8 +61,8 @@ export function SidebarNavigation() {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMobile, isOpen]);
 
   useEffect(() => {
@@ -72,13 +73,13 @@ export function SidebarNavigation() {
 
   const navItems: NavItem[] = [
     {
-      title: "Хянах самбар",
-      href: "/dashboard",
+      title: 'Хянах самбар',
+      href: '/dashboard',
       icon: <Home className="h-5 w-5" />,
     },
     {
-      title: "Ажлын жагсаалт",
-      href: "/dashboard/tasks",
+      title: 'Ажлын жагсаалт',
+      href: '/dashboard/tasks',
       icon: <ClipboardList className="h-5 w-5" />,
       // submenu: [
       //   { title: "Бүх даалгавар", href: "/dashboard/tasks" },
@@ -87,8 +88,8 @@ export function SidebarNavigation() {
       // ],
     },
     {
-      title: "Миний даалгавар",
-      href: "/dashboard/my-tasks",
+      title: 'Миний даалгавар',
+      href: '/dashboard/my-tasks',
       icon: <CheckSquare className="h-5 w-5" />,
       // submenu: [
       //   { title: "Бүгд", href: "/dashboard/my-tasks" },
@@ -114,8 +115,8 @@ export function SidebarNavigation() {
     //   icon: <Users className="h-5 w-5" />,
     // },
     {
-      title: "Алба хаагчид",
-      href: "/dashboard/officers",
+      title: 'Алба хаагчид',
+      href: '/dashboard/officers',
       icon: <Shield className="h-5 w-5" />,
       // submenu: [
       //   { title: "Бүх ажилтан", href: "/dashboard/officers" },
@@ -144,6 +145,18 @@ export function SidebarNavigation() {
     //   href: "/dashboard/settings",
     //   icon: <Settings className="h-5 w-5" />,
     // },
+    {
+      title: 'Даалгаврын төрөл',
+      href: '/dashboard/task-type',
+      icon: <ClipboardType className="!size-5" />,
+      submenu: [
+        {
+          title: 'Шинээр үүсгэх',
+          href: '/dashboard/task-type/create',
+        },
+        { title: 'Жагсаалт', href: '/dashboard/task-type' },
+      ],
+    },
   ];
 
   return (
@@ -163,8 +176,8 @@ export function SidebarNavigation() {
       <div
         id="sidebar-navigation"
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 transform bg-primary text-primary-foreground transition-transform duration-300 ease-in-out md:translate-x-0",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          'fixed inset-y-0 left-0 z-40 w-64 transform bg-primary text-primary-foreground transition-transform duration-300 ease-in-out md:translate-x-0',
+          isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         <div className="flex h-full flex-col">
@@ -187,8 +200,8 @@ export function SidebarNavigation() {
                       <Button
                         variant="ghost"
                         className={cn(
-                          "flex w-full items-center justify-between px-3 py-2 text-left hover:bg-primary-foreground/10",
-                          pathname === item.href && "bg-primary-foreground/20"
+                          'flex w-full items-center justify-between px-3 py-2 text-left hover:bg-primary-foreground/10 font-normal text-base',
+                          pathname === item.href && 'bg-primary-foreground/20'
                         )}
                         onClick={() => toggleSubmenu(item.title)}
                       >
@@ -199,8 +212,8 @@ export function SidebarNavigation() {
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           className={cn(
-                            "h-4 w-4 transition-transform",
-                            openSubmenu === item.title && "rotate-180"
+                            'h-4 w-4 transition-transform',
+                            openSubmenu === item.title && 'rotate-180'
                           )}
                           fill="none"
                           viewBox="0 0 24 24"
@@ -221,9 +234,9 @@ export function SidebarNavigation() {
                               <Link
                                 href={subItem.href}
                                 className={cn(
-                                  "block rounded-md px-3 py-2 text-sm hover:bg-primary-foreground/10",
+                                  'block rounded-md px-3 py-2 text-sm hover:bg-primary-foreground/10',
                                   pathname === subItem.href &&
-                                    "bg-primary-foreground/20"
+                                    'bg-primary-foreground/20'
                                 )}
                               >
                                 {subItem.title}
@@ -237,8 +250,8 @@ export function SidebarNavigation() {
                     <Link
                       href={item.href}
                       className={cn(
-                        "flex items-center rounded-md px-3 py-2 hover:bg-primary-foreground/10",
-                        pathname === item.href && "bg-primary-foreground/20"
+                        'flex items-center rounded-md px-3 py-2 hover:bg-primary-foreground/10',
+                        pathname === item.href && 'bg-primary-foreground/20'
                       )}
                     >
                       {item.icon}

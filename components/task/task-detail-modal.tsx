@@ -59,6 +59,7 @@ import { Label } from '../ui/label';
 import { getTaskDetail } from '@/lib/service/task';
 import { useAuth } from '@/context/auth-context';
 import { FileUploader } from '../file-uploader';
+import { FieldTypes } from '@/lib/types/form.types';
 
 interface TaskDetailModalProps {
   taskId: string;
@@ -155,16 +156,50 @@ export function TaskDetailModal({
   if (!detailData) {
     return '';
   }
-  console.log('users ', users);
 
-  const assignedUsers = users?.filter((user) =>
-    detailData?.assignees?.map((u) => u._id).includes(user._id)
-  );
-
-  const isMeAssigner = assignedUsers.find((item) => item._id === authUser?._id);
+  const isMeAssigner = detailData.assignee?._id === authUser?._id;
   const overdue = isOverdue(new Date(detailData?.dueDate || ''));
 
-  console.log(detailData);
+  const renderUsers = (ids: string[]) => {
+    const userData = users.filter((u) => ids.includes(u._id));
+    return (
+      <div className="flex gap-x-2 gap-4 flex-wrap">
+        {userData?.map((user) => {
+          return (
+            <div
+              key={`formValue_${user._id}`}
+              className="flex items-center gap-2 bg-muted rounded-full px-3 py-1 pe-4"
+            >
+              <Avatar className="h-6 w-6">
+                <AvatarImage src={detailData.assignee?.profileImageUrl} />
+                <AvatarFallback className="text-xs bg-background">
+                  {detailData.assignee?.givenname?.[0]}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm">{detailData.assignee?.givenname}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderFormValue = (item: Record<string, any>) => {
+    if (item.type === FieldTypes.USER_SELECT) {
+      return item?.value ? renderUsers([item.value]) : '';
+    }
+    if (item.type === FieldTypes.MULTI_USER_SELECT) {
+      return item?.value?.length > 0 ? renderUsers(item.value) : '';
+    }
+    if (item.type === FieldTypes.DATE) {
+      return (
+        <p className="text-sm text-muted-foreground">
+          {item?.value ? format(new Date(item.value), 'yyyy-MM-dd') : ''}
+        </p>
+      );
+    }
+    return <p className="text-sm text-muted-foreground">{item.value}</p>;
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-8">
@@ -212,40 +247,36 @@ export function TaskDetailModal({
                     {detailData?.description}
                   </p>
                 </div>
+
+                {detailData?.formValues?.map((item, index) => {
+                  return (
+                    <div className="space-y-4" key={`${item.label}_${index}`}>
+                      <Label className="text-sm font-medium">
+                        {item.label}
+                      </Label>
+                      {renderFormValue(item)}
+                    </div>
+                  );
+                })}
+
                 <div className="space-y-4">
                   <Label className="text-sm font-medium">
                     Хариуцсан алба хаагчид
                   </Label>
                   <div className="flex gap-x-2 gap-4 flex-wrap">
-                    {assignedUsers.map((user) => (
-                      <div
-                        key={user._id}
-                        className="flex items-center gap-2 bg-muted rounded-full px-3 py-1 pe-4"
-                      >
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage
-                            src={
-                              'https://cdn.dribbble.com/users/14095940/avatars/normal/e584c0a059b6c7c4f4c23852153e5521.png?1669730203'
-                            }
-                          />
-                          <AvatarFallback className="text-xs">
-                            {user.givenname
-                              .split(' ')
-                              .map((n) => n[0])
-                              .join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm">{user.givenname}</span>
-                        {/* <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-4 w-4 p-0 hover:bg-red-100"
-                          onClick={() => removeUser(user._id)}
-                        >
-                          ×
-                        </Button> */}
-                      </div>
-                    ))}
+                    <div className="flex items-center gap-2 bg-muted rounded-full px-3 py-1 pe-4">
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage
+                          src={detailData.assignee?.profileImageUrl}
+                        />
+                        <AvatarFallback className="text-xs bg-background">
+                          {detailData.assignee?.givenname?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm">
+                        {detailData.assignee?.givenname}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -277,26 +308,13 @@ export function TaskDetailModal({
                           >
                             <Avatar className="h-6 w-6">
                               <AvatarImage
-                                src={
-                                  'https://cdn.dribbble.com/users/14095940/avatars/normal/e584c0a059b6c7c4f4c23852153e5521.png?1669730203'
-                                }
+                                src={detailData.createdBy?.profileImageUrl}
                               />
-                              <AvatarFallback className="text-xs">
-                                {user.givenname
-                                  .split(' ')
-                                  .map((n) => n[0])
-                                  .join('')}
+                              <AvatarFallback className="text-xs bg-background">
+                                {user.givenname?.[0]}
                               </AvatarFallback>
                             </Avatar>
                             <span className="text-sm">{user.givenname}</span>
-                            {/* <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-4 w-4 p-0 hover:bg-red-100"
-                              onClick={() => removeUser(user._id)}
-                            >
-                              ×
-                            </Button> */}
                           </div>
                         );
                       }

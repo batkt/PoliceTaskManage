@@ -10,6 +10,7 @@ import {
   TaskStatusChangeType,
 } from '@/lib/types/task.types';
 import { revalidatePath } from 'next/cache';
+import { CreateFormData } from '@/lib/types/task-type.types';
 
 export const createMemoTask = async (
   data: CreateMemoTaskType,
@@ -58,4 +59,8 @@ export const changeStatusAction = async (
 export const createTask = async (data: ICreateTaskInput) => {
   const res = await ssrClient.post(`${BACKEND_URL}/api/task-v2/`, data);
   return res;
+};
+
+export const createForm = async (data: CreateFormData) => {
+  return ssrClient.post<boolean>(`${BACKEND_URL}/api/form/`, data);
 };

@@ -1,24 +1,27 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { TableParams } from '@/components/data-table-v2';
-import { getTaskList, getTaskListTest } from '@/ssr/service/task';
-import { queryStringBuilder } from '@/lib/query.util';
 import { isEmptyObject } from '@/lib/utils';
+import { queryStringBuilder } from '@/lib/query.util';
+import { getTaskListTest } from '@/ssr/service/task';
 import { MyTaskCardList } from '@/components/task/list/card-list';
+import TaskTableList from '@/components/task/list/task-table';
+import { TableParams } from '@/components/data-table-v2';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import MyTaskTableList from '@/components/task/list/my-task-table';
+import { getFormTemplate } from '@/ssr/service/form';
 
 export const metadata: Metadata = {
-  title: 'Миний даалгавал - Төлөвлөгөөний систем',
-  // description: 'Police Department Task Management System My Tasks',
+  title: 'Tasks - Task Management System',
+  description: 'Police Department Task Management System Tasks',
 };
 
-export default async function MyTasksPage(props: {
-  searchParams: Promise<Record<string, string>>;
+export default async function TasksPage(props: {
+  params: Record<string, string>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
+  const { slug } = await props.params;
   const searchParams = await props.searchParams;
   const params: TableParams = {
     page: Number(searchParams.page ?? 1),
@@ -41,23 +44,17 @@ export default async function MyTasksPage(props: {
 
   const query = queryStringBuilder({
     ...other,
+    formTemplateId: slug,
     ...otherFilter,
-    onlyMe: true,
   });
+  const templateRes = await getFormTemplate(slug);
+  const res2 = await getTaskListTest(query);
 
-  const res2 = await getTaskList(query);
-
-  console.log(res2);
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Миний даалгавар</h2>
-          <p className="text-muted-foreground">
-            Танд хуваарилагдсан даалгаврууд
-          </p>
-        </div>
-        <Link href="/dashboard/task/create-own">
+        <h2 className="text-3xl font-bold tracking-tight">Ажлын жагсаалт</h2>
+        <Link href={`/dashboard/task/create?formId=${slug}`}>
           <Button type="button" size="icon" className="size-10">
             <Plus />
           </Button>
@@ -66,10 +63,21 @@ export default async function MyTasksPage(props: {
       <div className="space-y-4">
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
           <div className="lg:hidden">
-            <MyTaskCardList params={params} data={res2.data} />
+            <MyTaskCardList
+              params={params}
+              data={res2.data}
+              tableKey="all-tasks"
+              clickToDetail
+            />
           </div>
           <div className="max-lg:hidden">
-            <MyTaskTableList params={params} data={res2.data} />
+            <TaskTableList
+              params={params}
+              data={res2.data}
+              template={templateRes.data}
+              tableKey="all-tasks"
+              clickToDetail
+            />
           </div>
         </Suspense>
       </div>

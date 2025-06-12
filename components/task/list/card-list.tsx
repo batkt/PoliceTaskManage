@@ -7,7 +7,7 @@ import { List } from '@/lib/types/global.types';
 import { Card } from '../../ui/card';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { Avatar, AvatarFallback } from '../../ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -155,7 +155,7 @@ export function MyTaskCardList({
               const dueDate = task?.dueDate
                 ? new Date(task.dueDate)
                 : Date.now();
-              const assignees = task.assignees;
+              const assignee = task.assignee;
               return (
                 <Card
                   key={task._id}
@@ -288,31 +288,16 @@ export function MyTaskCardList({
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="flex -space-x-2 overflow-hidden">
-                        {assignees.slice(0, 4).map((assigner, index) => (
-                          <Avatar
-                            key={assigner._id}
-                            className={cn(
-                              'h-8 w-8 border-2 border-background dark:border-slate-800',
-                              `bg-blue-500`
-                            )}
-                          >
-                            <AvatarFallback
-                              className={cn(
-                                `bg-blue-500 text-white font-medium`
-                              )}
-                            >
-                              {assigner.givenname.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                        ))}
-                        {assignees.length > 4 && (
-                          <Avatar className="h-8 w-8 border-2 border-background dark:border-slate-800 bg-muted">
-                            <AvatarFallback className="bg-muted text-muted-foreground font-medium">
-                              +{assignees.length - 4}
-                            </AvatarFallback>
-                          </Avatar>
-                        )}
+                      <div className="flex items-start gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={assignee?.profileImageUrl} />
+                          <AvatarFallback className="text-xs">
+                            {assignee?.givenname?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 font-medium text-sm flex items-center">
+                          {assignee?.givenname}
+                        </div>
                       </div>
                       <PriorityBadge priority={task.priority} />
                     </div>

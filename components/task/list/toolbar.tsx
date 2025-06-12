@@ -42,7 +42,7 @@ const TaskListToolbar = ({
         placeholder="Даалгаврын нэрээр хайх..."
         value={filters?.search}
         onChange={(e: string) => {
-          onChangeFilter('title', e);
+          onChangeFilter('search', e);
         }}
       />
     </div>

@@ -29,12 +29,13 @@ export interface UploadedFile {
   originalName: string;
   filename: string;
   duration: number;
+  taskId?: string;
   timestamp: string;
   type: 'voice';
   size: number;
   mimetype: string;
   url: string;
-  uploadedBy: User;
+  uploadedBy: string;
   createdAt: string;
 }
 export interface RecordingFile {
@@ -45,6 +46,6 @@ export interface RecordingFile {
   type: 'voice' | 'file';
   size?: number;
   mimeType?: string;
-  uploadedBy: User;
+  uploadedBy: string;
   uploadedAt: Date;
 }

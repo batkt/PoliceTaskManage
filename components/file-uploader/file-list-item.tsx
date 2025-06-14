@@ -6,6 +6,7 @@ import { formatDateFull } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Download, Eye, Pause, Play, TrashIcon } from 'lucide-react';
 import { ImagePreviewModal } from '../image-preview-modal';
+import { useAuth } from '@/context/auth-context';
 
 const formatTime = (seconds: number) => {
   const mins = Math.floor(seconds / 60);
@@ -16,7 +17,6 @@ const formatTime = (seconds: number) => {
 const FileListItem = ({
   file,
   isEdit = false,
-  onlyRead = false,
   removeFile,
 }: {
   file: UploadedFile;
@@ -24,6 +24,7 @@ const FileListItem = ({
   onlyRead?: boolean;
   removeFile?: (fileId: string) => void;
 }) => {
+  const { authUser } = useAuth();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -105,7 +106,7 @@ const FileListItem = ({
 
       {/* Right side - User and date info */}
       <div className="flex items-center gap-3 ml-4 flex-shrink-0">
-        <div className="text-right">
+        {/* <div className="text-right">
           <div className="flex items-center gap-1 justify-end">
             <span className="text-foreground font-medium">
               {file.uploadedBy.givenname}
@@ -114,7 +115,7 @@ const FileListItem = ({
           <div className="text-gray-500 font-mono text-xs">
             {formatDateFull(file.createdAt)}
           </div>
-        </div>
+        </div> */}
         {file.mimetype === 'audio/webm' || fileInfo?.category === 'audio' ? (
           <>
             <audio ref={audioRef} className="hidden" onEnded={handleAudioEnded}>
@@ -137,8 +138,8 @@ const FileListItem = ({
               </span>
             </Button>
           </>
-        ) : !isEdit && fileInfo?.category === 'image' ? (
-          <div>
+        ) : fileInfo?.category === 'image' ? (
+          <div className="flex gap-2">
             <Button
               variant={'ghost'}
               size="icon"
@@ -163,6 +164,14 @@ const FileListItem = ({
                 title={selectedImage.title}
               />
             )}
+
+            <a
+              href={getProxyUrl(file.url)}
+              download
+              className="h-8 w-8 flex items-center justify-center hover:bg-slate-500/20 dark:hover:bg-background/30 rounded-sm"
+            >
+              <Download className="h-4 w-4" />
+            </a>
           </div>
         ) : (
           <a
@@ -173,7 +182,7 @@ const FileListItem = ({
             <Download className="h-4 w-4" />
           </a>
         )}
-        {!onlyRead && isEdit && (
+        {isEdit && authUser && file.uploadedBy === authUser._id && (
           <button
             type="button"
             onClick={() => removeFile?.(file._id)}

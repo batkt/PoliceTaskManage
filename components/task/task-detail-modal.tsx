@@ -1,11 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import type { User } from '@/lib/types/user.types';
 import {
   Task,
   TaskDetail,
-  TaskPriority,
   TaskStatus,
   TaskStatusChangeType,
 } from '@/lib/types/task.types';
@@ -19,38 +17,19 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import {
   CalendarIcon,
-  FileIcon,
   PlusIcon,
-  UserIcon,
-  ClockIcon,
   AlertTriangleIcon,
   MessageSquareIcon,
-  PaperclipIcon,
-  DownloadIcon,
-  TrashIcon,
 } from 'lucide-react';
-import { formatDateFull, isOverdue } from '@/lib/utils';
+import { isOverdue } from '@/lib/utils';
 import StatusBadge from './status-badge';
 import PriorityBadge from './priority-badge';
 import { format } from 'date-fns';
@@ -60,6 +39,8 @@ import { getTaskDetail } from '@/lib/service/task';
 import { useAuth } from '@/context/auth-context';
 import { FileUploader } from '../file-uploader';
 import { FieldTypes } from '@/lib/types/form.types';
+import { attachFile, removeFile } from '@/ssr/actions/task';
+import { UploadedFile } from '@/lib/types/file.types';
 
 interface TaskDetailModalProps {
   taskId: string;
@@ -92,6 +73,7 @@ export function TaskDetailModal({
   const { accessToken, authUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [detailData, setDetailData] = useState<TaskDetail>();
+  const [files, setFiles] = useState<UploadedFile[]>([]);
   const [newNote, setNewNote] = useState('');
 
   const fetchTaskDetail = useCallback(async () => {
@@ -100,6 +82,7 @@ export function TaskDetailModal({
       const res = await getTaskDetail(taskId, accessToken);
       if (res.code === 200) {
         setDetailData(res.data);
+        setFiles(res.data?.files || []);
       }
     }
     setLoading(false);
@@ -108,17 +91,6 @@ export function TaskDetailModal({
   useEffect(() => {
     fetchTaskDetail();
   }, [fetchTaskDetail]);
-
-  const handleSave = () => {
-    // const updatedTask = {
-    //   ...editedTask,
-    //   startDate,
-    //   endDate,
-    //   updatedAt: new Date(),
-    // };
-    // onTaskUpdate(updatedTask);
-    // onOpenChange(false);
-  };
 
   const addNote = () => {
     if (!newNote.trim()) return;
@@ -130,35 +102,73 @@ export function TaskDetailModal({
       createdAt: new Date(),
     };
 
-    // setEditedTask((prev) => ({
-    //   ...prev,
-    //   notes: [...prev.notes, note],
-    // }));
     setNewNote('');
-  };
-
-  const removeUser = (userId: string) => {
-    // setEditedTask((prev) => ({
-    //   ...prev,
-    //   assignedUsers: prev.assignedUsers.filter((id) => id !== userId),
-    // }));
-  };
-
-  const addUser = (userId: string) => {
-    // if (!editedTask.assignedUsers.includes(userId)) {
-    //   setEditedTask((prev) => ({
-    //     ...prev,
-    //     assignedUsers: [...prev.assignedUsers, userId],
-    //   }));
-    // }
   };
 
   if (!detailData) {
     return '';
   }
 
+  function diffLists(
+    oldList: UploadedFile[],
+    newList: UploadedFile[]
+  ): {
+    added: UploadedFile[];
+    removed: UploadedFile[];
+  } {
+    const added = newList.filter(
+      (item) => !oldList.map((it) => it._id).includes(item._id)
+    );
+    const removed = oldList.filter(
+      (item) => !newList.map((it) => it._id).includes(item._id)
+    );
+
+    return { added, removed };
+  }
+
+  const handleFileUploadChange = async (_files: UploadedFile[]) => {
+    const { added, removed } = diffLists(files || [], _files || []);
+    setFiles(_files);
+    const fileRes = await attachFile({
+      taskId: detailData._id,
+      fileIds: added.map((f) => f._id),
+    });
+
+    const fileRes2 = await removeFile({
+      taskId: detailData._id,
+      fileIds: removed.map((f) => f._id),
+    });
+  };
+
   const isMeAssigner = detailData.assignee?._id === authUser?._id;
   const overdue = isOverdue(new Date(detailData?.dueDate || ''));
+
+  const isEditAccess = () => {
+    if (!detailData) {
+      return false;
+    }
+
+    if (!authUser) {
+      return false;
+    }
+
+    if (
+      [TaskStatus.COMPLETED, TaskStatus.REVIEWED].includes(detailData?.status)
+    ) {
+      // Task guitsetgeed dussan tolowt baigaa
+      return false;
+    }
+
+    if (detailData?.assignee?._id === authUser._id) {
+      return true;
+    }
+
+    if (['super-admin', 'admin'].includes(authUser?.role)) {
+      return true;
+    }
+
+    return false;
+  };
 
   const renderUsers = (ids: string[]) => {
     const userData = users.filter((u) => ids.includes(u._id));
@@ -331,9 +341,9 @@ export function TaskDetailModal({
               <h3 className="text-lg font-medium">Файлууд</h3>
             </div>
             <FileUploader
-              value={detailData?.files || []}
-              onlyRead
-              isEdit={false}
+              value={files || []}
+              onChange={handleFileUploadChange}
+              isEdit={isEditAccess()}
             />
           </TabsContent>
 

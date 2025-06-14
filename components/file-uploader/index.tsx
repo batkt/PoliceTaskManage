@@ -9,7 +9,6 @@ import {
   FileIcon,
   AlertTriangleIcon,
   CheckCircleIcon,
-  TrashIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { UploadedFile } from '@/lib/types/file.types';
@@ -199,10 +198,6 @@ export function FileUploader({
     onChange?.(value.filter((file) => file._id !== id));
   };
 
-  const clearAllFiles = () => {
-    onChange?.([]);
-  };
-
   useEffect(() => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -222,14 +217,6 @@ export function FileUploader({
                 <span className="text-xs font-medium text-gray-700">
                   Файлын тоо ({value.length})
                 </span>
-                <button
-                  type="button"
-                  onClick={clearAllFiles}
-                  className="text-xs text-gray-500 hover:text-red-600 flex items-center gap-1"
-                >
-                  <TrashIcon className="w-3 h-3" />
-                  Бүгдийг устгах
-                </button>
               </div>
             )}
 
@@ -237,8 +224,8 @@ export function FileUploader({
               {value.map((file) => {
                 return (
                   <FileListItem
+                    key={file._id}
                     file={file}
-                    onlyRead={onlyRead}
                     isEdit={isEdit}
                     removeFile={removeFile}
                   />
@@ -353,7 +340,7 @@ export function FileUploader({
       )}
 
       {/* Action Buttons */}
-      {state === 'idle' && !onlyRead && (
+      {state === 'idle' && isEdit && (
         <>
           <div className="flex gap-2">
             {/* Record Voice Button */}

@@ -99,3 +99,8 @@ export type TaskDetail = {
   files: UploadedFile[];
   notes: any[];
 };
+
+export type AttachFileInput = {
+  taskId: string;
+  fileIds: string[];
+};

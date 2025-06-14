@@ -3,6 +3,7 @@
 import { BACKEND_URL } from '@/lib/config';
 import { ssrClient } from '../client';
 import {
+  AttachFileInput,
   CreateMemoTaskType,
   CreateWorkGroupTaskType,
   ICreateTaskInput,
@@ -11,6 +12,7 @@ import {
 } from '@/lib/types/task.types';
 import { revalidatePath } from 'next/cache';
 import { CreateFormData } from '@/lib/types/task-type.types';
+import { UploadedFile } from '@/lib/types/file.types';
 
 export const createMemoTask = async (
   data: CreateMemoTaskType,
@@ -63,4 +65,18 @@ export const createTask = async (data: ICreateTaskInput) => {
 
 export const createForm = async (data: CreateFormData) => {
   return ssrClient.post<boolean>(`${BACKEND_URL}/api/form/`, data);
+};
+
+export const attachFile = async (data: AttachFileInput) => {
+  return ssrClient.post<UploadedFile[]>(
+    `${BACKEND_URL}/api/task-v2/file`,
+    data
+  );
+};
+
+export const removeFile = async (data: AttachFileInput) => {
+  return ssrClient.post<UploadedFile[]>(
+    `${BACKEND_URL}/api/task-v2/removeFile`,
+    data
+  );
 };

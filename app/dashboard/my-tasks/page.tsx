@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TableParams } from '@/components/data-table-v2';
-import { getTaskList, getTaskListTest } from '@/ssr/service/task';
+import { getMyTaskList } from '@/ssr/service/task';
 import { queryStringBuilder } from '@/lib/query.util';
 import { isEmptyObject } from '@/lib/utils';
 import { MyTaskCardList } from '@/components/task/list/card-list';
@@ -42,12 +42,10 @@ export default async function MyTasksPage(props: {
   const query = queryStringBuilder({
     ...other,
     ...otherFilter,
-    onlyMe: true,
   });
 
-  const res2 = await getTaskList(query);
+  const res2 = await getMyTaskList(query);
 
-  console.log(res2);
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">

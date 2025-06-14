@@ -3,14 +3,12 @@ import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { isEmptyObject } from '@/lib/utils';
 import { queryStringBuilder } from '@/lib/query.util';
-import { getTaskListTest } from '@/ssr/service/task';
+import { getTaskList } from '@/ssr/service/task';
 import { MyTaskCardList } from '@/components/task/list/card-list';
 import TaskTableList from '@/components/task/list/task-table';
 import { TableParams } from '@/components/data-table-v2';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import Link from 'next/link';
 import { getFormTemplate } from '@/ssr/service/form';
+import RouteToCreatetaskButton from '@/components/task/route-to-createtask-button';
 
 export const metadata: Metadata = {
   title: 'Tasks - Task Management System',
@@ -48,17 +46,13 @@ export default async function TasksPage(props: {
     ...otherFilter,
   });
   const templateRes = await getFormTemplate(slug);
-  const res2 = await getTaskListTest(query);
+  const res2 = await getTaskList(query);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Ажлын жагсаалт</h2>
-        <Link href={`/dashboard/task/create?formId=${slug}`}>
-          <Button type="button" size="icon" className="size-10">
-            <Plus />
-          </Button>
-        </Link>
+        <RouteToCreatetaskButton formTemplateId={slug} />
       </div>
       <div className="space-y-4">
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>

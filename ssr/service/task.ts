@@ -7,16 +7,14 @@ export const getAllTasks = async (status: string) => {
   return ssrClient.get<Task[]>(`${BACKEND_URL}/api/task/all?status=${status}`);
 };
 
-export const getTaskList = async (queryString?: string) => {
+export const getMyTaskList = async (queryString?: string) => {
   return ssrClient.get<List<Task>>(
-    `${BACKEND_URL}/api/task-v2/${queryString ? `?${queryString}` : ''}`
+    `${BACKEND_URL}/api/task-v2/my-list${queryString ? `?${queryString}` : ''}`
   );
 };
 
-export const getTaskListTest = async (queryString?: string) => {
+export const getTaskList = async (queryString?: string) => {
   return ssrClient.get<List<Task>>(
-    `${BACKEND_URL}/api/task-v2/list-test/${
-      queryString ? `?${queryString}` : ''
-    }`
+    `${BACKEND_URL}/api/task-v2/${queryString ? `?${queryString}` : ''}`
   );
 };

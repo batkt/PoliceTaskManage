@@ -8,6 +8,7 @@ import { isAuthenticated } from '@/ssr/util';
 import { Toaster } from '@/components/ui/toaster';
 import SocketProvider from '@/context/socket-context';
 import { SOCKET_URL } from '@/lib/config';
+import { getLoggedUser } from '@/ssr/service/user';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,6 +24,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const token = await isAuthenticated();
+  const loggedUser = await getLoggedUser();
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -33,7 +35,11 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider isAuthenticated={!!token} accessToken={token}>
+          <AuthProvider
+            isAuthenticated={!!token}
+            accessToken={token}
+            loggedUser={loggedUser}
+          >
             <SocketProvider socketUrl={SOCKET_URL}>
               {children}
               <Toaster />

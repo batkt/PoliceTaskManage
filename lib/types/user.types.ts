@@ -12,3 +12,12 @@ export type User = {
   joinedDate?: string;
   profileImageUrl?: string;
 };
+
+export type AuthUser = User & {
+  lastLogin: {
+    createdAt: string;
+    device: string;
+    ipAddress: string;
+    userAgent: string;
+  };
+};

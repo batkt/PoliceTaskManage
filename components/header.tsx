@@ -117,7 +117,9 @@ export function Header() {
                         src="/placeholder.svg?height=32&width=32"
                         alt="@user"
                       />
-                      <AvatarFallback>{authUser?.givenname[0]}</AvatarFallback>
+                      <AvatarFallback>
+                        {authUser?.givenname?.[0]}
+                      </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
@@ -126,7 +128,7 @@ export function Header() {
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
                         {authUser
-                          ? `${authUser?.surname[0]}. ${authUser?.givenname}`
+                          ? `${authUser?.surname?.[0]}. ${authUser?.givenname}`
                           : 'Unknown'}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground truncate">

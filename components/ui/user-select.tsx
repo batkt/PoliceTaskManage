@@ -1,22 +1,23 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  Search,
-  X,
   Check,
   User as UserIcon,
   UserCogIcon,
   ChevronDown,
 } from 'lucide-react';
+import { CommandDialog, CommandInput } from '@/components/ui/command';
 import { User } from '@/lib/types/user.types';
 import { FieldError } from 'react-hook-form';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/auth-context';
+import { getUserList } from '@/lib/service/user';
+import { List } from '@/lib/types/global.types';
 
 interface UserSelectProps {
   users: User[];
   value?: string;
   onChange?: (userId: string) => void;
   placeholder?: string;
-  maxHeight?: string;
   error?: FieldError;
   name?: string;
   disabled?: boolean;
@@ -28,53 +29,34 @@ export const UserSelect: React.FC<UserSelectProps> = ({
   value = '',
   onChange,
   placeholder = 'Алба хаагч сонгох',
-  maxHeight = '200px',
   error,
   name = '',
   disabled = false,
-  required = false,
 }) => {
+  const { authUser, accessToken } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const containerRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [listUsers, setListUsers] = useState<List<User>>({
+    totalPages: 1,
+    currentPage: 1,
+    rows: [],
+    total: 0,
+  });
+  const searchTimeout = useRef<NodeJS.Timeout>(null);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
+  const getSearchUsers = useCallback(
+    async (q: string | undefined = '') => {
+      const res = await getUserList(q, accessToken);
+      if (res.code == 200) {
+        console.log(res.data);
+        setListUsers(res.data);
       }
-    };
+    },
+    [accessToken]
+  );
 
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () =>
-        document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isOpen]);
-
-  // Focus search input when dropdown opens
   useEffect(() => {
-    if (isOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [isOpen]);
-
-  const filteredUsers = useMemo(() => {
-    if (!searchQuery) return users;
-    const query = searchQuery.toLowerCase();
-    return users.filter(
-      (user) =>
-        user.surname.toLowerCase().includes(query) ||
-        user.givenname.toLowerCase().includes(query) ||
-        (user.position && user.position.toLowerCase().includes(query)) ||
-        (user.branch?.name && user.branch?.name.toLowerCase().includes(query))
-    );
-  }, [users, searchQuery]);
+    getSearchUsers();
+  }, [getSearchUsers]);
 
   const handleToggleUser = (user: User) => {
     if (disabled) return;
@@ -94,7 +76,12 @@ export const UserSelect: React.FC<UserSelectProps> = ({
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current);
+    }
+    searchTimeout.current = setTimeout(() => {
+      getSearchUsers(`search=${e.target.value}`);
+    }, 600);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -103,10 +90,10 @@ export const UserSelect: React.FC<UserSelectProps> = ({
     }
   };
 
-  const user = users?.find((u) => u._id === value);
+  const user = listUsers?.rows?.find((u) => u._id === value);
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div className="relative w-full">
       {/* Hidden input for form submission */}
       <input type="hidden" name={name} value={value} />
 
@@ -125,12 +112,6 @@ export const UserSelect: React.FC<UserSelectProps> = ({
         )}
         onClick={handleContainerClick}
         onKeyDown={handleKeyDown}
-        tabIndex={disabled ? -1 : 0}
-        role="combobox"
-        aria-expanded={isOpen}
-        aria-haspopup="listbox"
-        aria-required={required}
-        aria-invalid={!!error}
       >
         {!user ? (
           <span className="text-muted-foreground select-none">
@@ -149,78 +130,58 @@ export const UserSelect: React.FC<UserSelectProps> = ({
         <ChevronDown className="h-4 w-4 opacity-50 ml-auto flex-shrink-0" />
       </div>
 
-      {/* Dropdown */}
-      {isOpen && !disabled && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border rounded-md shadow-lg">
-          {/* Search Input */}
-          <div className="p-2 border-b">
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Алба хаагч хайх..."
-                autoFocus={false}
-                value={searchQuery}
-                onChange={handleSearchChange}
-                className="w-full pl-8 pr-3 py-2 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                onKeyDown={handleKeyDown}
-              />
-            </div>
-          </div>
-
-          {/* User List */}
-          <div
-            className="overflow-y-auto"
-            style={{ maxHeight }}
-            role="listbox"
-            aria-label="User selection list"
-          >
-            {filteredUsers.length === 0 ? (
-              <div className="p-4 text-center text-muted-foreground text-sm">
-                {searchQuery
-                  ? 'Хайлтад тохирох алба хаагч олдсонгүй.'
-                  : 'Алба хаагчдын мэдээлэл олдсонгүй.'}
-              </div>
-            ) : (
-              filteredUsers.map((user) => (
-                <div
-                  key={user._id}
-                  className={`flex items-center gap-3 p-3 hover:bg-accent cursor-pointer transition-colors`}
-                  onClick={() => handleToggleUser(user)}
-                  role="option"
-                  aria-selected={isUserSelected(user._id)}
-                >
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                    <UserCogIcon className="w-4 h-4 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm truncate flex items-center gap-2">
-                      <span>
-                        {user.givenname} {user.surname}
+      <CommandDialog
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        className="max-h-[500px]"
+      >
+        <CommandInput
+          placeholder="Хайх..."
+          onChangeCapture={handleSearchChange}
+        />
+        <div className="py-1 px-2">
+          {/* <Label>Алба хаагчид</Label> */}
+          {listUsers?.rows?.length > 0 ? (
+            listUsers?.rows?.map((user) => (
+              <div
+                key={user._id}
+                className={`flex items-center gap-3 p-3 hover:bg-accent cursor-pointer transition-colors`}
+                onClick={() => {
+                  handleToggleUser(user);
+                }}
+                role="option"
+                aria-selected={isUserSelected(user._id)}
+              >
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <UserCogIcon className="w-4 h-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-sm truncate flex items-center gap-2">
+                    <span>
+                      {user.givenname} {user.surname}
+                    </span>
+                    {user.position && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary flex-shrink-0">
+                        {user.position}
                       </span>
-                      {user.position && (
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary flex-shrink-0">
-                          {user.position}
-                        </span>
-                      )}
-                    </div>
-                    {user.branch?.name && (
-                      <div className="text-xs text-muted-foreground truncate mt-0.5">
-                        {user.branch?.name}
-                      </div>
                     )}
                   </div>
-                  {isUserSelected(user._id) && (
-                    <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                  {user.branch?.name && (
+                    <div className="text-xs text-muted-foreground truncate mt-0.5">
+                      {user.branch?.name}
+                    </div>
                   )}
                 </div>
-              ))
-            )}
-          </div>
+                {isUserSelected(user._id) && (
+                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="py-6 text-center text-sm">Үр дүн олдсонгүй.</div>
+          )}
         </div>
-      )}
-
+      </CommandDialog>
       {/* Error Message */}
       {error && (
         <span className="text-sm font-medium text-destructive">

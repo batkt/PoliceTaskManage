@@ -2,7 +2,7 @@
 
 import { decode } from 'jsonwebtoken';
 import { BACKEND_URL, TOKEN_KEY } from '@/lib/config';
-import { User } from '@/lib/types/user.types';
+import { AuthUser } from '@/lib/types/user.types';
 import { cookies } from 'next/headers';
 import { ssrClient } from '../client';
 
@@ -13,7 +13,7 @@ type LoginInputType = {
 
 export type LoginResponseType = {
   accessToken: string;
-  user: User;
+  user: AuthUser;
 };
 
 export const loginAction = async (data: LoginInputType) => {

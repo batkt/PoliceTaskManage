@@ -1,6 +1,7 @@
 import { TaskForm } from '@/components/task/task-create-form';
-import { getOwnBranches } from '@/ssr/service/branch';
 import { getAllForms } from '@/ssr/service/form';
+import { getLoggedUser } from '@/ssr/service/user';
+import { redirect } from 'next/navigation';
 import React from 'react';
 
 const CreateTask = async ({
@@ -9,15 +10,19 @@ const CreateTask = async ({
   searchParams: Promise<Record<string, string>>;
 }) => {
   const params = await searchParams;
+  const loggedUser = await getLoggedUser();
+
+  if (
+    !loggedUser ||
+    !['super-admin', 'admin'].includes(loggedUser?.role || '')
+  ) {
+    redirect('/dashboard');
+  }
+
   const res = await getAllForms();
-  const resBranch = await getOwnBranches();
   return (
     <div>
-      <TaskForm
-        types={res.data}
-        branches={resBranch.data}
-        formTemplateId={params.formId}
-      />
+      <TaskForm types={res.data} formTemplateId={params.formId} />
     </div>
   );
 };

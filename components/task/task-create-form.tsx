@@ -3,8 +3,8 @@
 import type React from 'react';
 
 import { useEffect, useMemo, useState } from 'react';
-import { redirect, useRouter } from 'next/navigation';
-import { CalendarIcon, PlusIcon, TrashIcon, Upload } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -58,17 +57,16 @@ type FormInputType = Omit<ICreateTaskInput, 'fileIds'> & {
 export function TaskForm({
   type,
   types = [],
-  branches = [],
   formTemplateId,
 }: {
   type?: string;
   types?: FormTemplate[];
-  branches?: Branch[];
   formTemplateId?: string;
 }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { users, branches } = useUsers();
   const { authUser } = useAuth();
 
   const defaultValues: FormInputType = {
@@ -88,13 +86,15 @@ export function TaskForm({
     useForm<FormInputType>({
       defaultValues: defaultValues,
     });
-  const { users } = useUsers();
+
   const formId = watch('formTemplateId');
   const selectedForm = types.find((t) => t._id === formId);
 
   useEffect(() => {
-    setValue('branchId', authUser?.branch?._id || '');
-  }, [authUser]);
+    if (authUser?.branch && branches?.length > 0) {
+      setValue('branchId', authUser?.branch?._id || '');
+    }
+  }, [authUser, branches]);
 
   const branchesTree = useMemo(() => {
     const tree: Record<string, Branch[]> = {};
@@ -136,7 +136,6 @@ export function TaskForm({
     setIsSubmitting(true);
     const { files, formValues, ...other } = formData as FormInputType;
     try {
-      console.log(other, formValues);
       const res = await createTask({
         ...other,
         formValues,
@@ -276,7 +275,7 @@ export function TaskForm({
             Шаардлагатай мэдээллүүдийг бүрэн гүйцэт оруулж даалгавар үүсгээрэй.
           </CardDescription>
         </CardHeader>
-        <CardContent className="w-full max-w-2xl mx-auto space-y-6 max-md:p-0 mt-6">
+        <CardContent className="w-full max-w-3xl space-y-6 max-md:p-0 mt-6">
           <Controller
             control={control}
             name="title"
@@ -370,7 +369,6 @@ export function TaskForm({
             control={control}
             name="branchId"
             render={({ field: { value, onChange }, fieldState: { error } }) => {
-              console.log('branchId ', value);
               return (
                 <div className="space-y-2">
                   <Label htmlFor="description">Алба, хэлтэс</Label>
@@ -647,11 +645,16 @@ export function TaskForm({
             />
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between w-full max-w-2xl mx-auto">
-          <Button variant="outline" type="button" onClick={() => router.back()}>
+        <CardFooter className="flex justify-between w-full max-w-3xl gap-2">
+          <Button
+            variant="outline"
+            type="button"
+            className="flex-1"
+            onClick={() => router.back()}
+          >
             Буцах
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" className="flex-1" disabled={isSubmitting}>
             {isSubmitting ? 'Үүсгэж байна...' : 'Даалгавар үүсгэх'}
           </Button>
         </CardFooter>

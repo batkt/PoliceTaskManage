@@ -29,7 +29,7 @@ export default function PersonalInformationPage() {
     if (role === 'super-admin') {
       return 'Супер админ';
     }
-    if (role === 'Admin') {
+    if (role === 'admin') {
       return 'Админ';
     }
     return 'Хэрэглэгч';
@@ -38,6 +38,7 @@ export default function PersonalInformationPage() {
   if (!authUser) {
     return null;
   }
+
   return (
     <ProfileLayout active="personal-information">
       <Card>
@@ -65,8 +66,11 @@ export default function PersonalInformationPage() {
                 {authUser?.givenname} {authUser?.surname}
               </CardTitle>
 
-              <p className="text-muted-foreground mt-1 max-md:text-sm">
-                Сүүлд нэвтэрсэн: {formatDateFull(new Date())}
+              <p className="text-muted-foreground mt-1 text-sm">
+                Сүүлд нэвтэрсэн:{' '}
+                {authUser?.lastLogin?.createdAt
+                  ? formatDateFull(new Date(authUser.lastLogin.createdAt))
+                  : ''}
               </p>
             </div>
           </div>

@@ -31,12 +31,11 @@ import {
 } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { List, Pagination, Sort } from '@/lib/types/global.types';
+import { List } from '@/lib/types/global.types';
 import { User } from '@/lib/types/user.types';
 import { format } from 'date-fns';
 import { Branch } from '@/lib/types/branch.types';
-import { usePathname, useRouter } from 'next/navigation';
-import { queryStringBuilder } from '@/lib/query.util';
+import { useRouter } from 'next/navigation';
 import { ColumnDef, DataTableV2, TableParams } from '../data-table-v2';
 import OfficerListToolbar from './toolbar';
 import { DataTablePagination } from '../data-table-v2/pagination';
@@ -91,6 +90,13 @@ export const columns: ColumnDef<User & { status?: string }>[] = [
         </div>
       );
     },
+  },
+  {
+    key: 'workerId',
+    header: (props) => {
+      return <ColumnHeader {...props} title="Код" />;
+    },
+    renderCell: (row) => <div>{row.workerId}</div>,
   },
   {
     key: 'rank',
@@ -185,11 +191,8 @@ export function OfficerList({
   const total = data?.total || 1;
   const totalPages = data?.totalPages || 1;
   const rows = data?.rows || [];
-  // const page = pagination?.page ?? 1;
-  // const pageSize = pagination?.pageSize ?? 2;
 
   const router = useRouter();
-  const pathname = usePathname();
 
   const handleSortChange = (key: string, direction: 'asc' | 'desc' | null) => {
     const url = new URL(window.location.href);

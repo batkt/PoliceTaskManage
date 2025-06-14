@@ -30,7 +30,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CalendarIcon, Eye, EyeOff, UserPlus } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import type { OfficerRegistrationData } from '@/lib/types/officer.types';
 import { useMemo, useState } from 'react';
@@ -38,6 +37,7 @@ import { Branch } from '@/lib/types/branch.types';
 import { useUsers } from '@/context/user-context';
 import { registerUser } from '@/ssr/actions/user';
 import { usePathname } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 interface OfficerRegisterModalProps {
   open: boolean;
@@ -62,6 +62,7 @@ export function OfficerRegisterModal({
 }: OfficerRegisterModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const pathname = usePathname();
+  const { toast } = useToast();
 
   const {
     control,
@@ -139,12 +140,17 @@ export function OfficerRegisterModal({
         });
         onOpenChange(false);
         reset();
+        return;
       }
       throw new Error(res.message);
     } catch (error) {
+      let message = '';
+      if (error instanceof Error) {
+        message = error?.message;
+      }
       toast({
         title: 'Алдаа гарлаа',
-        description: 'Бүртгэх үед алдаа гарлаа. Дахин оролдоно уу.',
+        description: message || 'Бүртгэх үед алдаа гарлаа. Дахин оролдоно уу.',
         variant: 'destructive',
       });
     }

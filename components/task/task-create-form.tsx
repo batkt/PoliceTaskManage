@@ -275,199 +275,83 @@ export function TaskForm({
             Шаардлагатай мэдээллүүдийг бүрэн гүйцэт оруулж даалгавар үүсгээрэй.
           </CardDescription>
         </CardHeader>
-        <CardContent className="w-full max-w-3xl space-y-6 max-md:p-0 mt-6">
-          <Controller
-            control={control}
-            name="title"
-            rules={{
-              required: 'Даалгаврын нэр оруулна уу',
-            }}
-            render={({ field, fieldState: { error } }) => {
-              return (
-                <div className="space-y-2">
-                  <Label htmlFor="workName">
-                    Даалгаврын нэр <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="workName"
-                    className="peer"
-                    placeholder="Даалгаврын нэр"
-                    {...field}
-                  />
-                  {error && (
-                    <span className="text-sm font-medium text-destructive">
-                      {error.message}
-                    </span>
-                  )}
-                </div>
-              );
-            }}
-          />
-
-          <Controller
-            control={control}
-            name="description"
-            render={({ field, fieldState: { error } }) => {
-              return (
-                <div className="space-y-2">
-                  <Label htmlFor="description">Тайлбар</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Тайлбар бичих..."
-                    className="resize-none"
-                    rows={4}
-                    {...field}
-                  />
-                  {error && (
-                    <span className="text-sm font-medium text-destructive">
-                      {error.message}
-                    </span>
-                  )}
-                </div>
-              );
-            }}
-          />
-
-          <Controller
-            control={control}
-            name="formTemplateId"
-            render={({ field: { value, onChange }, fieldState: { error } }) => {
-              return (
-                <div className="space-y-2">
-                  <Label htmlFor="description">Төрөл</Label>
-                  <Select
-                    onValueChange={(value) => {
-                      reset(defaultValues);
-                      onChange(value);
-                    }}
-                    value={value}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Төрөл сонгох" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {types?.map((item) => {
-                        return (
-                          <SelectItem value={item._id} key={item._id}>
-                            <div className="flex items-center">{item.name}</div>
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                  {error && (
-                    <span className="text-sm font-medium text-destructive">
-                      {error.message}
-                    </span>
-                  )}
-                </div>
-              );
-            }}
-          />
-
-          <Controller
-            control={control}
-            name="branchId"
-            render={({ field: { value, onChange }, fieldState: { error } }) => {
-              return (
-                <div className="space-y-2">
-                  <Label htmlFor="description">Алба, хэлтэс</Label>
-                  <Select
-                    onValueChange={(value) => onChange(value)}
-                    value={value}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Алба, хэлтэс" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {rootIds.flatMap((rootId) =>
-                        renderBranchOptions(branchesTree, rootId)
-                      )}
-                    </SelectContent>
-                  </Select>
-                  {error && (
-                    <span className="text-sm font-medium text-destructive">
-                      {error.message}
-                    </span>
-                  )}
-                </div>
-              );
-            }}
-          />
-
-          <div className="space-y-2">
+        <CardContent className="w-full max-md:p-0 mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          <div className="col-span-1 md:col-span-2 space-y-6">
             <Controller
               control={control}
-              name="assignee"
+              name="title"
               rules={{
-                required: 'Хариуцах алба хаагч сонгоно уу',
+                required: 'Даалгаврын нэр оруулна уу',
               }}
+              render={({ field, fieldState: { error } }) => {
+                return (
+                  <div className="space-y-2">
+                    <Label htmlFor="workName">
+                      Даалгаврын нэр <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="workName"
+                      className="peer"
+                      placeholder="Даалгаврын нэр"
+                      {...field}
+                    />
+                    {error && (
+                      <span className="text-sm font-medium text-destructive">
+                        {error.message}
+                      </span>
+                    )}
+                  </div>
+                );
+              }}
+            />
+
+            <Controller
+              control={control}
+              name="description"
+              render={({ field, fieldState: { error } }) => {
+                return (
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Тайлбар</Label>
+                    <Textarea
+                      id="description"
+                      placeholder="Тайлбар бичих..."
+                      className="resize-none"
+                      {...field}
+                    />
+                    {error && (
+                      <span className="text-sm font-medium text-destructive">
+                        {error.message}
+                      </span>
+                    )}
+                  </div>
+                );
+              }}
+            />
+
+            <Controller
+              control={control}
+              name="branchId"
               render={({
-                field: { value, onChange, name },
+                field: { value, onChange },
                 fieldState: { error },
               }) => {
                 return (
                   <div className="space-y-2">
-                    <Label htmlFor="members">
-                      Хариуцах алба хаагч{' '}
-                      <span className="text-destructive">*</span>
-                    </Label>
-                    <UserSelect
-                      users={selectDataUser}
-                      value={value as string}
+                    <Label htmlFor="description">Алба, хэлтэс</Label>
+                    <Select
+                      onValueChange={(value) => onChange(value)}
+                      value={value}
                       disabled={type === 'own'}
-                      onChange={onChange}
-                      placeholder="Хариуцах алба хаагч сонгоно уу"
-                      error={error}
-                      name={name}
-                      required
-                    />
-                  </div>
-                );
-              }}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Controller
-              control={control}
-              name="startDate"
-              rules={{
-                required: 'Эхлэх огноо сонгоно уу.',
-              }}
-              render={({ field, fieldState: { error } }) => {
-                return (
-                  <div className="space-y-2">
-                    <Label htmlFor="startDate">
-                      Эхлэх огноо <span className="text-destructive">*</span>
-                    </Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          id="startDate"
-                          variant={'outline'}
-                          className={cn(
-                            'w-full pl-3 text-left font-normal',
-                            !field.value && 'text-muted-foreground'
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, 'yyyy-MM-dd')
-                          ) : (
-                            <span>Огноо сонгох</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          fromDate={new Date()}
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Алба, хэлтэс" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {rootIds.flatMap((rootId) =>
+                          renderBranchOptions(branchesTree, rootId)
+                        )}
+                      </SelectContent>
+                    </Select>
                     {error && (
                       <span className="text-sm font-medium text-destructive">
                         {error.message}
@@ -477,141 +361,80 @@ export function TaskForm({
                 );
               }}
             />
-            <Controller
-              control={control}
-              name="dueDate"
-              rules={{
-                required: 'Дуусах огноо сонгоно уу.',
-              }}
-              render={({ field, fieldState: { error } }) => {
-                return (
-                  <div className="space-y-2">
-                    <Label htmlFor="dueDate">
-                      Дуусах огноо <span className="text-destructive">*</span>
-                    </Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          id="dueDate"
-                          variant={'outline'}
-                          className={cn(
-                            'w-full pl-3 text-left font-normal',
-                            !field.value && 'text-muted-foreground'
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, 'yyyy-MM-dd')
-                          ) : (
-                            <span>Огноо сонгох</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          fromDate={watch('startDate') || new Date()}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    {error && (
-                      <span className="text-sm font-medium text-destructive">
-                        {error.message}
-                      </span>
-                    )}
-                  </div>
-                );
-              }}
-            />
-          </div>
 
-          <Controller
-            control={control}
-            name="priority"
-            rules={{
-              required: 'Сонгоно уу.',
-            }}
-            render={({ field: { value, onChange }, fieldState: { error } }) => {
-              return (
-                <div className="space-y-2">
-                  <Label htmlFor="priority">
-                    Яаралтай эсэх <span className="text-destructive">*</span>
-                  </Label>
-                  <Select
-                    onValueChange={(value) => onChange(value)}
-                    value={value}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Эрэмбэ сонгох" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
-                          Бага
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="medium">
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                          Дунд
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="high">
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
-                          Өндөр
-                        </div>
-                      </SelectItem>
-                      {/* <SelectItem value="urgent">
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-                          Urgent
-                        </div>
-                      </SelectItem> */}
-                    </SelectContent>
-                  </Select>
-                  {error && (
-                    <span className="text-sm font-medium text-destructive">
-                      {error.message}
-                    </span>
-                  )}
-                </div>
-              );
-            }}
-          />
-
-          {selectedForm?.fields?.map((item) => {
-            return (
+            <div className="space-y-2">
               <Controller
-                key={item.name}
                 control={control}
-                name={`formValues.${item.name}`}
-                rules={
-                  item.required
-                    ? {
-                        required: 'Утга оруулна уу.',
-                      }
-                    : {}
-                }
+                name="assignee"
+                rules={{
+                  required: 'Хариуцах алба хаагч сонгоно уу',
+                }}
                 render={({
-                  field: { value, onChange },
+                  field: { value, onChange, name },
                   fieldState: { error },
                 }) => {
                   return (
                     <div className="space-y-2">
-                      <Label htmlFor="priority">
-                        {item.label}{' '}
-                        {item.required ? (
-                          <span className="text-destructive">*</span>
-                        ) : (
-                          ''
-                        )}
+                      <Label htmlFor="members">
+                        Хариуцах алба хаагч{' '}
+                        <span className="text-destructive">*</span>
                       </Label>
+                      <UserSelect
+                        users={selectDataUser}
+                        value={value as string}
+                        disabled={type === 'own'}
+                        onChange={onChange}
+                        placeholder="Хариуцах алба хаагч сонгоно уу"
+                        error={error}
+                        name={name}
+                        required
+                      />
+                    </div>
+                  );
+                }}
+              />
+            </div>
 
-                      {renderFieldPreview(item, { value, onChange })}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Controller
+                control={control}
+                name="startDate"
+                rules={{
+                  required: 'Эхлэх огноо сонгоно уу.',
+                }}
+                render={({ field, fieldState: { error } }) => {
+                  return (
+                    <div className="space-y-2">
+                      <Label htmlFor="startDate">
+                        Эхлэх огноо <span className="text-destructive">*</span>
+                      </Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            id="startDate"
+                            variant={'outline'}
+                            className={cn(
+                              'w-full pl-3 text-left font-normal',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, 'yyyy-MM-dd')
+                            ) : (
+                              <span>Огноо сонгох</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            fromDate={new Date()}
+                          />
+                        </PopoverContent>
+                      </Popover>
                       {error && (
                         <span className="text-sm font-medium text-destructive">
                           {error.message}
@@ -621,40 +444,229 @@ export function TaskForm({
                   );
                 }}
               />
-            );
-          })}
+              <Controller
+                control={control}
+                name="dueDate"
+                rules={{
+                  required: 'Дуусах огноо сонгоно уу.',
+                }}
+                render={({ field, fieldState: { error } }) => {
+                  return (
+                    <div className="space-y-2">
+                      <Label htmlFor="dueDate">
+                        Дуусах огноо <span className="text-destructive">*</span>
+                      </Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            id="dueDate"
+                            variant={'outline'}
+                            className={cn(
+                              'w-full pl-3 text-left font-normal',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, 'yyyy-MM-dd')
+                            ) : (
+                              <span>Огноо сонгох</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            fromDate={watch('startDate') || new Date()}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      {error && (
+                        <span className="text-sm font-medium text-destructive">
+                          {error.message}
+                        </span>
+                      )}
+                    </div>
+                  );
+                }}
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label>Файлууд</Label>
             <Controller
               control={control}
-              name="files"
+              name="priority"
+              rules={{
+                required: 'Сонгоно уу.',
+              }}
               render={({
                 field: { value, onChange },
                 fieldState: { error },
               }) => {
                 return (
-                  <FileUploader
-                    value={value}
-                    onChange={onChange}
-                    error={error}
-                    isEdit={true}
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="priority">
+                      Яаралтай эсэх <span className="text-destructive">*</span>
+                    </Label>
+                    <Select
+                      onValueChange={(value) => onChange(value)}
+                      value={value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Эрэмбэ сонгох" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                            Бага
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="medium">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                            Дунд
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="high">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
+                            Өндөр
+                          </div>
+                        </SelectItem>
+                        {/* <SelectItem value="urgent">
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                          Urgent
+                        </div>
+                      </SelectItem> */}
+                      </SelectContent>
+                    </Select>
+                    {error && (
+                      <span className="text-sm font-medium text-destructive">
+                        {error.message}
+                      </span>
+                    )}
+                  </div>
                 );
               }}
             />
+            <div className="space-y-2">
+              <Label>Файлууд</Label>
+              <Controller
+                control={control}
+                name="files"
+                render={({
+                  field: { value, onChange },
+                  fieldState: { error },
+                }) => {
+                  return (
+                    <FileUploader
+                      value={value}
+                      onChange={onChange}
+                      error={error}
+                      isEdit={true}
+                    />
+                  );
+                }}
+              />
+            </div>
+          </div>
+          <div className="col-span-1 md:col-span-2 space-y-6">
+            <Controller
+              control={control}
+              name="formTemplateId"
+              render={({
+                field: { value, onChange },
+                fieldState: { error },
+              }) => {
+                return (
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Төрөл</Label>
+                    <Select
+                      onValueChange={(value) => {
+                        reset(defaultValues);
+                        onChange(value);
+                      }}
+                      value={value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Төрөл сонгох" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {types?.map((item) => {
+                          return (
+                            <SelectItem value={item._id} key={item._id}>
+                              <div className="flex items-center">
+                                {item.name}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                    {error && (
+                      <span className="text-sm font-medium text-destructive">
+                        {error.message}
+                      </span>
+                    )}
+                  </div>
+                );
+              }}
+            />
+            {selectedForm?.fields?.map((item) => {
+              return (
+                <Controller
+                  key={item.name}
+                  control={control}
+                  name={`formValues.${item.name}`}
+                  rules={
+                    item.required
+                      ? {
+                          required: 'Утга оруулна уу.',
+                        }
+                      : {}
+                  }
+                  render={({
+                    field: { value, onChange },
+                    fieldState: { error },
+                  }) => {
+                    return (
+                      <div className="space-y-2">
+                        <Label htmlFor="priority">
+                          {item.label}{' '}
+                          {item.required ? (
+                            <span className="text-destructive">*</span>
+                          ) : (
+                            ''
+                          )}
+                        </Label>
+
+                        {renderFieldPreview(item, { value, onChange })}
+                        {error && (
+                          <span className="text-sm font-medium text-destructive">
+                            {error.message}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  }}
+                />
+              );
+            })}
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between w-full max-w-3xl gap-2">
-          <Button
+        <CardFooter className="flex justify-end w-full gap-2">
+          {/* <Button
             variant="outline"
             type="button"
             className="flex-1"
             onClick={() => router.back()}
           >
             Буцах
-          </Button>
-          <Button type="submit" className="flex-1" disabled={isSubmitting}>
+          </Button> */}
+          <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Үүсгэж байна...' : 'Даалгавар үүсгэх'}
           </Button>
         </CardFooter>

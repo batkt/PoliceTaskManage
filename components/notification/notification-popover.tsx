@@ -11,10 +11,10 @@ import {
 } from '@/components/ui/popover';
 import { useNotifications } from '@/context/notification-context';
 import { cn, formatRelativeTime } from '@/lib/utils';
-import { useTasks } from '@/context/task-context';
+import { useRouter } from 'next/navigation';
 
 const NotificationPopover = () => {
-  const { openTaskDetailModal } = useTasks();
+  const router = useRouter();
   const { notifications, markAsRead, notSeenCount, markAllAsSeen } =
     useNotifications();
 
@@ -66,7 +66,9 @@ const NotificationPopover = () => {
                   onClick={() => {
                     markAsRead(notification);
                     if (notification.type === 'task') {
-                      openTaskDetailModal(notification.taskId!);
+                      router.push(
+                        `/dashboard/task/detail/${notification?.taskId!}`
+                      );
                     }
                   }}
                 >

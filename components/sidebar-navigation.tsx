@@ -220,7 +220,7 @@ export function SidebarNavigation() {
                           <Button
                             variant="ghost"
                             className={cn(
-                              'flex w-full items-center justify-between px-3 py-2 text-left hover:bg-primary-foreground/10 font-normal text-base',
+                              'flex w-full items-center justify-between px-3 py-2 text-left hover:bg-primary-foreground/10 font-normal text-base hover:text-white',
                               pathname === item.href &&
                                 'bg-primary-foreground/20'
                             )}

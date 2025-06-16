@@ -14,9 +14,6 @@ export default async function TasksPage() {
   const resForms = await getAllForms();
 
   const typesData = resForms?.data || [];
-  const sorted = typesData?.sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  );
 
   return (
     <div className="space-y-4">
@@ -27,8 +24,8 @@ export default async function TasksPage() {
       </div>
       <div className="space-y-4">
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            {sorted?.map((formTemplate) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {typesData?.map((formTemplate) => {
               return (
                 <Link
                   key={formTemplate._id}

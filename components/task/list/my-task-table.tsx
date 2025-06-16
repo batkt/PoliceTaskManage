@@ -5,8 +5,8 @@ import {
   TableParams,
   ColumnDef,
 } from '@/components/data-table-v2';
-import { useRouter } from 'next/navigation';
-import { Task, TaskStatus } from '@/lib/types/task.types';
+import { usePathname, useRouter } from 'next/navigation';
+import { Task, TaskStatus, TaskStatusChangeType } from '@/lib/types/task.types';
 import { ColumnHeader } from '../../data-table-v2/column-header';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -23,10 +23,11 @@ import {
 import { Button } from '@/components/ui/button';
 import StatusBadge from '../status-badge';
 import PriorityBadge from '../priority-badge';
-import { useTasks } from '@/context/task-context';
 import TaskListToolbar from './toolbar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FormTemplate } from '@/lib/types/form.types';
+import { changeStatusAction } from '@/ssr/actions/task';
+import { useToast } from '@/hooks/use-toast';
 
 type TaskWithAction = Task & { action?: '' };
 export default function MyTaskTableList({
@@ -44,7 +45,8 @@ export default function MyTaskTableList({
   const total = data?.total || 0;
   const totalPages = data?.totalPages || 1;
   const router = useRouter();
-  const { openTaskDetailModal, handleChangeStatus } = useTasks();
+  const pathname = usePathname();
+  const { toast } = useToast();
 
   const handleSortChange = (key: string, direction: 'asc' | 'desc' | null) => {
     const url = new URL(window.location.href);
@@ -80,7 +82,29 @@ export default function MyTaskTableList({
   };
 
   const goToDetail = (row: Task) => {
-    openTaskDetailModal(row._id);
+    router.push(`/dashboard/task/detail/${row._id}`);
+  };
+
+  const handleChangeStatus = async (data: TaskStatusChangeType) => {
+    const res = await changeStatusAction(data, pathname);
+
+    if (res.code === 200) {
+      let text = 'Төлөвлөгөөг амжилттай эхлүүллээ';
+      if (data.status === 'completed') {
+        text = 'Төлөвлөгөөг амжилттай гүйцэтгэж дууслаа';
+      }
+      toast({
+        variant: 'success',
+        title: 'Амжилттай.',
+        description: text,
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Алдаа гарлаа.',
+        description: res.message || 'Системийн алдаа',
+      });
+    }
   };
 
   const columns: ColumnDef<TaskWithAction>[] = [

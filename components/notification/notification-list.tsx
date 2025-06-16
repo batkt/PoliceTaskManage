@@ -10,7 +10,6 @@ import { Badge } from '../ui/badge';
 import { format } from 'date-fns';
 import { usePathname, useRouter } from 'next/navigation';
 import { useNotifications } from '@/context/notification-context';
-import { useTasks } from '@/context/task-context';
 
 const NotificationList = ({
   data,
@@ -20,7 +19,6 @@ const NotificationList = ({
   params: TableParams;
 }) => {
   const { markAsRead } = useNotifications();
-  const { openTaskDetailModal } = useTasks();
   const pathname = usePathname();
   const total = data?.total || 1;
   const totalPages = data?.totalPages || 1;
@@ -104,7 +102,7 @@ const NotificationList = ({
         onRowClick={async (data) => {
           await markAsRead(data, pathname);
           if (data.type === 'task') {
-            openTaskDetailModal(data?.taskId!);
+            router.push(`/dashboard/task/detail/${data?.taskId}`);
           }
         }}
         // toolbar={

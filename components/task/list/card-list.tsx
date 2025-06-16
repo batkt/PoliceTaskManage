@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { MoreVertical } from 'lucide-react';
-import { Task, TaskStatus } from '@/lib/types/task.types';
+import { Task, TaskStatus, TaskStatusChangeType } from '@/lib/types/task.types';
 import { List } from '@/lib/types/global.types';
 import { Card } from '../../ui/card';
 import { cn } from '@/lib/utils';
@@ -21,8 +21,9 @@ import { queryStringBuilder } from '@/lib/query.util';
 import { TableParams } from '../../data-table-v2';
 import StatusBadge from '../status-badge';
 import PriorityBadge from '../priority-badge';
-import { useTasks } from '@/context/task-context';
 import TaskListToolbar from './toolbar';
+import { changeStatusAction } from '@/ssr/actions/task';
+import { useToast } from '@/hooks/use-toast';
 
 export function MyTaskCardList({
   data,
@@ -37,12 +38,12 @@ export function MyTaskCardList({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { toast } = useToast();
   const rows = data?.rows || [];
   const page = params.page || 1;
   const total = data?.total || 0;
   const totalPages = data?.totalPages || 0;
   const pageSize = params.pageSize || 10;
-  const { openTaskDetailModal, handleChangeStatus } = useTasks();
 
   //   useEffect(() => {
   //     const handleGlobalSearch = (event: Event) => {
@@ -77,29 +78,30 @@ export function MyTaskCardList({
   };
 
   const goToDetail = (row: Task) => {
-    openTaskDetailModal(row._id);
+    router.push(`/dashboard/task/detail/${row._id}`);
   };
-  //   if (isLoading) {
-  //     return (
-  //       <div className="space-y-4">
-  //         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-  //           <div className="relative flex-1">
-  //             <Skeleton className="h-10 w-full" />
-  //           </div>
-  //           <div className="flex flex-wrap items-center gap-2">
-  //             <Skeleton className="h-10 w-[180px]" />
-  //             <Skeleton className="h-10 w-[120px]" />
-  //           </div>
-  //         </div>
 
-  //         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-  //           {Array.from({ length: 6 }).map((_, i) => (
-  //             <JobCardSkeleton key={i} />
-  //           ))}
-  //         </div>
-  //       </div>
-  //     );
-  //   }
+  const handleChangeStatus = async (data: TaskStatusChangeType) => {
+    const res = await changeStatusAction(data, pathname);
+
+    if (res.code === 200) {
+      let text = 'Төлөвлөгөөг амжилттай эхлүүллээ';
+      if (data.status === 'completed') {
+        text = 'Төлөвлөгөөг амжилттай гүйцэтгэж дууслаа';
+      }
+      toast({
+        variant: 'success',
+        title: 'Амжилттай.',
+        description: text,
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Алдаа гарлаа.',
+        description: res.message || 'Системийн алдаа',
+      });
+    }
+  };
 
   const changePage = (_page: number) => {
     const query = queryStringBuilder({

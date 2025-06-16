@@ -6,24 +6,14 @@ import {
   ColumnDef,
 } from '@/components/data-table-v2';
 import { useRouter } from 'next/navigation';
-import { Task, TaskStatus } from '@/lib/types/task.types';
+import { Task } from '@/lib/types/task.types';
 import { ColumnHeader } from '../../data-table-v2/column-header';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { MoreHorizontal } from 'lucide-react';
 import { List } from '@/lib/types/global.types';
 import { DataTablePagination } from '../../data-table-v2/pagination';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 import StatusBadge from '../status-badge';
 import PriorityBadge from '../priority-badge';
-import { useTasks } from '@/context/task-context';
 import TaskListToolbar from './toolbar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FormTemplate } from '@/lib/types/form.types';
@@ -33,8 +23,6 @@ export default function TaskTableList({
   data,
   params,
   template,
-  tableKey = 'my-tasks',
-  clickToDetail = false,
 }: {
   data?: List<TaskWithAction>;
   params: TableParams;
@@ -46,7 +34,6 @@ export default function TaskTableList({
   const total = data?.total || 0;
   const totalPages = data?.totalPages || 1;
   const router = useRouter();
-  const { openTaskDetailModal, handleChangeStatus } = useTasks();
 
   const handleSortChange = (key: string, direction: 'asc' | 'desc' | null) => {
     const url = new URL(window.location.href);
@@ -82,7 +69,7 @@ export default function TaskTableList({
   };
 
   const goToDetail = (row: Task) => {
-    openTaskDetailModal(row._id);
+    router.push(`/dashboard/task/detail/${row._id}`);
   };
 
   let dynamicColumns: ColumnDef<TaskWithAction>[] = [];
@@ -235,64 +222,6 @@ export default function TaskTableList({
     },
   ];
 
-  if (tableKey === 'my-tasks') {
-    columns.push({
-      key: 'action',
-      header: (props) => (
-        <div className="flex justify-center">
-          <ColumnHeader {...props} title="Үйлдэл" />
-        </div>
-      ),
-      renderCell: (row) => {
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Цэс нээх</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => goToDetail(row)}>
-                Дэлгэрэнгүй
-              </DropdownMenuItem>
-              {['pending', 'active'].includes(row.status) ? (
-                <DropdownMenuItem
-                  onClick={() =>
-                    handleChangeStatus({
-                      status: TaskStatus.IN_PROGRESS,
-                      taskId: row._id,
-                    })
-                  }
-                >
-                  Хийж эхлэх
-                </DropdownMenuItem>
-              ) : null}
-
-              {row.status === TaskStatus.IN_PROGRESS ? (
-                <DropdownMenuItem
-                  onClick={() =>
-                    handleChangeStatus({
-                      status: TaskStatus.COMPLETED,
-                      taskId: row._id,
-                    })
-                  }
-                >
-                  Дуусгах
-                </DropdownMenuItem>
-              ) : null}
-
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="!text-red-600 hover:!bg-red-500/20">
-                Устгах
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    });
-  }
-
   return (
     <div className="space-y-4">
       <DataTableV2
@@ -304,7 +233,7 @@ export default function TaskTableList({
         onRowClick={goToDetail}
         toolbar={
           <TaskListToolbar
-            tableKey={tableKey}
+            tableKey={'all-tasks'}
             filters={params.filters}
             onChangeFilter={handleFilterChange}
           />

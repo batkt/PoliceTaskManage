@@ -21,6 +21,13 @@ const TaskTypePage = async (props: {
   };
 
   const res = await getAllForms();
+
+  const typesData = res.code === 200 ? res.data || [] : [];
+
+  const sorted = typesData?.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -39,7 +46,7 @@ const TaskTypePage = async (props: {
       </div>
 
       <Suspense fallback={<Skeleton className="h-[300px] w-full" />}>
-        <TaskTypesList data={res?.data} params={params} />
+        <TaskTypesList data={sorted} params={params} />
       </Suspense>
     </div>
   );

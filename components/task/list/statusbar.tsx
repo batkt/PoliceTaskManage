@@ -24,7 +24,7 @@ const statuses = [
   },
   {
     key: 'active',
-    name: 'Идэвхитэй',
+    name: 'Идэвхтэй',
   },
   {
     key: 'processing',

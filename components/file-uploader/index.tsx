@@ -35,8 +35,8 @@ interface FileUploaderProps {
 export function FileUploader({
   onChange,
   value = [],
-  maxDuration = 120, // 2 minutes
-  warningTime = 100, // Warning at 1:40
+  maxDuration = 300, // 2 minutes
+  warningTime = 240, // Warning at 1:40
   showFileList = true,
   onlyRead = false,
   isEdit = true,

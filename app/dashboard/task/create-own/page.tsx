@@ -1,10 +1,13 @@
 import { TaskForm } from '@/components/task/task-create-form';
+import { getAllForms } from '@/ssr/service/form';
 import React from 'react';
 
-const CreateOwnTask = () => {
+const CreateOwnTask = async () => {
+  const res = await getAllForms();
+
   return (
     <div>
-      <TaskForm type="own" />
+      <TaskForm types={res.data} type="own" />
     </div>
   );
 };

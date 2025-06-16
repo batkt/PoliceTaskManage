@@ -1,27 +1,43 @@
 'use client';
 
-import { TaskDetailModal } from '@/components/task/task-detail-modal';
 import { useToast } from '@/hooks/use-toast';
-import { TaskStatusChangeType } from '@/lib/types/task.types';
+import { Note } from '@/lib/types/note.types';
+import { TaskDetail, TaskStatusChangeType } from '@/lib/types/task.types';
 import { changeStatusAction } from '@/ssr/actions/task';
 import { usePathname } from 'next/navigation';
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 interface TaskContextType {
-  openTaskDetailModal: (id: string) => void;
+  // openTaskDetailModal: (id: string) => void;
   handleChangeStatus: (data: TaskStatusChangeType) => void;
+  detailData: TaskDetail;
+  notes: Note[];
+  addNote: (note: Note) => void;
 }
 const TaskContext = createContext<TaskContextType | null>(null);
 
-const TaskProvider = ({ children }: { children: ReactNode }) => {
-  const [selectedTaskId, setSelectedTaskId] = useState('');
-  const [isOpenTaskDetailModal, setIsOpenTaskDetailModal] = useState(false);
+const TaskProvider = ({
+  children,
+  data,
+  notesData,
+}: {
+  children: ReactNode;
+  data: TaskDetail;
+  notesData?: Note[];
+}) => {
   const { toast } = useToast();
   const pathname = usePathname();
+  const [notes, setNotes] = useState<Note[]>(notesData || []);
+  // const [isOpenTaskDetailModal, setIsOpenTaskDetailModal] = useState(false);
+  // const openTaskDetailModal = (id: string) => {
+  //   setSelectedTaskId(id);
+  //   setIsOpenTaskDetailModal(true);
+  // };
 
-  const openTaskDetailModal = (id: string) => {
-    setSelectedTaskId(id);
-    setIsOpenTaskDetailModal(true);
+  const addNote = (note: Note) => {
+    setNotes((prev) => {
+      return [...prev, note];
+    });
   };
 
   const handleChangeStatus = async (data: TaskStatusChangeType) => {
@@ -37,7 +53,7 @@ const TaskProvider = ({ children }: { children: ReactNode }) => {
         title: 'Амжилттай.',
         description: text,
       });
-      setIsOpenTaskDetailModal(false);
+      // setIsOpenTaskDetailModal(false);
     } else {
       toast({
         variant: 'destructive',
@@ -50,12 +66,15 @@ const TaskProvider = ({ children }: { children: ReactNode }) => {
   return (
     <TaskContext.Provider
       value={{
-        openTaskDetailModal,
+        // openTaskDetailModal,
+        detailData: data,
+        notes,
         handleChangeStatus,
+        addNote,
       }}
     >
       {children}
-      {isOpenTaskDetailModal && selectedTaskId ? (
+      {/* {isOpenTaskDetailModal && selectedTaskId ? (
         <TaskDetailModal
           taskId={selectedTaskId}
           open={isOpenTaskDetailModal}
@@ -64,7 +83,7 @@ const TaskProvider = ({ children }: { children: ReactNode }) => {
           }}
           handleStatusChange={handleChangeStatus}
         />
-      ) : null}
+      ) : null} */}
     </TaskContext.Provider>
   );
 };

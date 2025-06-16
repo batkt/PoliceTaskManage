@@ -1,206 +1,366 @@
 'use client';
 
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { format } from 'date-fns';
-import { FC, useCallback, useEffect, useState } from 'react';
-import {
-  Memo,
-  Task,
-  TaskStatus,
-  TaskStatusChangeType,
-  WorkGroup,
-} from '@/lib/types/task.types';
-import { getMemoTask, getWorkGroupTask } from '@/lib/service/task';
-import PriorityBadge from './priority-badge';
+import { TaskStatus } from '@/lib/types/task.types';
+import React, { useState } from 'react';
 import StatusBadge from './status-badge';
+import PriorityBadge from './priority-badge';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { PlusIcon, AlertTriangleIcon, MessageSquareIcon } from 'lucide-react';
+
+import { formatDateFull, isOverdue } from '@/lib/utils';
+import { format } from 'date-fns';
+import { useUsers } from '@/context/user-context';
+import { Label } from '../ui/label';
 import { useAuth } from '@/context/auth-context';
-import { Button } from '../ui/button';
+import { FileUploader } from '../file-uploader';
+import { FieldTypes } from '@/lib/types/form.types';
+import { attachFile, removeFile } from '@/ssr/actions/task';
+import { UploadedFile } from '@/lib/types/file.types';
+import { useTasks } from '@/context/task-context';
+import { Note } from '@/lib/types/note.types';
+import CreateNoteInput from '../note/create-note-input';
 
-interface TaskDetailDialogProps {
-  open: boolean;
-  onClose: () => void;
-  task: Task;
-  handleStatusChange: (data: TaskStatusChangeType) => Promise<void>;
-}
+const TaskDetail = () => {
+  const { users } = useUsers();
+  const { authUser } = useAuth();
+  const { detailData, handleChangeStatus, notes, addNote } = useTasks();
+  const [files, setFiles] = useState<UploadedFile[]>(detailData?.files || []);
 
-const TaskDetailDialog: FC<TaskDetailDialogProps> = ({
-  open,
-  onClose,
-  task,
-  handleStatusChange,
-}) => {
-  const [memo, setMemo] = useState<Memo | undefined>();
-  const [workgroup, setWorkgroup] = useState<WorkGroup | undefined>();
-  const { accessToken } = useAuth();
   const [loading, setLoading] = useState(false);
 
-  const fetchMemo = useCallback(async (taskId: string) => {
-    const res = await getMemoTask(taskId, accessToken);
+  function diffLists(
+    oldList: UploadedFile[],
+    newList: UploadedFile[]
+  ): {
+    added: UploadedFile[];
+    removed: UploadedFile[];
+  } {
+    const added = newList.filter(
+      (item) => !oldList.map((it) => it._id).includes(item._id)
+    );
+    const removed = oldList.filter(
+      (item) => !newList.map((it) => it._id).includes(item._id)
+    );
 
-    if (res.code === 200) {
-      setMemo(res.data);
+    return { added, removed };
+  }
+
+  const handleFileUploadChange = async (_files: UploadedFile[]) => {
+    const { added, removed } = diffLists(files || [], _files || []);
+    setFiles(_files);
+    const fileRes = await attachFile({
+      taskId: detailData._id,
+      fileIds: added.map((f) => f._id),
+    });
+
+    const fileRes2 = await removeFile({
+      taskId: detailData._id,
+      fileIds: removed.map((f) => f._id),
+    });
+  };
+
+  const isMeAssigner = detailData.assignee?._id === authUser?._id;
+  const overdue = isOverdue(new Date(detailData?.dueDate || ''));
+
+  const isEditAccess = () => {
+    if (!detailData) {
+      return false;
     }
-  }, []);
 
-  const fetchWorkGroup = useCallback(async (taskId: string) => {
-    const res = await getWorkGroupTask(taskId, accessToken);
-    if (res.code === 200) {
-      setWorkgroup(res.data);
+    if (!authUser) {
+      return false;
     }
-  }, []);
 
-  // useEffect(() => {
-  //   if (task.type === 'memo') {
-  //     fetchMemo(task._id);
-  //   } else if (task.type === 'work-group') {
-  //     fetchWorkGroup(task._id);
-  //   }
-  // }, [fetchWorkGroup, fetchMemo, task]);
+    if (
+      [TaskStatus.COMPLETED, TaskStatus.REVIEWED].includes(detailData?.status)
+    ) {
+      // Task guitsetgeed dussan tolowt baigaa
+      return false;
+    }
+
+    if (detailData?.assignee?._id === authUser._id) {
+      return true;
+    }
+
+    if (['super-admin', 'admin'].includes(authUser?.role)) {
+      return true;
+    }
+
+    return false;
+  };
+
+  const renderUsers = (ids: string[]) => {
+    const userData = users.filter((u) => ids.includes(u._id));
+    return (
+      <div className="flex gap-x-2 gap-4 flex-wrap">
+        {userData?.map((user) => {
+          return (
+            <div
+              key={`formValue_${user._id}`}
+              className="flex items-center gap-2 bg-muted rounded-full px-3 py-1 pe-4"
+            >
+              <Avatar className="h-6 w-6">
+                <AvatarImage src={detailData.assignee?.profileImageUrl} />
+                <AvatarFallback className="text-xs bg-background">
+                  {detailData.assignee?.givenname?.[0]}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm">{detailData.assignee?.givenname}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderFormValue = (item: Record<string, any>) => {
+    if (item.type === FieldTypes.USER_SELECT) {
+      return item?.value ? renderUsers([item.value]) : '';
+    }
+    if (item.type === FieldTypes.MULTI_USER_SELECT) {
+      return item?.value?.length > 0 ? renderUsers(item.value) : '';
+    }
+    if (item.type === FieldTypes.DATE) {
+      return (
+        <p className="text-sm text-muted-foreground">
+          {item?.value ? format(new Date(item.value), 'yyyy-MM-dd') : ''}
+        </p>
+      );
+    }
+    return <p className="text-sm text-muted-foreground">{item.value}</p>;
+  };
+
+  if (!detailData) {
+    return null;
+  }
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-auto p-6">
-        <DialogHeader>
-          <DialogTitle>{task.title}</DialogTitle>
-          <DialogDescription>{task?.description}</DialogDescription>
-        </DialogHeader>
-        {/* <ScrollArea className="mt-6">
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-4 text-sm mb-6">
-              <div className="flex items-center gap-4">
-                <span>Эхлэх огноо:</span>
-                <span>
-                  {task.startDate
-                    ? format(new Date(task.startDate), 'yyyy-MM-dd')
-                    : 'Байхгүй'}
-                </span>
+    <div>
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold tracking-tight mb-2">
+            {detailData?.title}
+          </h1>
+          <div className="flex items-center gap-2 flex-wrap">
+            <StatusBadge status={detailData?.status} />
+            <PriorityBadge priority={detailData?.priority} />
+          </div>
+        </div>
+        <div>
+          {isMeAssigner ? (
+            <>
+              {[TaskStatus.PENDING, TaskStatus.ACTIVE].includes(
+                detailData.status
+              ) ? (
+                <Button
+                  onClick={async () => {
+                    setLoading(true);
+                    await handleChangeStatus({
+                      status: TaskStatus.IN_PROGRESS,
+                      taskId: detailData._id,
+                    });
+                    setLoading(false);
+                  }}
+                >
+                  Хийж эхлэх
+                </Button>
+              ) : null}
+              {detailData.status === TaskStatus.IN_PROGRESS ? (
+                <Button
+                  className="bg-green-500 text-white hover:bg-green-600"
+                  onClick={async () => {
+                    setLoading(true);
+                    await handleChangeStatus({
+                      status: TaskStatus.COMPLETED,
+                      taskId: detailData._id,
+                    });
+                    setLoading(false);
+                  }}
+                >
+                  Дуусгах
+                </Button>
+              ) : null}
+            </>
+          ) : null}
+        </div>
+      </div>
+
+      <Tabs defaultValue="overview" className="w-full pb-6 pt-4">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="overview">Ерөнхий</TabsTrigger>
+          <TabsTrigger disabled={loading} value="files">
+            Файлууд
+          </TabsTrigger>
+          <TabsTrigger disabled={loading} value="notes">
+            Тэмдэглэл
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            {/* Left Column */}
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Тайлбар</Label>
+                <p className="text-sm text-muted-foreground">
+                  {detailData?.description}
+                </p>
               </div>
-              <div className="flex items-center gap-4">
-                <span>Дуусах огноо:</span>
-                <span>
-                  {task.dueDate
-                    ? format(new Date(task.dueDate), 'yyyy-MM-dd')
-                    : 'Байхгүй'}
-                </span>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
+                  Хариуцсан алба хаагчид
+                </Label>
+                <div className="flex gap-x-2 gap-4 flex-wrap">
+                  <div className="flex items-center gap-2 bg-muted rounded-full px-3 py-1 pe-4">
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage src={detailData.assignee?.profileImageUrl} />
+                      <AvatarFallback className="text-xs bg-background">
+                        {detailData.assignee?.givenname?.[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm">
+                      {detailData.assignee?.givenname}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-4">
-                Төлөв: <StatusBadge status={task.status} />
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-4">
+                  <Label className="text-sm font-medium">Хугацаа</Label>
+                  {overdue && (
+                    <Badge
+                      variant="destructive"
+                      className="flex items-center gap-1"
+                    >
+                      <AlertTriangleIcon className="h-3 w-3" />
+                      Хугацаа хэтэрсэн
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex gap-6 items-center text-sm">
+                  <div className="text-muted-foreground">
+                    Эхлэх:{' '}
+                    {format(new Date(detailData.startDate), 'yyyy-MM-dd')}
+                  </div>
+                </div>
+                <div className="flex gap-2 items-center text-sm">
+                  <div className="text-muted-foreground">
+                    Дуусах: {format(new Date(detailData.dueDate), 'yyyy-MM-dd')}
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-4">
-                Зэрэглэл: <PriorityBadge priority={task.priority} />
-              </div>
-              <div className="flex items-center gap-4">
-                <span>Үүсгэсэн:</span>
-                <span>{task.createdBy?.givenname || 'Тодорхойгүй'}</span>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Үүсгэгч</Label>
+                <div className="flex gap-x-2 gap-4 flex-wrap">
+                  {users.map((user) => {
+                    if (user._id === detailData.createdBy._id) {
+                      return (
+                        <div
+                          key={user._id}
+                          className="flex items-center gap-2 bg-muted rounded-full px-3 py-1 pe-4"
+                        >
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage
+                              src={detailData.createdBy?.profileImageUrl}
+                            />
+                            <AvatarFallback className="text-xs bg-background">
+                              {user.givenname?.[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm">{user.givenname}</span>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
               </div>
             </div>
-
-            {task.type === 'memo' && memo && (
-              <div className="flex flex-col gap-3 text-sm">
-                <div className="flex items-center gap-4">
-                  <span>Бичгийн дугаар:</span>
-                  <span>{memo.documentNumber || '-'}</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span>Тэмдэглэгээ:</span> <span>{memo.marking || '-'}</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span>Тэмдэглэгээний огноо:</span>
-                  <span>
-                    {memo.markingDate
-                      ? format(new Date(memo.markingDate), 'yyyy-MM-dd')
-                      : '-'}
-                  </span>
-                </div>
-                {memo.markingVoiceUrl && (
-                  <audio controls src={memo.markingVoiceUrl} className="mt-2" />
-                )}
-              </div>
-            )}
-
-            {task.type === 'workgroup' && workgroup && (
-              <div className="space-y-2">
-                <h3 className="font-semibold text-lg">Ажлын хэсэг</h3>
-                <div>
-                  Нэр: <b>{workgroup.name}</b>
-                </div>
-                <div>
-                  Ахлагч: <b>{workgroup.leader?.givenname || 'Тодорхойгүй'}</b>
-                </div>
-                <div>Гишүүд:</div>
-                <ul className="list-disc list-inside ml-4">
-                  {workgroup.members.map((member) => (
-                    <li key={member._id}>{member.givenname}</li>
-                  ))}
-                </ul>
-                <div>
-                  Тэмдэглэгээ: <b>{workgroup.marking || 'Байхгүй'}</b>
-                </div>
-                <div>
-                  Тэмдэглэгээний огноо:{' '}
-                  <b>
-                    {workgroup.markingDate
-                      ? format(new Date(workgroup.markingDate), 'yyyy-MM-dd')
-                      : 'Байхгүй'}
-                  </b>
-                </div>
-                {workgroup.markingVoiceUrl && (
-                  <audio
-                    controls
-                    src={workgroup.markingVoiceUrl}
-                    className="mt-2"
-                  />
-                )}
-              </div>
-            )}
+            <div className="space-y-6">
+              {detailData?.formValues?.map((item, index) => {
+                return (
+                  <div className="space-y-1" key={`${item.label}_${index}`}>
+                    <Label className="text-sm font-medium">{item.label}</Label>
+                    {renderFormValue(item)}
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </ScrollArea> */}
-        <DialogFooter className="flex justify-end gap-2">
-          <DialogClose>
-            <Button variant={'secondary'}>Хаах</Button>
-          </DialogClose>
-          {['pending', 'active'].includes(task.status) ? (
-            <Button
-              onClick={async () => {
-                setLoading(true);
-                await handleStatusChange({
-                  status: TaskStatus.IN_PROGRESS,
-                  taskId: task._id,
-                });
-                setLoading(false);
-              }}
-            >
-              Эхлүүлэх
-            </Button>
-          ) : null}
-          {task.status !== 'completed' ? (
-            <Button
-              className="bg-green-500 text-foreground"
-              onClick={async () => {
-                setLoading(true);
-                await handleStatusChange({
-                  status: TaskStatus.COMPLETED,
-                  taskId: task._id,
-                });
-                setLoading(false);
-              }}
-            >
-              Дуусгах
-            </Button>
-          ) : null}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </TabsContent>
+
+        <TabsContent value="files" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium">Файлууд</h3>
+          </div>
+          <FileUploader
+            value={files || []}
+            onChange={handleFileUploadChange}
+            isEdit={isEditAccess()}
+          />
+        </TabsContent>
+
+        <TabsContent value="notes" className="space-y-4">
+          <div className="space-y-4">
+            <CreateNoteInput taskId={detailData._id} onSave={addNote} />
+            <Separator />
+            <div className="space-y-3">
+              {notes.map((note) => {
+                return (
+                  <Card key={note._id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={note.createdBy?.profileImageUrl} />
+                          <AvatarFallback className="text-xs">
+                            {note.createdBy?.givenname?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-medium text-sm">
+                              {note.createdBy?.givenname}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {formatDateFull(note.createdAt)}
+                            </span>
+                          </div>
+                          <p className="text-sm">{note.content}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+              {notes.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  <MessageSquareIcon className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>Тэмдэглэл байхгүй</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* <TabsContent value="activity" className="space-y-4">
+                  <div className="text-center py-8 text-gray-500">
+                    <ClockIcon className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p>Activity timeline coming soon</p>
+                  </div>
+                </TabsContent> */}
+      </Tabs>
+    </div>
   );
 };
 
-export default TaskDetailDialog;
+export default TaskDetail;

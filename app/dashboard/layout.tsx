@@ -8,7 +8,6 @@ import { NotificationProvider } from '@/context/notification-context';
 import UserProvider from '@/context/user-context';
 import { getAllUsers } from '@/ssr/service/user';
 import { getAllBranches } from '@/ssr/service/branch';
-import TaskProvider from '@/context/task-context';
 
 export const metadata: Metadata = {
   title: 'Dashboard - Task Management System',
@@ -33,17 +32,15 @@ export default async function DashboardLayout({
       data={usersRes.code === 200 ? usersRes.data : []}
       branchData={branchRes.code === 200 ? branchRes.data : []}
     >
-      <TaskProvider>
-        <NotificationProvider>
-          <div className="flex min-h-screen flex-col">
-            <SidebarNavigation />
-            <div className="flex-1 md:ml-64">
-              <Header />
-              <main className="flex-1 px-4 py-6 md:p-6">{children}</main>
-            </div>
+      <NotificationProvider>
+        <div className="flex min-h-screen flex-col">
+          <SidebarNavigation />
+          <div className="flex-1 md:ml-64">
+            <Header />
+            <main className="flex-1 px-4 py-6 md:p-6">{children}</main>
           </div>
-        </NotificationProvider>
-      </TaskProvider>
+        </div>
+      </NotificationProvider>
     </UserProvider>
   );
 }

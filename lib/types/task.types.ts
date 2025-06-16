@@ -89,6 +89,7 @@ export type TaskDetail = {
   assignee: User;
   title: string;
   startDate: string; //
+  branchId: string;
   dueDate: string; //
   description?: string;
   formValues?: Record<string, any>[];

@@ -363,7 +363,7 @@ export function TaskTypeBuilder() {
       case 'user-select':
         return (
           <UserSelect
-            users={mockUsers}
+            // users={mockUsers}
             value={value}
             onChange={(e) => handlePreviewChange(field.tempId, e)}
           />
@@ -371,7 +371,7 @@ export function TaskTypeBuilder() {
       case 'multi-user-select':
         return (
           <MultiUserSelect
-            users={mockUsers}
+            // users={mockUsers}
             value={value || []}
             onChange={(e) => handlePreviewChange(field.tempId, e)}
           />

@@ -231,7 +231,7 @@ const TaskDetail = ({
 
       {isOpenAssignModal ? (
         <AssignModal
-          taskId={detailData._id}
+          task={detailData}
           currentUser={detailData.assignee}
           open={isOpenAssignModal}
           onOpenChange={setIsOpenAssignModal}

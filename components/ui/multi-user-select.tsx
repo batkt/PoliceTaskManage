@@ -9,29 +9,30 @@ import { useAuth } from '@/context/auth-context';
 import { List } from '@/lib/types/global.types';
 
 interface MultiUserSelectProps {
-  users: User[];
   value?: string[];
   onChange?: (userIds: string[]) => void;
   placeholder?: string;
   maxHeight?: string;
   error?: FieldError;
   name?: string;
+  branchId?: string;
   disabled?: boolean;
   required?: boolean;
 }
 
 export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
-  users = [],
   value = [],
   onChange,
   placeholder = 'Алба хаагч сонгох',
   error,
   name = 'members',
+  branchId,
   disabled = false,
   required = false,
 }) => {
   const { accessToken } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [manualChanged, setManualChanged] = useState(false);
 
   const [listUsers, setListUsers] = useState<List<User>>({
     totalPages: 1,
@@ -39,6 +40,8 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
     rows: [],
     total: 0,
   });
+
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
   const searchTimeout = useRef<NodeJS.Timeout>(null);
 
@@ -53,19 +56,41 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
   );
 
   useEffect(() => {
-    getSearchUsers();
-  }, [getSearchUsers]);
+    getSearchUsers(branchId ? `branchId=${branchId}` : '');
+  }, [getSearchUsers, branchId]);
+
+  const getSelectedUsers = useCallback(async () => {
+    if (value?.length > 0 && !manualChanged) {
+      const res = await getUserList(`userIds=${value?.join('|')}`, accessToken);
+      if (res.code === 200) {
+        setSelectedUsers(res.data.rows);
+      }
+    }
+  }, [value, accessToken]);
+
+  useEffect(() => {
+    getSelectedUsers();
+  }, [getSelectedUsers]);
+
+  useEffect(() => {}, [value]);
 
   const handleToggleUser = (user: User) => {
     if (disabled) return;
 
+    setManualChanged(true);
     const isSelected = value.some((selected) => selected === user._id);
     let newValue: string[];
 
     if (isSelected) {
       newValue = value.filter((selected) => selected !== user._id);
+      setSelectedUsers((prev) => {
+        return prev?.filter((p) => p._id !== user._id);
+      });
     } else {
       newValue = [...value, user._id];
+      setSelectedUsers((prev) => {
+        return [...prev, user];
+      });
     }
 
     onChange?.(newValue);
@@ -75,6 +100,9 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
     if (disabled) return;
     e?.stopPropagation();
     const newValue = value.filter((_userId) => _userId !== userId);
+    setSelectedUsers((prev) => {
+      return prev?.filter((p) => p._id !== userId);
+    });
     onChange?.(newValue);
   };
 
@@ -93,7 +121,11 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
       clearTimeout(searchTimeout.current);
     }
     searchTimeout.current = setTimeout(() => {
-      getSearchUsers(`search=${e.target.value}`);
+      let query = `search=${e.target.value}`;
+      if (branchId) {
+        query = `${query}&branchId=${branchId}`;
+      }
+      getSearchUsers(query);
     }, 600);
   };
 
@@ -103,6 +135,10 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
     }
   };
 
+  const firstThree = value.slice(0, 3);
+  const notSelectedUsers = listUsers?.rows?.filter(
+    (u) => !value?.includes(u._id)
+  );
   return (
     <div className="relative w-full">
       {/* Hidden input for form submission */}
@@ -115,7 +151,7 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
       {/* Main Select Container */}
       <div
         className={cn(
-          `min-h-[42px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background flex flex-wrap gap-1 items-center transition-colors ${
+          `min-h-[42px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background flex items-center transition-colors ${
             disabled
               ? 'cursor-not-allowed opacity-50'
               : 'cursor-pointer hover:bg-accent/50'
@@ -139,36 +175,43 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
             {placeholder}
           </span>
         ) : (
-          value.map((userId) => {
-            const user = users.find((u) => u._id === userId);
-            if (!user) {
-              return null;
-            }
+          <div className="flex flex-wrap gap-1 items-center">
+            {firstThree?.map((userId) => {
+              const user = selectedUsers.find((u) => u._id === userId);
+              if (!user) {
+                return null;
+              }
 
-            return (
-              <div
-                key={user._id}
-                className="inline-flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-sm text-xs"
-              >
-                <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
-                  <UserIcon className="w-2 h-2" />
+              return (
+                <div
+                  key={user._id}
+                  className="inline-flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-sm text-xs"
+                >
+                  <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
+                    <UserIcon className="w-2 h-2" />
+                  </div>
+                  <span className="max-w-[120px] truncate">
+                    {user.givenname} {user.surname}
+                  </span>
+                  {!disabled && (
+                    <button
+                      type="button"
+                      onClick={(e) => handleRemoveUser(user._id, e)}
+                      className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5 transition-colors"
+                      aria-label={`Remove ${user.givenname} ${user.surname}`}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
                 </div>
-                <span className="max-w-[120px] truncate">
-                  {user.givenname} {user.surname}
-                </span>
-                {!disabled && (
-                  <button
-                    type="button"
-                    onClick={(e) => handleRemoveUser(user._id, e)}
-                    className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5 transition-colors"
-                    aria-label={`Remove ${user.givenname} ${user.surname}`}
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                )}
+              );
+            })}
+            {value.length > 3 ? (
+              <div className="ms-2 px-2 border rounded-sm bg-secondary text-secondary-foreground flex items-center justify-center">
+                +{value.length - 3}
               </div>
-            );
-          })
+            ) : null}
+          </div>
         )}
         <Search className="w-4 h-4 text-muted-foreground ml-auto flex-shrink-0" />
       </div>
@@ -182,45 +225,89 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
           placeholder="Хайх..."
           onChangeCapture={handleSearchChange}
         />
-        <div className="py-1 px-2">
-          {/* <Label>Алба хаагчид</Label> */}
-          {listUsers?.rows?.length > 0 ? (
-            listUsers?.rows?.map((user) => (
-              <div
-                key={user._id}
-                className={`flex items-center gap-3 p-3 hover:bg-accent cursor-pointer transition-colors`}
-                onClick={() => handleToggleUser(user)}
-                role="option"
-                aria-selected={isUserSelected(user._id)}
-              >
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <UserCogIcon className="w-4 h-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm truncate flex items-center gap-2">
-                    <span>
-                      {user.givenname} {user.surname}
-                    </span>
-                    {user.position && (
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary flex-shrink-0">
-                        {user.position}
+        <div className="max-h-[450px]">
+          <div className="py-2 px-2 overflow-y-auto h-full">
+            <p className="text-sm mb-2 text-primary">Боломжит алба хаагчид</p>
+            {/* <Label>Алба хаагчид</Label> */}
+            {notSelectedUsers?.length > 0 ? (
+              notSelectedUsers?.map((user) => (
+                <div
+                  key={user._id}
+                  className={`flex items-center gap-3 p-3 hover:bg-accent cursor-pointer transition-colors`}
+                  onClick={() => handleToggleUser(user)}
+                  role="option"
+                  aria-selected={isUserSelected(user._id)}
+                >
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <UserCogIcon className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm truncate flex items-center gap-2">
+                      <span>
+                        {user.givenname} {user.surname}
                       </span>
+                      {user.position && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary flex-shrink-0">
+                          {user.position}
+                        </span>
+                      )}
+                    </div>
+                    {user.branch?.name && (
+                      <div className="text-xs text-muted-foreground truncate mt-0.5">
+                        {user.branch?.name}
+                      </div>
                     )}
                   </div>
-                  {user.branch?.name && (
-                    <div className="text-xs text-muted-foreground truncate mt-0.5">
-                      {user.branch?.name}
-                    </div>
+                  {isUserSelected(user._id) && (
+                    <Check className="w-4 h-4 text-primary flex-shrink-0" />
                   )}
                 </div>
-                {isUserSelected(user._id) && (
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                )}
+              ))
+            ) : (
+              <div className="py-6 text-center text-sm">Үр дүн олдсонгүй.</div>
+            )}
+
+            {selectedUsers?.length > 0 ? (
+              <div>
+                <p className="text-sm mt-4 mb-2 text-primary">
+                  Сонгогдсон алба хаагчид
+                </p>
+                {selectedUsers?.map((user) => (
+                  <div
+                    key={user._id}
+                    className={`flex items-center gap-3 p-3 hover:bg-accent cursor-pointer transition-colors`}
+                    onClick={() => handleToggleUser(user)}
+                    role="option"
+                    aria-selected={isUserSelected(user._id)}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <UserCogIcon className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm truncate flex items-center gap-2">
+                        <span>
+                          {user.givenname} {user.surname}
+                        </span>
+                        {user.position && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary flex-shrink-0">
+                            {user.position}
+                          </span>
+                        )}
+                      </div>
+                      {user.branch?.name && (
+                        <div className="text-xs text-muted-foreground truncate mt-0.5">
+                          {user.branch?.name}
+                        </div>
+                      )}
+                    </div>
+                    {isUserSelected(user._id) && (
+                      <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                    )}
+                  </div>
+                ))}
               </div>
-            ))
-          ) : (
-            <div className="py-6 text-center text-sm">Үр дүн олдсонгүй.</div>
-          )}
+            ) : null}
+          </div>
         </div>
       </CommandDialog>
 

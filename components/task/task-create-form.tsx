@@ -66,7 +66,7 @@ export function TaskForm({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const { users, branches } = useUsers();
+  const { branches } = useUsers();
   const { authUser } = useAuth();
 
   const defaultValues: FormInputType = {
@@ -89,7 +89,7 @@ export function TaskForm({
 
   const formId = watch('formTemplateId');
   const selectedForm = types.find((t) => t._id === formId);
-
+  const branchId = watch('branchId');
   useEffect(() => {
     if (authUser?.branch && branches?.length > 0) {
       setValue('branchId', authUser?.branch?._id || '');
@@ -170,9 +170,6 @@ export function TaskForm({
     }
   };
 
-  const selectDataUser =
-    type === 'own' ? users : users.filter((u) => u._id !== authUser?._id);
-
   const renderFieldPreview = (field: FormField, formFields: any) => {
     if (
       field.type === FieldTypes.TEXT_INPUT ||
@@ -244,8 +241,8 @@ export function TaskForm({
       const { value, onChange } = formFields;
       return (
         <MultiUserSelect
-          users={users}
           value={value || []}
+          branchId={branchId}
           onChange={(e) => onChange(e)}
           placeholder={field.placeholder || 'Алба хаагч сонгоно уу'}
         />
@@ -255,8 +252,8 @@ export function TaskForm({
       const { value, onChange } = formFields;
       return (
         <UserSelect
-          users={users}
           value={value}
+          branchId={branchId}
           onChange={(e) => onChange(e)}
           placeholder={field.placeholder || 'Алба хаагч сонгоно уу'}
         />
@@ -380,8 +377,8 @@ export function TaskForm({
                         <span className="text-destructive">*</span>
                       </Label>
                       <UserSelect
-                        users={selectDataUser}
                         value={value as string}
+                        branchId={branchId}
                         disabled={type === 'own'}
                         onChange={onChange}
                         placeholder="Хариуцах алба хаагч сонгоно уу"

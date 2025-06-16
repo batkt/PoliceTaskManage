@@ -11,25 +11,24 @@ import { Button } from '../ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { UserSelect } from '../ui/user-select';
-import { useUsers } from '@/context/user-context';
 import { User } from '@/lib/types/user.types';
 import { assignTask } from '@/ssr/actions/task';
+import { TaskDetail } from '@/lib/types/task.types';
 
 interface AssignModalProps {
-  taskId: string;
+  task: TaskDetail;
   currentUser: User;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 const AssignModal = ({
-  taskId,
+  task,
   currentUser,
   open,
   onOpenChange,
 }: AssignModalProps) => {
   const [loading, setLoading] = useState(false);
-  const { users } = useUsers();
   const router = useRouter();
   const { toast } = useToast();
   const {
@@ -47,7 +46,7 @@ const AssignModal = ({
     setLoading(true);
     try {
       const res = await assignTask({
-        taskId,
+        taskId: task._id,
         assignTo: values.assignee,
       });
       if (res.code === 200) {
@@ -100,8 +99,8 @@ const AssignModal = ({
                 <div className="space-y-2">
                   <Label htmlFor="members">Хариуцах алба хаагч</Label>
                   <UserSelect
-                    users={users}
                     value={value as string}
+                    branchId={task.branchId}
                     onChange={onChange}
                     placeholder="Хариуцах алба хаагч сонгоно уу"
                     error={error}

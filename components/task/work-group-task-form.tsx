@@ -64,7 +64,7 @@ const WorkGroupTaskForm: React.FC<FormComponentProps> = ({ control }) => {
                     <span className="text-destructive">*</span>
                   </Label>
                   <UserSelect
-                    users={users}
+                    // users={users}
                     value={value}
                     onChange={onChange}
                     placeholder="Ажлын хэсгийн ахлах сонгох"
@@ -94,7 +94,7 @@ const WorkGroupTaskForm: React.FC<FormComponentProps> = ({ control }) => {
                     Гишүүд <span className="text-destructive">*</span>
                   </Label>
                   <MultiUserSelect
-                    users={users}
+                    // users={users}
                     value={value}
                     onChange={onChange}
                     placeholder="Ажлын хэсэгт орох гишүүдийг сонгох"

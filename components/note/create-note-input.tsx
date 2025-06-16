@@ -4,6 +4,7 @@ import { Button } from '../ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { createNote } from '@/ssr/actions/note';
 import { Note } from '@/lib/types/note.types';
+import { usePathname } from 'next/navigation';
 
 const CreateNoteInput = ({
   taskId,
@@ -12,6 +13,7 @@ const CreateNoteInput = ({
   taskId: string;
   onSave?: (e: Note) => void;
 }) => {
+  const pathname = usePathname();
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
   const { toast } = useToast();
@@ -19,10 +21,13 @@ const CreateNoteInput = ({
   const handleAddNote = async () => {
     setLoading(true);
     try {
-      const res = await createNote({
-        taskId,
-        content,
-      });
+      const res = await createNote(
+        {
+          taskId,
+          content,
+        },
+        pathname
+      );
       if (res.code === 200) {
         onSave?.(res.data);
         setContent('');

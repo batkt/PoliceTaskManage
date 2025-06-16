@@ -2,15 +2,15 @@
 
 import { BACKEND_URL } from '@/lib/config';
 import { ssrClient } from '../client';
-import { Note, NoteInput } from '@/lib/types/note.types';
+import { Note } from '@/lib/types/note.types';
+import { AuditInput } from '@/lib/types/audit.types';
 import { revalidatePath } from 'next/cache';
 
-export const createNote = async (data: NoteInput, path: string) => {
+export const createAudit = async (data: AuditInput, path: string) => {
   const res = await ssrClient.post<Note>(
-    `${BACKEND_URL}/api/task-v2/note`,
+    `${BACKEND_URL}/api/task-v2/audit`,
     data
   );
-
   if (res.code === 200) {
     revalidatePath(path);
   }

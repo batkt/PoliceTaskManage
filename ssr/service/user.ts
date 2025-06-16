@@ -23,7 +23,6 @@ export const getLoggedUser = async () => {
       return res.data;
     }
 
-    console.log(res);
     return undefined;
   } catch (err) {
     console.log(err);

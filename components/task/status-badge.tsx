@@ -28,6 +28,12 @@ export const statuses = [
     icon: CheckCircle,
     color: 'text-green-500',
   },
+  {
+    value: TaskStatus.REVIEWED,
+    label: 'Хянагдсан',
+    icon: CheckCircle,
+    color: 'text-green-500',
+  },
 ];
 
 const StatusBadge = ({

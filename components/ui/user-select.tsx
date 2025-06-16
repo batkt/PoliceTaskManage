@@ -47,7 +47,6 @@ export const UserSelect: React.FC<UserSelectProps> = ({
     async (q: string | undefined = '') => {
       const res = await getUserList(q, accessToken);
       if (res.code == 200) {
-        console.log(res.data);
         setListUsers(res.data);
       }
     },

@@ -67,6 +67,13 @@ export const createForm = async (data: CreateFormData) => {
   return ssrClient.post<boolean>(`${BACKEND_URL}/api/form/`, data);
 };
 
+export const assignTask = async (data: {
+  taskId: string;
+  assignTo: string;
+}) => {
+  return ssrClient.post<boolean>(`${BACKEND_URL}/api/task-v2/assign`, data);
+};
+
 export const attachFile = async (data: AttachFileInput) => {
   return ssrClient.post<UploadedFile[]>(
     `${BACKEND_URL}/api/task-v2/file`,

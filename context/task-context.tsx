@@ -1,6 +1,7 @@
 'use client';
 
 import { useToast } from '@/hooks/use-toast';
+import { Audit } from '@/lib/types/audit.types';
 import { Note } from '@/lib/types/note.types';
 import { TaskDetail, TaskStatusChangeType } from '@/lib/types/task.types';
 import { changeStatusAction } from '@/ssr/actions/task';

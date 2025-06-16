@@ -1,5 +1,7 @@
 import TaskDetail from '@/components/task/task-detail';
 import TaskProvider from '@/context/task-context';
+import { getActivities } from '@/ssr/service/activity';
+import { getAuditData } from '@/ssr/service/audit';
 import { getTaskNotes } from '@/ssr/service/note';
 import { getTaskDetail } from '@/ssr/service/task';
 import { redirect } from 'next/navigation';
@@ -18,10 +20,12 @@ const TaskDetailPage = async (props: {
     redirect('/dashboard');
   }
 
+  const auditData = await getAuditData(params.slug);
   const notesRes = await getTaskNotes(params.slug);
+  const activities = await getActivities(params.slug);
   return (
     <TaskProvider data={res.data} notesData={notesRes.data}>
-      <TaskDetail />
+      <TaskDetail auditData={auditData} activities={activities} />
     </TaskProvider>
   );
 };

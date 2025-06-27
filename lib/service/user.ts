@@ -14,3 +14,7 @@ export const getUserList = async (queryString?: string, token?: string) => {
     token
   );
 };
+
+export const getUserByIds = async (ids: string[], token?: string) => {
+  return httpRequest.get<User[]>(`/user/getByIds?ids=${ids.join(',')}`, token);
+};

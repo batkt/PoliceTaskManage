@@ -227,7 +227,50 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
         />
         <div className="max-h-[450px]">
           <div className="py-2 px-2 overflow-y-auto h-full">
-            <p className="text-sm mb-2 text-primary">Боломжит алба хаагчид</p>
+            {selectedUsers?.length > 0 ? (
+              <div>
+                <p className="text-sm mt-4 mb-2 text-primary">
+                  Сонгогдсон алба хаагчид
+                </p>
+                {selectedUsers?.map((user) => (
+                  <div
+                    key={user._id}
+                    className={`flex items-center gap-3 p-3 hover:bg-accent cursor-pointer transition-colors`}
+                    onClick={() => handleToggleUser(user)}
+                    role="option"
+                    aria-selected={isUserSelected(user._id)}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <UserCogIcon className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm truncate flex items-center gap-2">
+                        <span>
+                          {user.surname?.[0]}.{user.givenname}
+                        </span>
+                        {user.position && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary flex-shrink-0">
+                            {user.position}
+                          </span>
+                        )}
+                      </div>
+                      {user.branch?.name && (
+                        <div className="text-xs text-muted-foreground truncate mt-0.5">
+                          {user.branch?.name}
+                        </div>
+                      )}
+                    </div>
+                    {isUserSelected(user._id) && (
+                      <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            <p className="text-sm mb-2 mt-4 text-primary">
+              Боломжит алба хаагчид
+            </p>
             {/* <Label>Алба хаагчид</Label> */}
             {notSelectedUsers?.length > 0 ? (
               notSelectedUsers?.map((user) => (
@@ -244,7 +287,7 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-sm truncate flex items-center gap-2">
                       <span>
-                        {user.givenname} {user.surname}
+                        {user.surname?.[0]}.{user.givenname}
                       </span>
                       {user.position && (
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary flex-shrink-0">
@@ -266,47 +309,6 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
             ) : (
               <div className="py-6 text-center text-sm">Үр дүн олдсонгүй.</div>
             )}
-
-            {selectedUsers?.length > 0 ? (
-              <div>
-                <p className="text-sm mt-4 mb-2 text-primary">
-                  Сонгогдсон алба хаагчид
-                </p>
-                {selectedUsers?.map((user) => (
-                  <div
-                    key={user._id}
-                    className={`flex items-center gap-3 p-3 hover:bg-accent cursor-pointer transition-colors`}
-                    onClick={() => handleToggleUser(user)}
-                    role="option"
-                    aria-selected={isUserSelected(user._id)}
-                  >
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                      <UserCogIcon className="w-4 h-4 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate flex items-center gap-2">
-                        <span>
-                          {user.givenname} {user.surname}
-                        </span>
-                        {user.position && (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary flex-shrink-0">
-                            {user.position}
-                          </span>
-                        )}
-                      </div>
-                      {user.branch?.name && (
-                        <div className="text-xs text-muted-foreground truncate mt-0.5">
-                          {user.branch?.name}
-                        </div>
-                      )}
-                    </div>
-                    {isUserSelected(user._id) && (
-                      <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : null}
           </div>
         </div>
       </CommandDialog>

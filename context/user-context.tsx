@@ -1,16 +1,13 @@
 'use client';
 
 import { createContext, ReactNode, useContext, useMemo } from 'react';
-import { User } from '@/lib/types/user.types';
 import { Branch } from '@/lib/types/branch.types';
 import { useAuth } from './auth-context';
 
 const UserContext = createContext<{
-  users: User[];
   allBranch: Branch[];
   branches: Branch[];
 }>({
-  users: [],
   allBranch: [],
   branches: [],
 });
@@ -21,11 +18,10 @@ export const useUsers = () => {
 
 interface IProps {
   children: ReactNode;
-  data?: User[];
   branchData?: Branch[];
 }
 
-const UserProvider = ({ children, data = [], branchData = [] }: IProps) => {
+const UserProvider = ({ children, branchData = [] }: IProps) => {
   const { authUser } = useAuth();
   const branches = useMemo((): Branch[] => {
     if (!branchData || branchData?.length < 1) {
@@ -50,7 +46,6 @@ const UserProvider = ({ children, data = [], branchData = [] }: IProps) => {
   return (
     <UserContext.Provider
       value={{
-        users: data,
         allBranch: branchData,
         branches: branches,
       }}

@@ -9,10 +9,6 @@ export const getUserList = async (queryString?: string) => {
   );
 };
 
-export const getAllUsers = async () => {
-  return ssrClient.get<User[]>(`${BACKEND_URL}/api/user/all`);
-};
-
 export const getLoggedUser = async () => {
   try {
     const res = await ssrClient.get<AuthUser>(

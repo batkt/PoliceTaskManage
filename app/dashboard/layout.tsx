@@ -6,7 +6,6 @@ import { redirect } from 'next/navigation';
 import { isAuthenticated } from '@/ssr/util';
 import { NotificationProvider } from '@/context/notification-context';
 import UserProvider from '@/context/user-context';
-import { getAllUsers } from '@/ssr/service/user';
 import { getAllBranches } from '@/ssr/service/branch';
 
 export const metadata: Metadata = {
@@ -24,14 +23,10 @@ export default async function DashboardLayout({
     redirect('/');
   }
 
-  const usersRes = await getAllUsers();
   const branchRes = await getAllBranches();
 
   return (
-    <UserProvider
-      data={usersRes.code === 200 ? usersRes.data : []}
-      branchData={branchRes.code === 200 ? branchRes.data : []}
-    >
+    <UserProvider branchData={branchRes.code === 200 ? branchRes.data : []}>
       <NotificationProvider>
         <div className="flex min-h-screen flex-col">
           <SidebarNavigation />

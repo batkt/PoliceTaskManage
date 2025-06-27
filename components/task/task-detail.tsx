@@ -18,12 +18,11 @@ import {
 
 import { formatDateFull, isOverdue } from '@/lib/utils';
 import { format } from 'date-fns';
-import { useUsers } from '@/context/user-context';
 import { Label } from '../ui/label';
 import { useAuth } from '@/context/auth-context';
 import { FileUploader } from '../file-uploader';
 import { FieldTypes } from '@/lib/types/form.types';
-import { assignTask, attachFile, removeFile } from '@/ssr/actions/task';
+import { attachFile, removeFile } from '@/ssr/actions/task';
 import { UploadedFile } from '@/lib/types/file.types';
 import { useTasks } from '@/context/task-context';
 import CreateNoteInput from '../note/create-note-input';
@@ -40,9 +39,8 @@ const TaskDetail = ({
   auditData: Audit[] | null;
   activities: Activity[] | null;
 }) => {
-  const { users } = useUsers();
   const { authUser } = useAuth();
-  const { detailData, handleChangeStatus, notes, addNote } = useTasks();
+  const { detailData, handleChangeStatus, notes, addNote, users } = useTasks();
   const [files, setFiles] = useState<UploadedFile[]>(detailData?.files || []);
 
   const [loading, setLoading] = useState(false);
@@ -125,12 +123,12 @@ const TaskDetail = ({
               className="flex items-center gap-2 bg-muted rounded-full px-3 py-1 pe-4"
             >
               <Avatar className="h-6 w-6">
-                <AvatarImage src={detailData.assignee?.profileImageUrl} />
+                <AvatarImage src={user?.profileImageUrl} />
                 <AvatarFallback className="text-xs bg-background">
-                  {detailData.assignee?.givenname?.[0]}
+                  {user?.givenname?.[0]}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm">{detailData.assignee?.givenname}</span>
+              <span className="text-sm">{user?.givenname}</span>
             </div>
           );
         })}
@@ -264,7 +262,7 @@ const TaskDetail = ({
 
               <div className="space-y-2">
                 <Label className="text-sm font-medium">
-                  Хариуцсан алба хаагчид
+                  Хариуцсан алба хаагч
                 </Label>
                 <div className="flex gap-4">
                   <div className="flex items-center gap-2 bg-muted rounded-full px-3 py-1 pe-4">
@@ -326,27 +324,22 @@ const TaskDetail = ({
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Үүсгэгч</Label>
                 <div className="flex gap-x-2 gap-4 flex-wrap">
-                  {users.map((user) => {
-                    if (user._id === detailData.createdBy._id) {
-                      return (
-                        <div
-                          key={user._id}
-                          className="flex items-center gap-2 bg-muted rounded-full px-3 py-1 pe-4"
-                        >
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage
-                              src={detailData.createdBy?.profileImageUrl}
-                            />
-                            <AvatarFallback className="text-xs bg-background">
-                              {user.givenname?.[0]}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-sm">{user.givenname}</span>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
+                  <div
+                    key={detailData.createdBy._id}
+                    className="flex items-center gap-2 bg-muted rounded-full px-3 py-1 pe-4"
+                  >
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage
+                        src={detailData.createdBy?.profileImageUrl}
+                      />
+                      <AvatarFallback className="text-xs bg-background">
+                        {detailData.createdBy.givenname?.[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm">
+                      {detailData.createdBy.givenname}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

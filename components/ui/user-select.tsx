@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from 'react';
 import {
   Check,
   User as UserIcon,
@@ -12,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
 import { getUserList } from '@/lib/service/user';
 import { List } from '@/lib/types/global.types';
+import { Button } from './button';
 
 interface UserSelectProps {
   value?: string;
@@ -19,6 +26,8 @@ interface UserSelectProps {
   placeholder?: string;
   error?: FieldError;
   name?: string;
+  trigger?: ReactNode;
+  clearable?: boolean;
   branchId?: string;
   disabled?: boolean;
   required?: boolean;
@@ -31,6 +40,8 @@ export const UserSelect: React.FC<UserSelectProps> = ({
   placeholder = 'Алба хаагч сонгох',
   error,
   name = '',
+  clearable = false,
+  trigger,
   disabled = false,
 }) => {
   const { accessToken } = useAuth();
@@ -120,37 +131,43 @@ export const UserSelect: React.FC<UserSelectProps> = ({
       <input type="hidden" name={name} value={value} />
 
       {/* Main Select Container */}
-      <div
-        className={cn(
-          `min-h-[42px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background flex flex-wrap gap-1 items-center transition-colors ${
-            disabled
-              ? 'cursor-not-allowed opacity-50'
-              : 'cursor-pointer hover:bg-accent/50'
-          } ${
-            error
-              ? 'border-destructive focus-within:ring-destructive'
-              : 'border-input focus-within:ring-2 focus-within:ring-ring'
-          } ${isOpen ? 'ring-2 ring-ring' : ''}`
-        )}
-        onClick={handleContainerClick}
-        onKeyDown={handleKeyDown}
-      >
-        {!user ? (
-          <span className="text-muted-foreground select-none">
-            {placeholder}
-          </span>
-        ) : (
-          <div
-            key={user._id}
-            className="inline-flex items-center rounded-sm text-sm"
-          >
-            <span>
-              {user.givenname} {user.surname}
+      {trigger ? (
+        <div onClick={handleContainerClick} onKeyDown={handleKeyDown}>
+          {trigger}
+        </div>
+      ) : (
+        <div
+          className={cn(
+            `min-h-[42px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background flex flex-wrap gap-1 items-center transition-colors ${
+              disabled
+                ? 'cursor-not-allowed opacity-50'
+                : 'cursor-pointer hover:bg-accent/50'
+            } ${
+              error
+                ? 'border-destructive focus-within:ring-destructive'
+                : 'border-input focus-within:ring-2 focus-within:ring-ring'
+            } ${isOpen ? 'ring-2 ring-ring' : ''}`
+          )}
+          onClick={handleContainerClick}
+          onKeyDown={handleKeyDown}
+        >
+          {!user ? (
+            <span className="text-muted-foreground select-none">
+              {placeholder}
             </span>
-          </div>
-        )}
-        <ChevronDown className="h-4 w-4 opacity-50 ml-auto flex-shrink-0" />
-      </div>
+          ) : (
+            <div
+              key={user._id}
+              className="inline-flex items-center rounded-sm text-sm"
+            >
+              <span>
+                {user.givenname} {user.surname}
+              </span>
+            </div>
+          )}
+          <ChevronDown className="h-4 w-4 opacity-50 ml-auto flex-shrink-0" />
+        </div>
+      )}
 
       <CommandDialog
         open={isOpen}
@@ -163,8 +180,68 @@ export const UserSelect: React.FC<UserSelectProps> = ({
         />
         <div className="max-h-[450px]">
           <div className="py-2 px-2 overflow-y-auto h-full">
-            <p className="text-sm mb-2 text-primary">Боломжит алба хаагчид</p>
-            {/* <Label>Алба хаагчид</Label> */}
+            {selectedUsers?.length > 0 ? (
+              <div>
+                <div className="flex items-center justify-between mt-4 mb-2">
+                  <p className="text-sm text-primary">
+                    Сонгогдсон алба хаагчид
+                  </p>
+                  {clearable && (
+                    <Button
+                      size="sm"
+                      type="button"
+                      variant={'ghost'}
+                      className={cn('h-6 px-2 text-xs')}
+                      onClick={() => {
+                        setSelectedUsers([]);
+                        setManualChanged(true);
+                        onChange?.('');
+                        setIsOpen(false);
+                      }}
+                    >
+                      Цэвэрлэх
+                    </Button>
+                  )}
+                </div>
+                {selectedUsers?.map((user) => (
+                  <div
+                    key={user._id}
+                    className={`flex items-center gap-3 p-3 hover:bg-accent cursor-pointer transition-colors`}
+                    onClick={() => handleToggleUser(user)}
+                    role="option"
+                    aria-selected={isUserSelected(user._id)}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <UserCogIcon className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm truncate flex items-center gap-2">
+                        <span>
+                          {user.surname?.[0]}.{user.givenname}
+                        </span>
+                        {user.position && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary flex-shrink-0">
+                            {user.position}
+                          </span>
+                        )}
+                      </div>
+                      {user.branch?.name && (
+                        <div className="text-xs text-muted-foreground truncate mt-0.5">
+                          {user.branch?.name}
+                        </div>
+                      )}
+                    </div>
+                    {isUserSelected(user._id) && (
+                      <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            <p className="text-sm mb-2 mt-4 text-primary">
+              Боломжит алба хаагчид
+            </p>
             {notSelectedUsers?.length > 0 ? (
               notSelectedUsers?.map((user) => (
                 <div
@@ -182,7 +259,7 @@ export const UserSelect: React.FC<UserSelectProps> = ({
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-sm truncate flex items-center gap-2">
                       <span>
-                        {user.givenname} {user.surname}
+                        {user.surname?.[0]}.{user.givenname}
                       </span>
                       {user.position && (
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary flex-shrink-0">
@@ -204,47 +281,6 @@ export const UserSelect: React.FC<UserSelectProps> = ({
             ) : (
               <div className="py-6 text-center text-sm">Үр дүн олдсонгүй.</div>
             )}
-
-            {selectedUsers?.length > 0 ? (
-              <div>
-                <p className="text-sm mt-4 mb-2 text-primary">
-                  Сонгогдсон алба хаагчид
-                </p>
-                {selectedUsers?.map((user) => (
-                  <div
-                    key={user._id}
-                    className={`flex items-center gap-3 p-3 hover:bg-accent cursor-pointer transition-colors`}
-                    onClick={() => handleToggleUser(user)}
-                    role="option"
-                    aria-selected={isUserSelected(user._id)}
-                  >
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                      <UserCogIcon className="w-4 h-4 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate flex items-center gap-2">
-                        <span>
-                          {user.givenname} {user.surname}
-                        </span>
-                        {user.position && (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary flex-shrink-0">
-                            {user.position}
-                          </span>
-                        )}
-                      </div>
-                      {user.branch?.name && (
-                        <div className="text-xs text-muted-foreground truncate mt-0.5">
-                          {user.branch?.name}
-                        </div>
-                      )}
-                    </div>
-                    {isUserSelected(user._id) && (
-                      <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : null}
           </div>
         </div>
       </CommandDialog>

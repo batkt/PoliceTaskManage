@@ -50,7 +50,9 @@ export default function TaskTableList({
   const handleFilterChange = (key: string, value: string) => {
     const url = new URL(window.location.href);
     if (value) url.searchParams.set(key, value);
-    else url.searchParams.delete(key);
+    else {
+      url.searchParams.delete(key);
+    }
     url.searchParams.set('page', '1');
     router.push(url.toString());
   };
@@ -83,7 +85,20 @@ export default function TaskTableList({
         (item): ColumnDef<TaskWithAction> => {
           return {
             key: item.name,
-            header: (props) => <ColumnHeader {...props} title={item.label} />,
+            header: (props) => (
+              <ColumnHeader
+                {...props}
+                title={item.label}
+                filterValue={params.filters?.[item.name]}
+                type={item.type}
+                onFilterChange={handleFilterChange}
+                filterOptions={item.options?.map((op) => ({
+                  value: op,
+                  label: op,
+                }))}
+              />
+            ),
+            enableFilter: true,
             renderCell: (row) => (
               <div className="font-medium whitespace-nowrap truncate">
                 {row.formValues?.[item.name]}
@@ -144,7 +159,16 @@ export default function TaskTableList({
     },
     {
       key: 'assignee',
-      header: (props) => <ColumnHeader {...props} title="Хариуцагч" />,
+      header: (props) => (
+        <ColumnHeader
+          {...props}
+          type={'user-select'}
+          onFilterChange={handleFilterChange}
+          filterValue={params.filters?.assignee}
+          title="Хариуцагч"
+        />
+      ),
+      enableFilter: true,
       renderCell: (row) => {
         return (
           <div className="flex items-center gap-3">

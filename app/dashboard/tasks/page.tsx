@@ -6,7 +6,7 @@ import { getAllForms } from '@/ssr/service/form';
 import { Card, CardContent } from '@/components/ui/card';
 
 export const metadata: Metadata = {
-  title: 'Tasks - Task Management System',
+  title: 'Ажлын жагсаалт - Ажил гүйцэтгэлийн систем',
   description: 'Police Department Task Management System Tasks',
 };
 

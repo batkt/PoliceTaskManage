@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ColumnDef } from '.';
 import { Button } from '../ui/button';
-import { ArrowDown, ArrowUp, ChevronsUpDown } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronsUpDown, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { FieldType } from '@/lib/types/task-type.types';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTriggerCustom,
+} from '../ui/select';
+import { UserSelect } from '../ui/user-select';
 
 export type SortDirection = 'asc' | 'desc' | null;
 
@@ -12,14 +20,24 @@ export type ColumnHeaderProps<T> = {
     sort?: string;
     order?: SortDirection;
   };
+  filterValue?: string;
+  additional?: Record<string, any>;
+  type?: FieldType;
+  filterOptions?: { value: string; label: string }[];
   onSortChange?: (sortKey: string, direction: SortDirection) => void;
+  onFilterChange?: (key: string, value: string) => void;
 };
 
 export function ColumnHeader<T>({
   title,
   colConfig,
   sorting,
+  filterValue = '',
+  additional = {},
+  type = 'text',
+  filterOptions = [],
   onSortChange,
+  onFilterChange,
   className = '',
 }: {
   title: string;
@@ -46,9 +64,9 @@ export function ColumnHeader<T>({
     );
   }
 
-  if (colConfig?.enableSort) {
-    return (
-      <div className={className}>
+  return (
+    <div className={cn('flex gap-2', className)}>
+      {colConfig.enableSort && (
         <Button
           variant="ghost"
           size="sm"
@@ -63,8 +81,85 @@ export function ColumnHeader<T>({
             <ChevronsUpDown />
           )}
         </Button>
-      </div>
-    );
-  }
-  return <div></div>;
+      )}
+      {colConfig.enableFilter && (
+        <>
+          {type === 'select' && (
+            <Select
+              onValueChange={(e) => {
+                if (e === 'бүгд') {
+                  onFilterChange?.(colConfig.key, '');
+                  return;
+                }
+                onFilterChange?.(colConfig.key, e);
+              }}
+              defaultValue={filterValue}
+            >
+              <SelectTriggerCustom
+                asChild
+                className="focus:ring-0 border-none focus:border-none focus:ring-transparent h-fit"
+              >
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="focus:ring-0 border-none focus:border-none focus:ring-transparent h-fit"
+                >
+                  <span className="whitespace-nowrap truncate">{title}</span>
+                  <div className="relative">
+                    <Filter />
+                    <div
+                      className={cn(
+                        'absolute -top-0.5 -right-0.5 transition-all duration-200 size-2 rounded-full bg-red-400',
+                        filterValue ? 'opacity-100' : 'opacity-0'
+                      )}
+                    ></div>
+                  </div>
+                </Button>
+              </SelectTriggerCustom>
+              <SelectContent>
+                <SelectItem value="бүгд">Бүгд</SelectItem>
+                {filterOptions.map(
+                  (option: { label: string; value: string }) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  )
+                )}
+              </SelectContent>
+            </Select>
+          )}
+          {(type === 'user-select' || type === 'multi-user-select') && (
+            <UserSelect
+              value={filterValue}
+              onChange={(e) => {
+                onFilterChange?.(colConfig.key, e);
+              }}
+              clearable={true}
+              trigger={
+                <Button type="button" variant="ghost" size="sm">
+                  <span className="whitespace-nowrap truncate">{title}</span>
+                  <div className="relative">
+                    <Filter />
+                    <div
+                      className={cn(
+                        'absolute -top-0.5 -right-0.5 transition-all duration-200 size-2 rounded-full bg-red-400',
+                        filterValue ? 'opacity-100' : 'opacity-0'
+                      )}
+                    ></div>
+                  </div>
+                </Button>
+              }
+            />
+          )}
+
+          {!['select', 'user-select', 'multi-user-select'].includes(type) && (
+            <div className={cn('whitespace-nowrap truncate', className)}>
+              {title}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
 }

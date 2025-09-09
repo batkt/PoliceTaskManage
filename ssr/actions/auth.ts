@@ -27,8 +27,8 @@ export const loginAction = async (data: LoginInputType) => {
     const cookieStore = await cookies();
     cookieStore.set(TOKEN_KEY, res.data.accessToken, {
       httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: false,
+      sameSite: 'lax',
       expires: decoded.exp * 1000,
       path: '/',
     });

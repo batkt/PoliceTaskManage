@@ -2,7 +2,7 @@
 
 import { CustomResponse } from './types/global.types';
 
-const API_URL = '/custom-api';
+const API_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const reponseChecker = async (response: Response) => {
   const data = await response.json();
@@ -22,7 +22,7 @@ const getRequest = async <T>(
   try {
     const { headers, ...otherConfig } = config || {};
 
-    const response = await fetch(`${API_URL}/${url}`, {
+    const response = await fetch(`${API_URL}/api/${url}`, {
       method: 'GET',
       headers: {
         ...getAuthHeaders(token),

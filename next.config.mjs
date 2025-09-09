@@ -1,11 +1,11 @@
 let userConfig = undefined;
 try {
   // try to import ESM first
-  userConfig = await import('./v0-user-next.config.mjs');
+  userConfig = await import("./v0-user-next.config.mjs");
 } catch (e) {
   try {
     // fallback to CJS import
-    userConfig = await import('./v0-user-next.config');
+    userConfig = await import("./v0-user-next.config");
   } catch (innerError) {
     // ignore error
   }
@@ -13,7 +13,7 @@ try {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  output: "standalone",
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -23,8 +23,8 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'cdn.dribbble.com',
+        protocol: "https",
+        hostname: "cdn.dribbble.com",
       },
     ],
   },
@@ -33,17 +33,13 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
     serverActions: {
-      allowedOrigins: ['task.zevtabs.mn', '127.0.0.1:3000'],
+      allowedOrigins: ["task.zevtabs.mn", "127.0.0.1:3000"],
     },
   },
   async rewrites() {
     return [
       {
-        source: '/custom-api/:slug*',
-        destination: `${process.env.BACKEND_URL}/api/:slug*`,
-      },
-      {
-        source: '/uploads/:slug*',
+        source: "/uploads/:slug*",
         destination: `${process.env.BACKEND_URL}/uploads/:slug*`,
       },
     ];
@@ -56,7 +52,7 @@ if (userConfig) {
 
   for (const key in config) {
     if (
-      typeof nextConfig[key] === 'object' &&
+      typeof nextConfig[key] === "object" &&
       !Array.isArray(nextConfig[key])
     ) {
       nextConfig[key] = {

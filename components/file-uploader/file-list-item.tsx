@@ -2,11 +2,11 @@ import React, { useRef, useState } from 'react';
 import { FileIconComponent } from './file-icon';
 import { UploadedFile } from '@/lib/types/file.types';
 import { formatFileSize, getFileInfo } from '@/lib/file.utils';
-import { formatDateFull } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Download, Eye, Pause, Play, TrashIcon } from 'lucide-react';
 import { ImagePreviewModal } from '../image-preview-modal';
 import { useAuth } from '@/context/auth-context';
+import { BASE_URL } from '@/lib/config';
 
 const formatTime = (seconds: number) => {
   const mins = Math.floor(seconds / 60);
@@ -56,9 +56,10 @@ const FileListItem = ({
     setIsPlaying(false);
   };
 
+
   const getProxyUrl = (url: string) => {
     const foundIndex = url.search('/uploads/');
-    return url.substring(foundIndex);
+    return `${BASE_URL}/upload${url.substring(foundIndex)}`;
   };
 
   const handleImageClick = (image: {

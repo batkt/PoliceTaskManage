@@ -378,7 +378,7 @@ const TaskDetail = ({
                 return (
                   <div
                     key={note._id}
-                    className="p-4 rounded-lg bg-white border"
+                    className="p-4 rounded-lg bg-secondary border"
                   >
                     <div className="flex items-start gap-3">
                       <Avatar className="h-8 w-8">
@@ -416,7 +416,7 @@ const TaskDetail = ({
           <div className="space-y-4">
             {activities?.map((item) => {
               return (
-                <div key={item._id} className="p-4 rounded-lg bg-white border">
+                <div key={item._id} className="p-4 rounded-lg bg-secondary border">
                   <div className="flex items-center justify-between">
                     <div className="flex gap-2 items-center">
                       <div>

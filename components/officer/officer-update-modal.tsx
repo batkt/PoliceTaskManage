@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
@@ -29,60 +29,59 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CalendarIcon, Eye, EyeOff, UserPlus } from 'lucide-react';
+import { CalendarIcon, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { OfficerRegistrationData } from '@/lib/types/officer.types';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Branch } from '@/lib/types/branch.types';
 import { useUsers } from '@/context/user-context';
-import { registerUser } from '@/ssr/actions/user';
+import { updateUser } from '@/ssr/actions/user';
 import { usePathname } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { User } from '@/lib/types/user.types';
 import { useAuth } from '@/context/auth-context';
 
-interface OfficerRegisterModalProps {
+interface OfficerUpdateModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  data?: User;
 }
 
 const schema = z.object({
-  workerId: z.string().min(1, 'Алба хаагчийн код оруулна уу'),
-  surname: z.string().min(1, 'Овог оруулна уу'),
-  givenname: z.string().min(1, 'Нэр оруулна уу'),
-  position: z.string().min(1, 'Албан тушаал оруулна уу'),
-  rank: z.string().min(1, 'Цол оруулна уу'),
-  branchId: z.string().min(1, 'Алба, хэлтэс сонгоно уу'),
-  role: z.enum(['user', 'admin', 'manager']),
-  password: z.string().min(8, 'Нууц үг хамгийн багадаа 8 тэмдэгт байна'),
+  workerId: z.string().min(3, 'Алба хаагчийн код оруулна уу'),
+  surname: z.string().min(2, 'Овог оруулна уу'),
+  givenname: z.string().min(2, 'Нэр оруулна уу'),
+  position: z.string().min(3, 'Албан тушаал оруулна уу'),
+  rank: z.string().min(3, 'Цол оруулна уу'),
+  branchId: z.string().min(4, 'Алба, хэлтэс сонгоно уу'),
+  role: z.string().min(4, 'Үүрэг сонгоно уу'),
   joinedDate: z.date({ required_error: 'Элссэн огноо шаардлагатай' }),
 });
 
-export function OfficerRegisterModal({
+export function OfficerUpdateModal({
   open,
+  data,
   onOpenChange,
-}: OfficerRegisterModalProps) {
-  const [showPassword, setShowPassword] = useState(false);
+}: OfficerUpdateModalProps) {
   const pathname = usePathname();
-  const { authUser } = useAuth();
   const { toast } = useToast();
+  const { authUser } = useAuth();
 
   const {
     control,
     handleSubmit,
     reset,
     formState: { isSubmitting },
-  } = useForm<OfficerRegistrationData>({
+  } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      workerId: '',
-      surname: '',
-      givenname: '',
-      position: '',
-      rank: '',
-      branchId: '',
-      role: 'user',
-      password: '',
-      joinedDate: new Date(),
+      workerId: data?.workerId || '',
+      surname: data?.surname || '',
+      givenname: data?.givenname || '',
+      position: data?.position || '',
+      rank: data?.rank || '',
+      branchId: data?.branch?._id || '',
+      role: data?.role || 'user',
+      joinedDate: data?.joinedDate ? new Date(data.joinedDate) : undefined,
     },
   });
 
@@ -124,13 +123,13 @@ export function OfficerRegisterModal({
     ]);
   }
 
-  const handleFormSubmit = async (data: OfficerRegistrationData) => {
+  const handleFormSubmit = async (data: FieldValues) => {
     try {
-      const { joinedDate, ...other } = data;
-      const res = await registerUser(
+      const { joinedDate, ...other } = data as User;
+      const res = await updateUser(
         {
           ...other,
-          joinedDate: format(joinedDate, 'yyyy-MM-dd'),
+          joinedDate: joinedDate ? format(joinedDate, 'yyyy-MM-dd') : "",
         },
         pathname
       );
@@ -138,7 +137,7 @@ export function OfficerRegisterModal({
         toast({
           variant: 'success',
           title: 'Амжилттай',
-          description: `Алба хаагч амжилттай бүртгэгдлээ.`,
+          description: `Алба хаагчын мэдээллийг амжилттай хадгаллаа.`,
         });
         onOpenChange(false);
         reset();
@@ -152,7 +151,7 @@ export function OfficerRegisterModal({
       }
       toast({
         title: 'Алдаа гарлаа',
-        description: message || 'Бүртгэх үед алдаа гарлаа. Дахин оролдоно уу.',
+        description: message || 'Алба хаагчын мэдээллийг хадгалах үед алдаа гарлаа. Дахин оролдоно уу.',
         variant: 'destructive',
       });
     }
@@ -189,9 +188,9 @@ export function OfficerRegisterModal({
               <UserPlus className="h-5 w-5" />
             </div>
             <div>
-              <DialogTitle>Алба хаагч бүртгэх</DialogTitle>
+              <DialogTitle>Алба хаагчын мэдээлэл засах</DialogTitle>
               <DialogDescription>
-                Шинэ алба хаагчийн мэдээллийг бөглөнө үү
+                Алба хаагчийн мэдээллийг бүрэн гүйцэт бөглөнө үү
               </DialogDescription>
             </div>
           </div>
@@ -213,6 +212,7 @@ export function OfficerRegisterModal({
                   </Label>
                   <Input
                     {...field}
+                    disabled={true}
                     autoComplete="off"
                     className={error && 'border-red-500'}
                   />
@@ -328,42 +328,6 @@ export function OfficerRegisterModal({
             />
 
             <Controller
-              name="password"
-              control={control}
-              render={({ field, fieldState: { error } }) => (
-                <div className="space-y-2">
-                  <Label>
-                    Нууц үг <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      {...field}
-                      autoComplete="new-password"
-                      type={showPassword ? 'text' : 'password'}
-                      className={`pr-10 ${error ? 'border-red-500' : ''}`}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                  {error && (
-                    <p className="text-sm text-red-500">{error.message}</p>
-                  )}
-                </div>
-              )}
-            />
-
-            <Controller
               name="joinedDate"
               control={control}
               render={({ field, fieldState: { error } }) => (
@@ -409,7 +373,7 @@ export function OfficerRegisterModal({
               Болих
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Бүртгэж байна...' : 'Бүртгэх'}
+              {isSubmitting ? 'Хадгалж байна...' : 'Хадгалах'}
             </Button>
           </DialogFooter>
         </form>

@@ -7,7 +7,6 @@ import { AuthProvider } from '@/context/auth-context';
 import { isAuthenticated } from '@/ssr/util';
 import { Toaster } from '@/components/ui/toaster';
 import SocketProvider from '@/context/socket-context';
-import { SOCKET_URL } from '@/lib/config';
 import { getLoggedUser } from '@/ssr/service/user';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -40,7 +39,7 @@ export default async function RootLayout({
             accessToken={token}
             loggedUser={loggedUser}
           >
-            <SocketProvider socketUrl={SOCKET_URL}>
+            <SocketProvider>
               {children}
               <Toaster />
             </SocketProvider>

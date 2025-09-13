@@ -64,7 +64,8 @@ const TaskProvider = ({
 
       const allIds = (userIds || []).concat(usersIds || []);
 
-      loadUsers(allIds, accessToken);
+      if (allIds.length > 0)
+        loadUsers(allIds, accessToken);
     }
   }, [data, accessToken]);
 

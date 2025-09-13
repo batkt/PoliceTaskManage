@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import { CustomResponse } from './types/global.types';
+import { BASE_URL } from "./config";
+import { CustomResponse } from "./types/global.types";
 
-const API_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const API_URL = BASE_URL;
 
 const reponseChecker = async (response: Response) => {
   const data = await response.json();
 
   if (data.code === 401) {
     // localStorage.removeItem(TOKEN_KEY);
-    console.log('401');
+    console.log("401");
   }
   return data;
 };
@@ -22,11 +23,11 @@ const getRequest = async <T>(
   try {
     const { headers, ...otherConfig } = config || {};
 
-    const response = await fetch(`${API_URL}/api/${url}`, {
-      method: 'GET',
+    const response = await fetch(`${API_URL}/api${url}`, {
+      method: "GET",
       headers: {
         ...getAuthHeaders(token),
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...headers,
       },
       ...otherConfig,
@@ -38,7 +39,7 @@ const getRequest = async <T>(
 
     return reponseChecker(response);
   } catch (error) {
-    console.error('Error in getRequest:', error);
+    console.error("Error in getRequest:", error);
     throw error;
   }
 };
@@ -52,10 +53,10 @@ const postRequest = async <T>(
   try {
     const { headers, ...otherConfig } = config || {};
     const response = await fetch(`${API_URL}/${url}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
         ...getAuthHeaders(token),
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...headers,
       },
       ...otherConfig,
@@ -68,7 +69,7 @@ const postRequest = async <T>(
 
     return reponseChecker(response);
   } catch (error) {
-    console.error('Error in getRequest:', error);
+    console.error("Error in getRequest:", error);
     throw error;
   }
 };
@@ -82,7 +83,7 @@ const postFormDataRequest = async <T>(
   try {
     const { headers, ...otherConfig } = config || {};
     const response = await fetch(`${API_URL}/${url}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
         ...getAuthHeaders(token),
         ...headers,
@@ -97,14 +98,14 @@ const postFormDataRequest = async <T>(
 
     return reponseChecker(response);
   } catch (error) {
-    console.error('Error in getRequest:', error);
+    console.error("Error in getRequest:", error);
     throw error;
   }
 };
 
 export function getAuthHeaders(token?: string): Record<string, string> {
   return {
-    Authorization: token ? `Bearer ${token}` : '',
+    Authorization: token ? `Bearer ${token}` : "",
   };
 }
 

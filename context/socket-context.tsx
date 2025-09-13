@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './auth-context';
+import { BASE_URL } from '@/lib/config';
 
 interface ISocketContextData {
   isConnected: boolean;
@@ -22,10 +23,8 @@ export const SocketContext = createContext<ISocketContextData>({
 
 const SocketProvider = ({
   children,
-  socketUrl,
 }: {
   children: ReactNode;
-  socketUrl: string;
 }) => {
   const { accessToken } = useAuth();
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -44,7 +43,8 @@ const SocketProvider = ({
       socket.disconnect();
     }
 
-    const socketInstance = io(socketUrl, {
+    console.log("connect socket... ", BASE_URL);
+    const socketInstance = io(BASE_URL, {
       transports: ['websocket'],
       withCredentials: true,
       reconnectionAttempts: 5,
@@ -71,7 +71,7 @@ const SocketProvider = ({
       socketInstance.disconnect();
       setSocket(null);
     };
-  }, [accessToken, socketUrl]);
+  }, [accessToken]);
 
   return (
     <SocketContext.Provider value={{ socket, isConnected }}>

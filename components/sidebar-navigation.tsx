@@ -6,19 +6,15 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  BarChart3,
   ClipboardList,
-  FileText,
   Home,
   LogOut,
   Menu,
-  Settings,
   Shield,
-  Users,
   X,
-  Briefcase,
   CheckSquare,
   ClipboardType,
+  Boxes,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -148,11 +144,12 @@ export function SidebarNavigation() {
     //     { title: "Дууссан", href: "/dashboard/jobs?status=completed" },
     //   ],
     // },
-    // {
-    //   title: "Статистик",
-    //   href: "/dashboard/statistics",
-    //   icon: <BarChart3 className="h-5 w-5" />,
-    // },
+    {
+      title: "Алба хэлтэс",
+      allowRoles: ['super-admin'],
+      href: "/dashboard/branches",
+      icon: <Boxes className="h-5 w-5" />,
+    },
     // {
     //   title: "Тохиргоо",
     //   href: "/dashboard/settings",

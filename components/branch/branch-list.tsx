@@ -1,0 +1,159 @@
+'use client';
+
+import { List } from '@/lib/types/global.types';
+import { format } from 'date-fns';
+import { Branch } from '@/lib/types/branch.types';
+import { useRouter } from 'next/navigation';
+import { ColumnDef, DataTableV2, TableParams } from '../data-table-v2';
+import { DataTablePagination } from '../data-table-v2/pagination';
+import { ColumnHeader } from '../data-table-v2/column-header';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { Button } from '../ui/button';
+import { MoreHorizontal } from 'lucide-react';
+import { useState } from 'react';
+import { useAuth } from '@/context/auth-context';
+import BranchListToolbar from './toolbar';
+import BranchCreateModal from './branch-create-modal';
+import BranchUpdateModal from './branch-update-modal';
+
+export function BranchList({
+  data,
+  params,
+}: {
+  data: Branch[];
+  params: TableParams;
+}) {
+  const [openUpdateModal, setUpdateModalOpen] = useState(false);
+  const [openCreateModal, setCreateModalOpen] = useState(false);
+  const [openChildRegisterModal, setOpenChildRegisterModal] = useState(false);
+  const [selectedData, setSelectedData] = useState<Branch>();
+  const { authUser } = useAuth();
+
+  const router = useRouter();
+  const columns: ColumnDef<Branch>[] = [
+    {
+      key: '_id',
+      header: (props) => {
+        return <ColumnHeader {...props} title="ID" />;
+      },
+      renderCell: (row) => {
+        return (
+          <div>{row._id}</div>
+        );
+      },
+    },
+    {
+      key: 'name',
+      header: (props) => {
+        return <ColumnHeader {...props} title="Нэр" />;
+      },
+      renderCell: (row) => <div>{row.name}</div>,
+    },
+    {
+      key: 'createdDate',
+      header: (props) => {
+        return <ColumnHeader {...props} title="Элссэн огноо" />;
+      },
+      renderCell: (row) => {
+        const dateValue = row.createdAt as string;
+        if (!dateValue) {
+          return null;
+        }
+        return (
+          <div className="text-center">
+            {format(new Date(dateValue), 'yyyy-MM-dd')}
+          </div>
+        );
+      },
+      enableSort: true,
+    }
+  ];
+
+  if (["super-admin"].includes(authUser?.role || "")) {
+    columns.push({
+      key: 'action',
+      header: (props) => {
+        return <ColumnHeader {...props} title="Үйлдэл" />;
+      },
+      renderCell: (row) => {
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Цэс нээх</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Үйлдлүүд</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => {
+                setSelectedData(row);
+                setUpdateModalOpen(true);
+              }}>Засах</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                setSelectedData(row);
+                setOpenChildRegisterModal(true);
+              }}>Салбар нэгж үүсгэх</DropdownMenuItem>
+              {/* <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-red-600">Устгах</DropdownMenuItem> */}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    });
+  }
+  const handleSortChange = (key: string, direction: 'asc' | 'desc' | null) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort', key);
+    if (direction) url.searchParams.set('order', direction);
+    else {
+      url.searchParams.delete('sort');
+      url.searchParams.delete('order');
+    }
+    url.searchParams.set('page', '1');
+    router.push(url.toString());
+  };
+
+  const handleFilterChange = (key: string, value: string) => {
+    const url = new URL(window.location.href);
+    if (value) url.searchParams.set(key, value);
+    else url.searchParams.delete(key);
+    url.searchParams.set('page', '1');
+    router.push(url.toString());
+  };
+
+  return (
+    <div className="space-y-4">
+      <DataTableV2
+        columns={columns}
+        data={data}
+        params={params}
+        onSortChange={handleSortChange}
+        onFilterChange={handleFilterChange}
+        // toolbar={
+        //   <BranchListToolbar
+        //     filters={params.filters}
+        //     onChangeFilter={handleFilterChange}
+        //   />
+        // }
+      />
+      {
+        <BranchCreateModal
+          open={openChildRegisterModal}
+          parent={selectedData}
+          onOpenChange={setOpenChildRegisterModal}
+        />
+      }
+      {
+        openUpdateModal && (<BranchUpdateModal
+          data={selectedData}
+          open={openUpdateModal}
+          onOpenChange={setUpdateModalOpen}
+        />)
+      }
+
+    </div>
+  );
+}

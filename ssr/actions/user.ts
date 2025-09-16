@@ -33,3 +33,12 @@ export const changeUserPassword = async (
   );
   return res;
 };
+
+export const deleteUser = async (userId: string, path: string) => {
+  const res = await ssrClient.get(`${BACKEND_URL}/api/user/delete/${userId}`);
+
+  if (res.code === 200) {
+    revalidatePath(path);
+  }
+  return res;
+};

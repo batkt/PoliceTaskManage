@@ -4,9 +4,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { List } from '@/lib/types/global.types';
 import { User } from '@/lib/types/user.types';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import { Branch } from '@/lib/types/branch.types';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ColumnDef, DataTableV2, TableParams } from '../data-table-v2';
 import OfficerListToolbar from './toolbar';
 import { DataTablePagination } from '../data-table-v2/pagination';
@@ -18,6 +18,10 @@ import { OfficerUpdateModal } from './officer-update-modal';
 import { useState } from 'react';
 import PasswordChangeModal from './password-change-modal';
 import { useAuth } from '@/context/auth-context';
+
+import { QuestionModal } from '../question-modal';
+import { deleteUser } from '@/ssr/actions/user';
+import { useToast } from '@/hooks/use-toast';
 
 // const columnInformations = [
 //   {
@@ -56,12 +60,47 @@ export function OfficerList({
   const total = data?.total || 1;
   const totalPages = data?.totalPages || 1;
   const rows = data?.rows || [];
+  const pathname = usePathname();
+  const { toast } = useToast();
   const [openUpdateModal, setUpdateModalOpen] = useState(false);
   const [openPasswordModal, setOpenPasswordModal] = useState(false);
   const [selectedData, setSelectedData] = useState<User>();
+  const [showQuestionDeleteModal, setShowQuestionDeleteModal] = useState(false);
   const { authUser } = useAuth();
 
   const router = useRouter();
+
+  const questionDelete = (user: User) => {
+    setShowQuestionDeleteModal(true);
+    setSelectedData(user);
+  }
+
+  const handleDelete = async () => {
+    try {
+      const res = await deleteUser(selectedData?._id!, pathname);
+      if (res.code === 200) {
+        toast({
+          title: 'Амжилттай',
+          description: 'Алба хаагч устлаа.',
+          variant: 'success',
+        });
+        setShowQuestionDeleteModal(false);
+        return;
+      }
+      throw new Error(res.message);
+    } catch (error) {
+      let message = '';
+      if (error instanceof Error) {
+        message = error?.message;
+      }
+      toast({
+        title: 'Алдаа гарлаа',
+        description: message || 'Алба хаагч устгахад алдаа гарлаа. Дахин оролдоно уу.',
+        variant: 'destructive',
+      });
+    }
+  }
+
   const columns: ColumnDef<User & { status?: string }>[] = [
     {
       key: 'givenname',
@@ -182,8 +221,8 @@ export function OfficerList({
                 setSelectedData(row);
                 setOpenPasswordModal(true);
               }}>Нууц үг солих</DropdownMenuItem>
-              {/* <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">Устгах</DropdownMenuItem> */}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-red-600" onClick={() => questionDelete(row)}>Устгах</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -263,6 +302,18 @@ export function OfficerList({
           onOpenChange={setOpenPasswordModal}
         />)
 
+      }
+      {
+        showQuestionDeleteModal && (
+          <QuestionModal open={showQuestionDeleteModal} onOpenChange={setShowQuestionDeleteModal}
+            title="Алба хаагч устгах"
+            description="Та энэ алба хаагчийг устгахдаа итгэлтэй байна уу? Устгасан алба хаагчийн мэдээллийг сэргээх боломжгүй."
+            onConfirm={handleDelete}
+            cancelText="Үгүй"
+            confirmText="Тийм"
+          />
+
+        )
       }
     </div>
   );

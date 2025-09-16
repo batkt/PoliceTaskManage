@@ -1,20 +1,20 @@
 'use client';
 
-import { List } from '@/lib/types/global.types';
 import { format } from 'date-fns';
 import { Branch } from '@/lib/types/branch.types';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ColumnDef, DataTableV2, TableParams } from '../data-table-v2';
-import { DataTablePagination } from '../data-table-v2/pagination';
 import { ColumnHeader } from '../data-table-v2/column-header';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Button } from '../ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/context/auth-context';
-import BranchListToolbar from './toolbar';
 import BranchCreateModal from './branch-create-modal';
 import BranchUpdateModal from './branch-update-modal';
+import { QuestionModal } from '../question-modal';
+import { deleteBranch } from '@/ssr/actions/branch';
+import { useToast } from '@/hooks/use-toast';
 
 export function BranchList({
   data,
@@ -24,12 +24,46 @@ export function BranchList({
   params: TableParams;
 }) {
   const [openUpdateModal, setUpdateModalOpen] = useState(false);
-  const [openCreateModal, setCreateModalOpen] = useState(false);
   const [openChildRegisterModal, setOpenChildRegisterModal] = useState(false);
   const [selectedData, setSelectedData] = useState<Branch>();
+  const [showQuestionDeleteModal, setShowQuestionDeleteModal] = useState(false);
   const { authUser } = useAuth();
+  const pathname = usePathname();
+  const { toast } = useToast();
 
   const router = useRouter();
+
+  const questionDelete = (branch: Branch) => {
+    setShowQuestionDeleteModal(true);
+    setSelectedData(branch);
+  }
+
+  const handleDelete = async () => {
+    try {
+      const res = await deleteBranch(selectedData?._id!, pathname);
+      if (res.code === 200) {
+        toast({
+          title: 'Амжилттай',
+          description: 'Алба, хэлтэс устлаа.',
+          variant: 'success',
+        });
+        setShowQuestionDeleteModal(false);
+        return;
+      }
+      throw new Error(res.message);
+    } catch (error) {
+      let message = '';
+      if (error instanceof Error) {
+        message = error?.message;
+      }
+      toast({
+        title: 'Алдаа гарлаа',
+        description: message || 'Алба, хэлтэс устгахад алдаа гарлаа. Дахин оролдоно уу.',
+        variant: 'destructive',
+      });
+    }
+  }
+
   const columns: ColumnDef<Branch>[] = [
     {
       key: '_id',
@@ -96,8 +130,8 @@ export function BranchList({
                 setSelectedData(row);
                 setOpenChildRegisterModal(true);
               }}>Салбар нэгж үүсгэх</DropdownMenuItem>
-              {/* <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">Устгах</DropdownMenuItem> */}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-red-600" onClick={() => questionDelete(row)}>Устгах</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -132,12 +166,12 @@ export function BranchList({
         params={params}
         onSortChange={handleSortChange}
         onFilterChange={handleFilterChange}
-        // toolbar={
-        //   <BranchListToolbar
-        //     filters={params.filters}
-        //     onChangeFilter={handleFilterChange}
-        //   />
-        // }
+      // toolbar={
+      //   <BranchListToolbar
+      //     filters={params.filters}
+      //     onChangeFilter={handleFilterChange}
+      //   />
+      // }
       />
       {
         <BranchCreateModal
@@ -154,6 +188,18 @@ export function BranchList({
         />)
       }
 
+      {
+        showQuestionDeleteModal && (
+          <QuestionModal open={showQuestionDeleteModal} onOpenChange={setShowQuestionDeleteModal}
+            title="Алба хэлтэс устгах"
+            description="Та энэ алба, хэлтсийг устгахдаа итгэлтэй байна уу? Устгасан мэдээллийг сэргээх боломжгүй."
+            onConfirm={handleDelete}
+            cancelText="Үгүй"
+            confirmText="Тийм"
+          />
+
+        )
+      }
     </div>
   );
 }

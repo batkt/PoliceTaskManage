@@ -21,7 +21,6 @@ const BranchCreateModal = ({
     open,
 }: BranchCreateModalProps) => {
 
-    console.log(parent)
     const { toast } = useToast();
     const {
         control,

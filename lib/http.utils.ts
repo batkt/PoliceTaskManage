@@ -52,7 +52,7 @@ const postRequest = async <T>(
 ): Promise<CustomResponse<T>> => {
   try {
     const { headers, ...otherConfig } = config || {};
-    const response = await fetch(`${API_URL}/${url}`, {
+    const response = await fetch(`${API_URL}/api${url}`, {
       method: "POST",
       headers: {
         ...getAuthHeaders(token),
@@ -82,7 +82,7 @@ const postFormDataRequest = async <T>(
 ): Promise<CustomResponse<T>> => {
   try {
     const { headers, ...otherConfig } = config || {};
-    const response = await fetch(`${API_URL}/${url}`, {
+    const response = await fetch(`${API_URL}/api${url}`, {
       method: "POST",
       headers: {
         ...getAuthHeaders(token),

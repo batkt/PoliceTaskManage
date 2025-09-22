@@ -59,7 +59,7 @@ const FileListItem = ({
 
   const getProxyUrl = (url: string) => {
     const foundIndex = url.search('/uploads/');
-    return `${BASE_URL}/upload${url.substring(foundIndex)}`;
+    return `${BASE_URL}${url.substring(foundIndex)}`;
   };
 
   const handleImageClick = (image: {

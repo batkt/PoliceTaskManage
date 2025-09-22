@@ -583,7 +583,9 @@ export function TaskForm({
                     <Label htmlFor="description">Төрөл</Label>
                     <Select
                       onValueChange={(value) => {
-                        reset(defaultValues);
+                        reset({
+                          formValues: {}
+                        });
                         onChange(value);
                       }}
                       value={value}
@@ -621,8 +623,8 @@ export function TaskForm({
                   rules={
                     item.required
                       ? {
-                          required: 'Утга оруулна уу.',
-                        }
+                        required: 'Утга оруулна уу.',
+                      }
                       : {}
                   }
                   render={({

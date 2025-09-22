@@ -35,7 +35,7 @@ export const changeUserPassword = async (
 };
 
 export const deleteUser = async (userId: string, path: string) => {
-  const res = await ssrClient.get(`${BACKEND_URL}/api/user/delete/${userId}`);
+  const res = await ssrClient.post(`${BACKEND_URL}/api/user/delete/${userId}`);
 
   if (res.code === 200) {
     revalidatePath(path);

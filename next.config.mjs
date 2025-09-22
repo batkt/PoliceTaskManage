@@ -33,15 +33,19 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
     serverActions: {
-      allowedOrigins: ["task.zevtabs.mn", "127.0.0.1:3000"],
+      allowedOrigins: [process.env.NEXT_PUBLIC_BASE_URL, "127.0.0.1:3000"],
     },
   },
   async rewrites() {
     return [
-      {
-        source: "/uploads/:slug*",
-        destination: `${process.env.BACKEND_URL}/uploads/:slug*`,
-      },
+      // {
+      //   source: "/uploads/:slug*",
+      //   destination: `${process.env.BACKEND_URL}/uploads/:slug*`,
+      // },
+      // {
+      //   source: "/api/:slug*",
+      //   destination: `${process.env.BACKEND_URL}/api/:slug*`,
+      // },
     ];
   },
 };

@@ -15,16 +15,20 @@ export function QuestionModal({
     title,
     description,
     onConfirm,
+    loading,
     cancelText = "Цуцлах",
     confirmText = "Үргэлжлүүлэх",
+    loadingText = "Уншиж байна...",
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     title: string;
     description: string;
+    loading?: boolean;
     onConfirm: () => void;
     cancelText?: string;
     confirmText?: string;
+    loadingText?: string;
 }) {
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -37,7 +41,7 @@ export function QuestionModal({
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>{cancelText}</AlertDialogCancel>
-                    <AlertDialogAction onClick={onConfirm}>{confirmText}</AlertDialogAction>
+                    <AlertDialogAction onClick={onConfirm}>{loading ? loadingText : confirmText}</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

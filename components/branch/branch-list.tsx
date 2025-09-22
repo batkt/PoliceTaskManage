@@ -8,7 +8,7 @@ import { ColumnHeader } from '../data-table-v2/column-header';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Button } from '../ui/button';
 import { MoreHorizontal } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useAuth } from '@/context/auth-context';
 import BranchCreateModal from './branch-create-modal';
 import BranchUpdateModal from './branch-update-modal';
@@ -30,6 +30,7 @@ export function BranchList({
   const { authUser } = useAuth();
   const pathname = usePathname();
   const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
 
   const router = useRouter();
 
@@ -38,30 +39,32 @@ export function BranchList({
     setSelectedData(branch);
   }
 
-  const handleDelete = async () => {
-    try {
-      const res = await deleteBranch(selectedData?._id!, pathname);
-      if (res.code === 200) {
+  const handleDelete = () => {
+    startTransition(async () => {
+      try {
+        const res = await deleteBranch(selectedData?._id!, pathname);
+        if (res.code === 200) {
+          toast({
+            title: 'Амжилттай',
+            description: 'Алба, хэлтэс устлаа.',
+            variant: 'success',
+          });
+          setShowQuestionDeleteModal(false);
+          return;
+        }
+        throw new Error(res.message);
+      } catch (error) {
+        let message = '';
+        if (error instanceof Error) {
+          message = error?.message;
+        }
         toast({
-          title: 'Амжилттай',
-          description: 'Алба, хэлтэс устлаа.',
-          variant: 'success',
+          title: 'Алдаа гарлаа',
+          description: message || 'Алба, хэлтэс устгахад алдаа гарлаа. Дахин оролдоно уу.',
+          variant: 'destructive',
         });
-        setShowQuestionDeleteModal(false);
-        return;
       }
-      throw new Error(res.message);
-    } catch (error) {
-      let message = '';
-      if (error instanceof Error) {
-        message = error?.message;
-      }
-      toast({
-        title: 'Алдаа гарлаа',
-        description: message || 'Алба, хэлтэс устгахад алдаа гарлаа. Дахин оролдоно уу.',
-        variant: 'destructive',
-      });
-    }
+    })
   }
 
   const columns: ColumnDef<Branch>[] = [
@@ -193,9 +196,11 @@ export function BranchList({
           <QuestionModal open={showQuestionDeleteModal} onOpenChange={setShowQuestionDeleteModal}
             title="Алба хэлтэс устгах"
             description="Та энэ алба, хэлтсийг устгахдаа итгэлтэй байна уу? Устгасан мэдээллийг сэргээх боломжгүй."
+            loading={isPending}
             onConfirm={handleDelete}
             cancelText="Үгүй"
             confirmText="Тийм"
+            loadingText="Устгаж байна..."
           />
 
         )

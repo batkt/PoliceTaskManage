@@ -29,7 +29,7 @@ export const updateBranch = async (data: Partial<Branch>, path: string) => {
 };
 
 export const deleteBranch = async (branchId: string, path: string) => {
-  const res = await ssrClient.get<{ deletedCount: number }>(
+  const res = await ssrClient.post<{ deletedCount: number }>(
     `${BACKEND_URL}/api/branch/delete/${branchId}`
   );
 

@@ -1,11 +1,11 @@
-import type { Metadata } from 'next';
-import Image from 'next/image';
-import { LoginForm } from '@/components/login-form';
-import { ThemeToggle } from '@/components/theme-toggle';
+import type { Metadata } from "next";
+import Image from "next/image";
+import { LoginForm } from "@/components/login-form";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
-  title: 'Login - Task Management System',
-  description: 'Login to the Police Department Task Management System',
+  title: "Login - Task Management System",
+  description: "Login to the Police Department Task Management System",
 };
 
 export default function LoginPage() {
@@ -16,7 +16,6 @@ export default function LoginPage() {
           <ThemeToggle />
         </div>
 
-        {/* Left side - Branding */}
         <div className="relative hidden h-full flex-col bg-primary p-10 text-white dark:border-r lg:flex">
           <div className="absolute inset-0 bg-primary" />
           <div className="relative z-20 flex items-center gap-2 text-lg font-medium">
@@ -63,39 +62,45 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Right side - Login form */}
-        <div className="lg:p-8">
-          <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-            <div className="flex flex-col space-y-2 text-center">
-              {/* <div className="flex justify-center lg:hidden">
-                <div className="mb-6 rounded-full bg-primary p-1">
-                  <Image
-                    src="/placeholder.svg?height=60&width=60"
-                    alt="ЦЕГ Logo"
-                    width={60}
-                    height={60}
-                    className="h-14 w-14"
-                  />
+        <div className="lg:p-8 flex flex-col h-full justify-between">
+          <div className="flex-1 flex items-center justify-center">
+            <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+              <div className="flex flex-col space-y-2 text-center">
+                {/* <div className="flex justify-center lg:hidden">
+                  <div className="mb-6 rounded-full bg-primary p-1">
+                    <Image
+                      src="/placeholder.svg?height=60&width=60"
+                      alt="ЦЕГ Logo"
+                      width={60}
+                      height={60}
+                      className="h-14 w-14"
+                    />
+                  </div>
+                </div> */}
+              </div>
+              <LoginForm />
+              {/* <p className="px-8 text-center text-sm text-muted-foreground">
+                Техникийн асуудал гарвал{" "}
+                <Link
+                  href="/support"
+                  className="underline underline-offset-4 hover:text-primary"
+                >
+                  Дэмжлэг
+                </Link>{" "}
+                хэсэгт хандана уу.
+              </p> */}
+              <div className="flex justify-center">
+                <div className="text-center xl:hidden">
+                  {/* © Zev-TABS LLC © {moment(new Date()).format("YYYY")}. Бүх эрх */}
+                  хуулиар баталгаажсан
                 </div>
-              </div> */}
-            </div>
-            <LoginForm />
-            {/* <p className="px-8 text-center text-sm text-muted-foreground">
-              Техникийн асуудал гарвал{" "}
-              <Link
-                href="/support"
-                className="underline underline-offset-4 hover:text-primary"
-              >
-                Дэмжлэг
-              </Link>{" "}
-              хэсэгт хандана уу.
-            </p> */}
-            <div className="flex justify-center">
-              <div className="text-center xl:hidden">
-                {/* © Zev-TABS LLC © {moment(new Date()).format("YYYY")}. Бүх эрх */}
-                хуулиар баталгаажсан
               </div>
             </div>
+          </div>
+
+          <div className="py-4 text-center text-sm text-muted-foreground">
+            Тээврийн цагдаагийн албаны захиалгаар бүтээв. <br /> Powered by
+            Zevtabs LLC ©2023-2025 он
           </div>
         </div>
       </div>

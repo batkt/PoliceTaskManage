@@ -4,8 +4,8 @@ import { LoginForm } from "@/components/login-form";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
-  title: "Login - Task Management System",
-  description: "Login to the Police Department Task Management System",
+  title: "Нэвтрэх - Даалгаврын удирдлагын систем",
+  description: "Даалгаврын удирдлагын системд нэвтрэх",
 };
 
 export default function LoginPage() {
@@ -89,16 +89,11 @@ export default function LoginPage() {
                 </Link>{" "}
                 хэсэгт хандана уу.
               </p> */}
-              <div className="flex justify-center">
-                <div className="text-center xl:hidden">
-                  {/* © Zev-TABS LLC © {moment(new Date()).format("YYYY")}. Бүх эрх */}
-                  хуулиар баталгаажсан
-                </div>
-              </div>
+              <div className="flex justify-center"></div>
             </div>
           </div>
 
-          <div className="py-4 text-center text-sm text-muted-foreground">
+          <div className="py-2 text-center text-sm text-muted-foreground">
             Тээврийн цагдаагийн албаны захиалгаар бүтээв. <br /> Powered by
             Zevtabs LLC ©2023-2025 он
           </div>

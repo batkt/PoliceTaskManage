@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { List } from '@/lib/types/global.types';
 import { User } from '@/lib/types/user.types';
-import { format, set } from 'date-fns';
+import { format } from 'date-fns';
 import { Branch } from '@/lib/types/branch.types';
 import { usePathname, useRouter } from 'next/navigation';
 import { ColumnDef, DataTableV2, TableParams } from '../data-table-v2';
@@ -20,7 +20,7 @@ import PasswordChangeModal from './password-change-modal';
 import { useAuth } from '@/context/auth-context';
 
 import { QuestionModal } from '../question-modal';
-import { deleteUser } from '@/ssr/actions/user';
+import { deleteUser, dismissal } from '@/ssr/actions/user';
 import { useToast } from '@/hooks/use-toast';
 
 // const columnInformations = [
@@ -53,9 +53,11 @@ import { useToast } from '@/hooks/use-toast';
 export function OfficerList({
   data,
   params,
+  isArchived = false
 }: {
   data?: List<User>;
   params: TableParams;
+  isArchived?: boolean
 }) {
   const total = data?.total || 1;
   const totalPages = data?.totalPages || 1;
@@ -64,6 +66,7 @@ export function OfficerList({
   const { toast } = useToast();
   const [openUpdateModal, setUpdateModalOpen] = useState(false);
   const [openPasswordModal, setOpenPasswordModal] = useState(false);
+  const [openDismissalModal, setOpenDismissalModal] = useState(false);
   const [selectedData, setSelectedData] = useState<User>();
   const [showQuestionDeleteModal, setShowQuestionDeleteModal] = useState(false);
   const { authUser } = useAuth();
@@ -96,6 +99,32 @@ export function OfficerList({
       toast({
         title: 'Алдаа гарлаа',
         description: message || 'Алба хаагч устгахад алдаа гарлаа. Дахин оролдоно уу.',
+        variant: 'destructive',
+      });
+    }
+  }
+
+  const handleDismissal = async () => {
+    try {
+      const res = await dismissal(selectedData?._id!, pathname);
+      if (res.code === 200) {
+        toast({
+          title: 'Амжилттай',
+          description: 'Алба хаагчийг чөлөөллөө.',
+          variant: 'success',
+        });
+        setOpenDismissalModal(false);
+        return;
+      }
+      throw new Error(res.message);
+    } catch (error) {
+      let message = '';
+      if (error instanceof Error) {
+        message = error?.message;
+      }
+      toast({
+        title: 'Алдаа гарлаа',
+        description: message || 'Алба хаагч чөлөөлөхөд алдаа гарлаа. Дахин оролдоно уу.',
         variant: 'destructive',
       });
     }
@@ -194,7 +223,7 @@ export function OfficerList({
     }
   ];
 
-  if (["super-admin", "admin"].includes(authUser?.role || "")) {
+  if (["super-admin", "admin"].includes(authUser?.role || "") && !isArchived) {
     columns.push({
       key: 'action',
       header: (props) => {
@@ -222,6 +251,10 @@ export function OfficerList({
                 setOpenPasswordModal(true);
               }}>Нууц үг солих</DropdownMenuItem>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => {
+                setSelectedData(row);
+                setOpenDismissalModal(true);
+              }}>Чөлөөлөх</DropdownMenuItem>
               <DropdownMenuItem className="text-red-600" onClick={() => questionDelete(row)}>Устгах</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -309,6 +342,18 @@ export function OfficerList({
             title="Алба хаагч устгах"
             description="Та энэ алба хаагчийг устгахдаа итгэлтэй байна уу? Устгасан алба хаагчийн мэдээллийг сэргээх боломжгүй."
             onConfirm={handleDelete}
+            cancelText="Үгүй"
+            confirmText="Тийм"
+          />
+
+        )
+      }
+      {
+        openDismissalModal && (
+          <QuestionModal open={openDismissalModal} onOpenChange={setOpenDismissalModal}
+            title="Алба хаагч чөлөөлөх"
+            description="Та энэ алба хаагчийг ажлаас чөлөөлөхдөө итгэлтэй байна уу? Алба хаагчийн мэдээлэл архивлагдах болно."
+            onConfirm={handleDismissal}
             cancelText="Үгүй"
             confirmText="Тийм"
           />

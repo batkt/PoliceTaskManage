@@ -42,3 +42,14 @@ export const deleteUser = async (userId: string, path: string) => {
   }
   return res;
 };
+
+export const dismissal = async (userId: string, path: string) => {
+  const res = await ssrClient.post(`${BACKEND_URL}/api/user/dismissal`, {
+    id: userId,
+  });
+
+  if (res.code === 200) {
+    revalidatePath(path);
+  }
+  return res;
+};

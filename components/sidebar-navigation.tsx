@@ -10,6 +10,7 @@ import {
   Home,
   LogOut,
   Menu,
+  Archive,
   Shield,
   X,
   CheckSquare,
@@ -168,6 +169,21 @@ export function SidebarNavigation() {
         { title: 'Жагсаалт', href: '/dashboard/task-type' },
       ],
     },
+    {
+      title: 'Архив',
+      href: '/dashboard/officers',
+      icon: <Archive className="h-5 w-5" />,
+      submenu: [
+        {
+          title: 'Алба хаагчид',
+          href: '/dashboard/archive/officers',
+        },
+        {
+          title: 'Ажлын жагсаалт',
+          href: '/dashboard/archive/tasks',
+        },
+      ],
+    }
   ];
 
   return (
@@ -219,7 +235,7 @@ export function SidebarNavigation() {
                             className={cn(
                               'flex w-full items-center justify-between px-3 py-2 text-left hover:bg-primary-foreground/10 font-normal text-base hover:text-white',
                               pathname === item.href &&
-                                'bg-primary-foreground/20'
+                              'bg-primary-foreground/20'
                             )}
                             onClick={() => toggleSubmenu(item.title)}
                           >
@@ -254,7 +270,7 @@ export function SidebarNavigation() {
                                     className={cn(
                                       'block rounded-md px-3 py-2 text-sm hover:bg-primary-foreground/10',
                                       pathname === subItem.href &&
-                                        'bg-primary-foreground/20'
+                                      'bg-primary-foreground/20'
                                     )}
                                   >
                                     {subItem.title}

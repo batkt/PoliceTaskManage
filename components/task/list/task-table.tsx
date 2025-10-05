@@ -24,12 +24,12 @@ export default function TaskTableList({
   params,
   template,
 }: {
-  data?: List<TaskWithAction>;
-  params: TableParams;
-  clickToDetail?: boolean;
-  tableKey?: string;
-  template?: FormTemplate;
-}) {
+    data?: List<TaskWithAction>;
+    params: TableParams;
+    clickToDetail?: boolean;
+    tableKey?: string;
+    template?: FormTemplate;
+  }) {
   const rows = data?.rows || [];
   const total = data?.total || 0;
   const totalPages = data?.totalPages || 1;
@@ -254,7 +254,7 @@ export default function TaskTableList({
         params={params}
         onSortChange={handleSortChange}
         onFilterChange={handleFilterChange}
-        onRowClick={goToDetail}
+        // onRowClick={goToDetail}
         toolbar={
           <TaskListToolbar
             tableKey={'all-tasks'}

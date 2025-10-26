@@ -69,22 +69,23 @@ export function TaskForm({
   const { branches } = useUsers();
   const { authUser } = useAuth();
 
-  const defaultValues: FormInputType = {
+  const getDefaultValues = (): FormInputType => ({
     title: '',
     description: '',
     formTemplateId: formTemplateId || '',
     branchId: authUser?.branch?._id || '',
     assignee: type === 'own' ? authUser?._id || '' : '',
+    supervisors: [],
     startDate: new Date(),
     files: [],
     dueDate: undefined,
     priority: 'medium',
     formValues: {},
-  };
+  });
 
   const { control, watch, handleSubmit, setValue, reset } =
     useForm<FormInputType>({
-      defaultValues: defaultValues,
+      defaultValues: getDefaultValues(),
     });
 
   const formId = watch('formTemplateId');
@@ -94,7 +95,7 @@ export function TaskForm({
     if (authUser?.branch && branches?.length > 0) {
       setValue('branchId', authUser?.branch?._id || '');
     }
-  }, [authUser, branches]);
+  }, [authUser, branches, setValue]);
 
   const branchesTree = useMemo(() => {
     const tree: Record<string, Branch[]> = {};
@@ -231,7 +232,6 @@ export function TaskForm({
               mode="single"
               selected={value}
               onSelect={(e) => onChange(e)}
-              fromDate={new Date()}
             />
           </PopoverContent>
         </Popover>
@@ -392,6 +392,37 @@ export function TaskForm({
               />
             </div>
 
+            <div className="space-y-2">
+              <Controller
+                control={control}
+                name="supervisors"
+                rules={{
+                  required: 'Хянах алба хаагч сонгоно уу',
+                }}
+                render={({
+                  field: { value, onChange, name },
+                  fieldState: { error },
+                }) => {
+                  return (
+                    <div className="space-y-2">
+                      <Label htmlFor="members">
+                        Хянах алба хаагч{' '}
+                        <span className="text-destructive">*</span>
+                      </Label>
+                      <MultiUserSelect
+                        value={value}
+                        onChange={onChange}
+                        placeholder="Хянах алба хаагч сонгоно уу"
+                        error={error}
+                        name={name}
+                        required
+                      />
+                    </div>
+                  );
+                }}
+              />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Controller
                 control={control}
@@ -428,7 +459,6 @@ export function TaskForm({
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            fromDate={new Date()}
                           />
                         </PopoverContent>
                       </Popover>
@@ -476,7 +506,7 @@ export function TaskForm({
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            fromDate={watch('startDate') || new Date()}
+                            fromDate={watch('startDate')}
                           />
                         </PopoverContent>
                       </Popover>
@@ -582,11 +612,13 @@ export function TaskForm({
                   <div className="space-y-2">
                     <Label htmlFor="description">Төрөл</Label>
                     <Select
-                      onValueChange={(value) => {
+                      onValueChange={(newValue) => {
+                        const currentValues = watch();
                         reset({
-                          formValues: {}
+                          ...currentValues,
+                          formTemplateId: newValue,
+                          formValues: {},
                         });
-                        onChange(value);
                       }}
                       value={value}
                     >

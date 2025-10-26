@@ -35,6 +35,7 @@ export type Task = {
   priority: TaskPriority;
   formTemplateId?: FormTemplate | string;
   formValues?: Record<string, string>;
+  createdAt: string;
 };
 
 export type CreateWorkGroupTaskType = {
@@ -77,6 +78,7 @@ export interface ICreateTaskInput {
   formTemplateId: string;
   branchId: string;
   assignee: string;
+  supervisors?: string[]; // added supervisors field
   startDate: Date;
   dueDate?: Date;
   fileIds?: string[]; // optional

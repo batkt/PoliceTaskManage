@@ -171,7 +171,7 @@ export function SidebarNavigation() {
     },
     {
       title: 'Архив',
-      href: '/dashboard/officers',
+      href: '/dashboard/archive',
       icon: <Archive className="h-5 w-5" />,
       submenu: [
         {
@@ -183,6 +183,10 @@ export function SidebarNavigation() {
           href: '/dashboard/archive/tasks',
         },
       ],
+    }, {
+      title: 'Тайлан',
+      href: '/dashboard/reports',
+      icon: <Archive className="h-5 w-5" />,
     }
   ];
 

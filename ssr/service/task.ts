@@ -13,7 +13,7 @@ export const getTaskDetail = async (taskId: string) => {
 
 export const getMyTaskList = async (queryString?: string) => {
   return ssrClient.get<List<Task>>(
-    `${BACKEND_URL}/api/task-v2/my-list${queryString ? `?${queryString}` : ''}`
+    `${BACKEND_URL}/api/task-v2/my-list-week${queryString ? `?${queryString}` : ''}`
   );
 };
 

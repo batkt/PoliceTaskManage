@@ -9,7 +9,8 @@ import { MyTaskCardList } from '@/components/task/list/card-list';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import MyTaskTableList from '@/components/task/list/my-task-table';
+// import MyTaskTableList from '@/components/task/list/my-task-table';
+import WeeklyList from '@/components/task/weekly-list';
 
 export const metadata: Metadata = {
   title: 'Миний даалгавал - Төлөвлөгөөний систем',
@@ -20,9 +21,8 @@ export default async function MyTasksPage(props: {
   searchParams: Promise<Record<string, string>>;
 }) {
   const searchParams = await props.searchParams;
-  const params: TableParams = {
-    page: Number(searchParams.page ?? 1),
-    pageSize: Number(searchParams.pageSize ?? 10),
+  const params = {
+    startDate: searchParams?.startDate || new Date().toISOString(),
     sort: searchParams?.sort ?? '',
     order: (searchParams?.order as 'asc' | 'desc' | null) ?? null,
     filters: Object.fromEntries(
@@ -36,8 +36,8 @@ export default async function MyTasksPage(props: {
   const otherFilter = isEmptyObject(filters)
     ? {}
     : {
-        ...filters,
-      };
+      ...filters,
+    };
 
   const query = queryStringBuilder({
     ...other,
@@ -67,8 +67,10 @@ export default async function MyTasksPage(props: {
             <MyTaskCardList params={params} data={res2.data} />
           </div>
           <div className="max-lg:hidden">
-            <MyTaskTableList params={params} data={res2.data} />
+            {/* <MyTaskTableList params={params} data={res2.data} /> */}
+            <WeeklyList data={res2.data} />
           </div>
+
         </Suspense>
       </div>
     </div>

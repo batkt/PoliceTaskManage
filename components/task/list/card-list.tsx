@@ -32,7 +32,12 @@ export function MyTaskCardList({
   clickToDetail = false,
 }: {
   data?: List<Task>;
-  params: TableParams;
+  params: {
+    startDate?: string,
+    sort?: string,
+    order?: 'asc' | 'desc' | null,
+    filters: Record<string, string | undefined>;
+  };
   tableKey?: string;
   clickToDetail?: boolean;
 }) {
@@ -40,10 +45,8 @@ export function MyTaskCardList({
   const pathname = usePathname();
   const { toast } = useToast();
   const rows = data?.rows || [];
-  const page = params.page || 1;
   const total = data?.total || 0;
   const totalPages = data?.totalPages || 0;
-  const pageSize = params.pageSize || 10;
 
   //   useEffect(() => {
   //     const handleGlobalSearch = (event: Event) => {
@@ -103,13 +106,13 @@ export function MyTaskCardList({
     }
   };
 
-  const changePage = (_page: number) => {
-    const query = queryStringBuilder({
-      page: _page,
-      pageSize: pageSize,
-    });
-    router.push(`${pathname}?${query}`);
-  };
+  // const changePage = (_page: number) => {
+  //   const query = queryStringBuilder({
+  //     page: _page,
+  //     pageSize: pageSize,
+  //   });
+  //   router.push(`${pathname}?${query}`);
+  // };
 
   return (
     <div className="space-y-4">
@@ -308,7 +311,7 @@ export function MyTaskCardList({
               );
             })}
           </div>
-          <MobilePagination
+          {/* <MobilePagination
             pagination={{
               page: page,
               pageSize: pageSize,
@@ -317,7 +320,7 @@ export function MyTaskCardList({
             }}
             onNextPage={changePage}
             onPrevPage={changePage}
-          />
+          /> */}
         </div>
       )}
     </div>

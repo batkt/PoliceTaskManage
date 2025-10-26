@@ -16,6 +16,7 @@ import {
   CheckSquare,
   ClipboardType,
   Boxes,
+  FileChartPie,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -172,7 +173,7 @@ export function SidebarNavigation() {
     {
       title: 'Архив',
       href: '/dashboard/archive',
-      icon: <Archive className="h-5 w-5" />,
+      icon: <Archive className="!size-5" />,
       submenu: [
         {
           title: 'Алба хаагчид',
@@ -186,7 +187,7 @@ export function SidebarNavigation() {
     }, {
       title: 'Тайлан',
       href: '/dashboard/reports',
-      icon: <Archive className="h-5 w-5" />,
+      icon: <FileChartPie className="h-5 w-5" />,
     }
   ];
 

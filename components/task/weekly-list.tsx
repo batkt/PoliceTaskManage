@@ -22,6 +22,8 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } 
 import { changeStatusAction } from '@/ssr/actions/task';
 import { useToast } from '@/hooks/use-toast';
 import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
+import AuditModal from '../audit/audit-modal';
 
 const TaskItem = ({
     task,
@@ -34,6 +36,9 @@ const TaskItem = ({
     handleChangeStatus?: (data: TaskStatusChangeType) => Promise<void>;
     goToDetail: (row: Task) => void;
 }) => {
+    const { authUser } = useAuth();
+    const [isOpenAuditModal, setIsOpenAuditModal] = useState(false);
+    console.log("Task Item Rendered ", task);
     const cardVariants = cva("p-2 cursor-pointer", {
         variants: {
             variant: {
@@ -50,55 +55,96 @@ const TaskItem = ({
         }
     })
 
+    const isSupervisor = () => {
+        const sv = task?.supervisors?.find(s => s === authUser?._id);
+        if (!sv) return false;
+        return true;
+    }
+
+    const isAssignee = () => {
+        return task?.assignee?._id === authUser?._id;
+    }
+
     return (
-        <ContextMenu>
-            <ContextMenuTrigger asChild>
-                <Card className={cn(cardVariants({ variant: task.status, className }))}>
-                    <div className="flex items-start gap-2">
-                        <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-medium line-clamp-3 ${task.status === TaskStatus.COMPLETED ? 'line-through' : ''}`}>
-                                {task.title}
-                            </p>
-                            {task.description && (
-                                <p className="text-xs text-muted-foreground truncate">
-                                    {task.description}
+        <>
+
+            <ContextMenu>
+                <ContextMenuTrigger asChild>
+                    <Card className={cn(cardVariants({ variant: task.status, className }))}>
+                        <div className="flex items-start gap-2">
+                            <div className="flex-1 min-w-0">
+                                <p className={cn(`text-sm font-medium line-clamp-3`, task.status === TaskStatus.COMPLETED ? 'line-through' : '')}>
+                                    {task.title}
                                 </p>
-                            )}
-                            <PriorityBadge priority={task.priority} />
+                                {task.description && (
+                                    <p className="text-xs text-muted-foreground truncate">
+                                        {task.description}
+                                    </p>
+                                )}
+                                <PriorityBadge priority={task.priority} />
+                            </div>
                         </div>
-                    </div>
-                </Card>
-            </ContextMenuTrigger>
-            <ContextMenuContent className="w-52">
-                <ContextMenuItem onClick={() => goToDetail?.(task)}>
-                    Дэлгэрэнгүй
-                </ContextMenuItem>
-                {['pending', 'active'].includes(task.status) ? (
-                    <ContextMenuItem
-                        onClick={() =>
-                            handleChangeStatus?.({
-                                status: TaskStatus.IN_PROGRESS,
-                                taskId: task._id,
-                            })
-                        }
-                    >
-                        Хийж эхлэх
+                    </Card>
+                </ContextMenuTrigger>
+                <ContextMenuContent className="w-52">
+                    <ContextMenuItem onClick={() => goToDetail?.(task)}>
+                        Дэлгэрэнгүй
                     </ContextMenuItem>
-                ) : null}
-                {task.status === TaskStatus.IN_PROGRESS ? (
-                    <ContextMenuItem
-                        onClick={() =>
-                            handleChangeStatus?.({
-                                status: TaskStatus.COMPLETED,
-                                taskId: task._id,
-                            })
-                        }
-                    >
-                        Дуусгах
-                    </ContextMenuItem>
-                ) : null}
-            </ContextMenuContent>
-        </ContextMenu>
+                    {
+                        isSupervisor() && task.status !== TaskStatus.REVIEWED ? (
+                            <>
+                                <ContextMenuItem
+                                    disabled={task.status !== TaskStatus.COMPLETED}
+                                    onClick={() =>
+                                        setIsOpenAuditModal(true)
+                                    }
+                                >
+                                    Хянах
+                                </ContextMenuItem>
+                            </>
+                        ) : null
+                    }
+                    {
+                        isAssignee() ? (
+                            <>
+                                {['pending', 'active'].includes(task.status) ? (
+                                    <ContextMenuItem
+                                        onClick={() =>
+                                            handleChangeStatus?.({
+                                                status: TaskStatus.IN_PROGRESS,
+                                                taskId: task._id,
+                                            })
+                                        }
+                                    >
+                                        Хийж эхлэх
+                                    </ContextMenuItem>
+                                ) : null}
+                                {task.status === TaskStatus.IN_PROGRESS ? (
+                                    <ContextMenuItem
+                                        onClick={() =>
+                                            handleChangeStatus?.({
+                                                status: TaskStatus.COMPLETED,
+                                                taskId: task._id,
+                                            })
+                                        }
+                                    >
+                                        Дуусгах
+                                    </ContextMenuItem>
+                                ) : null}
+                            </>
+                        ) : null
+                    }
+
+                </ContextMenuContent>
+            </ContextMenu >
+            {isOpenAuditModal ? (
+                <AuditModal
+                    taskId={task._id}
+                    open={isOpenAuditModal}
+                    onOpenChange={setIsOpenAuditModal}
+                />
+            ) : null}
+        </>
     )
 }
 const MultiDayTaskItem = ({
@@ -112,6 +158,9 @@ const MultiDayTaskItem = ({
     handleChangeStatus?: (data: TaskStatusChangeType) => Promise<void>;
     goToDetail: (row: Task) => void;
 }) => {
+    const { authUser } = useAuth();
+    const [isOpenAuditModal, setIsOpenAuditModal] = useState(false);
+
     const cardVariants = cva("p-2 cursor-pointer border transition-all hover:shadow-md", {
         variants: {
             variant: {
@@ -128,61 +177,100 @@ const MultiDayTaskItem = ({
         }
     })
 
+    const isSupervisor = () => {
+        const sv = task?.supervisors?.find(s => s === authUser?._id);
+        if (!sv) return false;
+        return true;
+    }
+
+    const isAssignee = () => {
+        return task?.assignee?._id === authUser?._id;
+    }
+
     return (
-        <ContextMenu>
-            <ContextMenuTrigger asChild>
-                <div className={cn(cardVariants({ variant: task.status, className }), "rounded-lg")}>
-                    <div className="flex items-start gap-2">
-                        <Calendar className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-semibold line-clamp-2 ${task.status === TaskStatus.COMPLETED ? 'line-through' : ''}`}>
-                                {task.title}
-                            </p>
-                            {task.description && (
-                                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                                    {task.description}
+        <>
+            <ContextMenu>
+                <ContextMenuTrigger asChild>
+                    <div className={cn(cardVariants({ variant: task.status, className }), "rounded-lg")}>
+                        <div className="flex items-start gap-2">
+                            <Calendar className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-0.5" />
+                            <div className="flex-1 min-w-0">
+                                <p className={cn(`text-sm font-semibold line-clamp-2`, task.status === TaskStatus.COMPLETED ? 'line-through' : '')}>
+                                    {task.title}
                                 </p>
-                            )}
-                            <div className="flex items-center gap-2 mt-1">
-                                <p className="text-xs text-muted-foreground">
-                                    {format(new Date(task.startDate), 'MMM d')} - {format(new Date(task.dueDate), 'MMM d')}
-                                </p>
-                                <PriorityBadge priority={task.priority} />
+                                {task.description && (
+                                    <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                                        {task.description}
+                                    </p>
+                                )}
+                                <div className="flex items-center gap-2 mt-1">
+                                    <p className="text-xs text-muted-foreground">
+                                        {format(new Date(task.startDate), 'MMM d')} - {format(new Date(task.dueDate), 'MMM d')}
+                                    </p>
+                                    <PriorityBadge priority={task.priority} />
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </ContextMenuTrigger>
-            <ContextMenuContent className="w-52">
-                <ContextMenuItem onClick={() => goToDetail?.(task)}>
-                    Дэлгэрэнгүй
-                </ContextMenuItem>
-                {['pending', 'active'].includes(task.status) ? (
-                    <ContextMenuItem
-                        onClick={() =>
-                            handleChangeStatus?.({
-                                status: TaskStatus.IN_PROGRESS,
-                                taskId: task._id,
-                            })
-                        }
-                    >
-                        Хийж эхлэх
+                </ContextMenuTrigger>
+                <ContextMenuContent className="w-52">
+                    <ContextMenuItem onClick={() => goToDetail?.(task)}>
+                        Дэлгэрэнгүй
                     </ContextMenuItem>
-                ) : null}
-                {task.status === TaskStatus.IN_PROGRESS ? (
-                    <ContextMenuItem
-                        onClick={() =>
-                            handleChangeStatus?.({
-                                status: TaskStatus.COMPLETED,
-                                taskId: task._id,
-                            })
-                        }
-                    >
-                        Дуусгах
-                    </ContextMenuItem>
-                ) : null}
-            </ContextMenuContent>
-        </ContextMenu>
+                    {
+                        isSupervisor() ? (
+                            <>
+                                {
+                                    task.status
+                                }
+                                <ContextMenuItem
+                                    disabled={['completed', 'reviewed'].includes(task.status)}
+                                    onClick={() =>
+                                        setIsOpenAuditModal(true)
+                                    }
+                                >
+                                    Хянах
+                                </ContextMenuItem>
+                            </>
+                        ) : null
+                    }
+                    {isAssignee() ? (<>
+                        {['pending', 'active'].includes(task.status) ? (
+                            <ContextMenuItem
+                                onClick={() =>
+                                    handleChangeStatus?.({
+                                        status: TaskStatus.IN_PROGRESS,
+                                        taskId: task._id,
+                                    })
+                                }
+                            >
+                                Хийж эхлэх
+                            </ContextMenuItem>
+                        ) : null}
+                        {task.status === TaskStatus.IN_PROGRESS ? (
+                            <ContextMenuItem
+                                onClick={() =>
+                                    handleChangeStatus?.({
+                                        status: TaskStatus.COMPLETED,
+                                        taskId: task._id,
+                                    })
+                                }
+                            >
+                                Дуусгах
+                            </ContextMenuItem>
+                        ) : null}
+                    </>) : null
+                    }
+                </ContextMenuContent>
+            </ContextMenu>
+            {isOpenAuditModal ? (
+                <AuditModal
+                    taskId={task._id}
+                    open={isOpenAuditModal}
+                    onOpenChange={setIsOpenAuditModal}
+                />
+            ) : null}
+        </>
     )
 }
 
@@ -256,14 +344,15 @@ const organizeMultiDayTasks = (tasks: Task[], weekDates: Date[]): Task[][] => {
 }
 
 const WeeklyList = ({
-    data
+    data,
+    startWeek
 }: {
-    data: List<Task>
+    data: List<Task>,
+    startWeek?: string
 }) => {
     const { rows: tasks } = data
-    console.log("data ", data)
     const [currentWeekStart, setCurrentWeekStart] = useState(() => {
-        const today = new Date()
+        const today = startWeek ? new Date(startWeek) : new Date()
         const day = today.getDay()
         const diff = today.getDate() - day + (day === 0 ? -6 : 1) // Даваа гараг
         return new Date(today.setDate(diff))
@@ -294,7 +383,7 @@ const WeeklyList = ({
         newDate.setDate(newDate.getDate() - 7)
         setCurrentWeekStart(newDate);
         const url = new URL(window.location.href);
-        url.searchParams.set('startDate', newDate.toISOString().split('T')[0]);
+        url.searchParams.set('startDate', newDate.toISOString());
         router.push(url.toString());
     }
 
@@ -303,7 +392,7 @@ const WeeklyList = ({
         newDate.setDate(newDate.getDate() + 7)
         setCurrentWeekStart(newDate)
         const url = new URL(window.location.href);
-        url.searchParams.set('startDate', newDate.toISOString().split('T')[0]);
+        url.searchParams.set('startDate', newDate.toISOString());
         router.push(url.toString());
     }
 
@@ -313,7 +402,7 @@ const WeeklyList = ({
         const diff = today.getDate() - day + (day === 0 ? -6 : 1)
         setCurrentWeekStart(new Date(today.setDate(diff)))
         const url = new URL(window.location.href);
-        url.searchParams.set('startDate', today.toISOString().split('T')[0]);
+        url.searchParams.set('startDate', today.toISOString());
         router.push(url.toString());
     }
 
@@ -399,7 +488,7 @@ const WeeklyList = ({
                 {weekDays.map((day, index) => (
                     <div key={day} className="p-3 text-center font-semibold">
                         <div className="text-sm">{day}</div>
-                        <div className={`text-lg mt-1 ${isToday(weekDates[index]) ? 'bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center mx-auto' : ''}`}>
+                        <div className={cn(`text-lg mt-1`, isToday(weekDates[index]) ? 'bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center mx-auto' : '')}>
                             {weekDates[index].getDate()}
                         </div>
                     </div>
@@ -443,7 +532,7 @@ const WeeklyList = ({
                 {weekDates.map((date) => {
                     const dayTasks = getSingleDayTasksForDate(date)
                     return (
-                        <div key={date.toISOString()} className={`space-y-2 p-2 ${isToday(date) ? 'bg-blue-50/30' : ''}`}>
+                        <div key={date.toISOString()} className={cn(`space-y-2 p-2`, isToday(date) ? 'bg-blue-50/30' : '')}>
                             {dayTasks.map((task) => (
                                 <TaskItem key={task._id} task={task} handleChangeStatus={handleChangeStatus} goToDetail={goToDetail} />
                             ))}

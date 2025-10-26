@@ -19,6 +19,7 @@ import { Button } from '../ui/button';
 import { createAudit } from '@/ssr/actions/audit';
 import { useToast } from '@/hooks/use-toast';
 import { usePathname } from 'next/navigation';
+import { Input } from '../ui/input';
 
 interface AuditModalProps {
   taskId: string;
@@ -34,6 +35,7 @@ const AuditModal = ({ taskId, open, onOpenChange }: AuditModalProps) => {
     defaultValues: {
       isApproved: 'approved',
       comments: '',
+      point: '',
     },
   });
 
@@ -44,6 +46,7 @@ const AuditModal = ({ taskId, open, onOpenChange }: AuditModalProps) => {
         {
           taskId,
           result: values.isApproved,
+          point: values.point,
           comments: values.comments,
         },
         pathname
@@ -126,6 +129,36 @@ const AuditModal = ({ taskId, open, onOpenChange }: AuditModalProps) => {
               );
             }}
           />
+
+          {
+            isApproved === 'approved' ? (<Controller
+              control={control}
+              name="point"
+              render={({ field, fieldState: { error } }) => {
+                return (
+                  <div className="space-y-2">
+                    <Label htmlFor="point">
+                      Үнэлгээний оноо
+                    </Label>
+                    <Input
+                      id="point"
+                      placeholder={
+                        "Үнэлгээний оноо"
+                      }
+                      className="resize-none"
+                      {...field}
+                    />
+                    {error && (
+                      <span className="text-sm font-medium text-destructive">
+                        {error.message}
+                      </span>
+                    )}
+                  </div>
+                );
+              }}
+            />) : null
+          }
+
 
           <Controller
             control={control}

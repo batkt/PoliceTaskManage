@@ -3,6 +3,7 @@ import { User } from './user.types';
 export type AuditInput = {
   taskId: string;
   result: string;
+  point: string;
   comments: string;
 };
 

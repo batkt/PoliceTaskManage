@@ -68,7 +68,7 @@ export default async function MyTasksPage(props: {
           </div>
           <div className="max-lg:hidden">
             {/* <MyTaskTableList params={params} data={res2.data} /> */}
-            <WeeklyList data={res2.data} />
+            <WeeklyList startWeek={searchParams?.startDate} data={res2.data} />
           </div>
 
         </Suspense>

@@ -82,7 +82,10 @@ const TaskDetail = ({
     }
   };
 
-  const isMeAssigner = detailData.assignee?._id === authUser?._id;
+  const isMeSupervisor = detailData.supervisors?.find(s => s === authUser?._id);
+  const isAssignee = () => {
+    return detailData?.assignee?._id === authUser?._id;
+  }
   const overdue = isOverdue(new Date(detailData?.dueDate || ''));
 
   const isEditAccess = () => {
@@ -170,11 +173,9 @@ const TaskDetail = ({
           </div>
         </div>
         <div>
-          {isMeAssigner ? (
+          {isMeSupervisor && detailData.status !== TaskStatus.REVIEWED ? (
             <>
-              {TaskStatus.COMPLETED === detailData.status &&
-              ['super-admin', 'admin'].includes(authUser?.role) &&
-              authUser?._id !== detailData?.assignee?._id ? (
+              {TaskStatus.COMPLETED === detailData.status ? (
                 <Button
                   onClick={async () => {
                     setIsOpenAuditModal(true);
@@ -183,6 +184,10 @@ const TaskDetail = ({
                   Хянах
                 </Button>
               ) : null}
+            </>) : null}
+
+          {isAssignee() ? (
+            <>
               {[TaskStatus.PENDING, TaskStatus.ACTIVE].includes(
                 detailData.status
               ) ? (
@@ -219,22 +224,26 @@ const TaskDetail = ({
         </div>
       </div>
 
-      {isOpenAuditModal ? (
-        <AuditModal
-          taskId={detailData._id}
-          open={isOpenAuditModal}
-          onOpenChange={setIsOpenAuditModal}
-        />
-      ) : null}
+      {
+        isOpenAuditModal ? (
+          <AuditModal
+            taskId={detailData._id}
+            open={isOpenAuditModal}
+            onOpenChange={setIsOpenAuditModal}
+          />
+        ) : null
+      }
 
-      {isOpenAssignModal ? (
-        <AssignModal
-          task={detailData}
-          currentUser={detailData.assignee}
-          open={isOpenAssignModal}
-          onOpenChange={setIsOpenAssignModal}
-        />
-      ) : null}
+      {
+        isOpenAssignModal ? (
+          <AssignModal
+            task={detailData}
+            currentUser={detailData.assignee}
+            open={isOpenAssignModal}
+            onOpenChange={setIsOpenAssignModal}
+          />
+        ) : null
+      }
       <Tabs defaultValue="overview" className="w-full pb-6 pt-4">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Ерөнхий</TabsTrigger>
@@ -280,8 +289,8 @@ const TaskDetail = ({
                   {[TaskStatus.ACTIVE, TaskStatus.PENDING].includes(
                     detailData.status
                   ) &&
-                  (['super-admin', 'admin'].includes(authUser?.role || '') ||
-                    authUser?._id === detailData?.assignee?._id) ? (
+                    (['super-admin', 'admin'].includes(authUser?.role || '') ||
+                      authUser?._id === detailData?.assignee?._id) ? (
                     <Button
                       className="flex h-8 text-sm px-2 max-md:w-8 overflow-hidden text-left max-md:justify-start"
                       type="button"
@@ -442,7 +451,7 @@ const TaskDetail = ({
           </div>
         </TabsContent>
       </Tabs>
-    </div>
+    </div >
   );
 };
 

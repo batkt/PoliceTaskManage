@@ -1,15 +1,15 @@
-import { UploadedFile } from './file.types';
-import { FormTemplate } from './form.types';
-import { User } from './user.types';
+import { UploadedFile } from "./file.types";
+import { FormTemplate } from "./form.types";
+import { User } from "./user.types";
 
 export enum TaskStatus {
-  PENDING = 'pending',
-  ACTIVE = 'active',
-  IN_PROGRESS = 'in_progress',
-  COMPLETED = 'completed',
-  REVIEWED = 'reviewed',
+  PENDING = "pending",
+  ACTIVE = "active",
+  IN_PROGRESS = "in_progress",
+  COMPLETED = "completed",
+  REVIEWED = "reviewed",
 }
-export type TaskPriority = 'medium' | 'low' | 'high' | 'very-high';
+export type TaskPriority = "medium" | "low" | "high" | "very-high";
 export type CreateMemoTaskType = {
   title: string;
   description?: string;
@@ -35,6 +35,7 @@ export type Task = {
   priority: TaskPriority;
   formTemplateId?: FormTemplate | string;
   formValues?: Record<string, string>;
+  supervisors?: string[];
   createdAt: string;
 };
 
@@ -82,7 +83,7 @@ export interface ICreateTaskInput {
   startDate: Date;
   dueDate?: Date;
   fileIds?: string[]; // optional
-  priority: 'low' | 'medium' | 'high' | 'urgent'; // added priority field
+  priority: "low" | "medium" | "high" | "urgent"; // added priority field
   formValues?: Record<string, any>;
 }
 
@@ -101,6 +102,7 @@ export type TaskDetail = {
   priority: TaskPriority;
   files: UploadedFile[];
   notes: any[];
+  supervisors?: string[];
 };
 
 export type AttachFileInput = {

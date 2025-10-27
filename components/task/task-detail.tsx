@@ -31,6 +31,7 @@ import AuditResult from '../audit/audit-result';
 import { Audit } from '@/lib/types/audit.types';
 import { Activity } from '@/lib/types/activity.types';
 import AssignModal from './assign-modal';
+import TaskFinishModal from './task-finish-modal';
 
 const TaskDetail = ({
   auditData,
@@ -46,6 +47,7 @@ const TaskDetail = ({
   const [loading, setLoading] = useState(false);
   const [isOpenAuditModal, setIsOpenAuditModal] = useState(false);
   const [isOpenAssignModal, setIsOpenAssignModal] = useState(false);
+  const [isOpenTaskFinishModal, setIsOpenTaskFinishModal] = useState(false);
 
   function diffLists(
     oldList: UploadedFile[],
@@ -208,12 +210,7 @@ const TaskDetail = ({
                 <Button
                   className="bg-green-500 text-white hover:bg-green-600"
                   onClick={async () => {
-                    setLoading(true);
-                    await handleChangeStatus({
-                      status: TaskStatus.COMPLETED,
-                      taskId: detailData._id,
-                    });
-                    setLoading(false);
+                    setIsOpenTaskFinishModal(true)
                   }}
                 >
                   Дуусгах
@@ -244,6 +241,17 @@ const TaskDetail = ({
           />
         ) : null
       }
+
+      {
+        isOpenTaskFinishModal ? (
+          <TaskFinishModal
+            taskId={detailData._id}
+            open={isOpenTaskFinishModal}
+            onOpenChange={setIsOpenTaskFinishModal}
+          />
+        ) : null
+      }
+
       <Tabs defaultValue="overview" className="w-full pb-6 pt-4">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Ерөнхий</TabsTrigger>
@@ -302,6 +310,16 @@ const TaskDetail = ({
                     </Button>
                   ) : null}
                 </div>
+                {
+                  [TaskStatus.COMPLETED, TaskStatus.REVIEWED].includes(
+                    detailData.status
+                  ) ? (<div>
+                    <p className='text-sm mt-4 mb-2'>Дүгнэлт /Биелэлт/</p>
+                    <div className='text-sm text-muted-foreground'>
+                      {detailData?.summary}
+                    </div>
+                  </div>) : null
+                }
               </div>
 
               <div className="space-y-2">
@@ -362,7 +380,7 @@ const TaskDetail = ({
                 );
               })}
 
-              <AuditResult data={auditData} />
+              <AuditResult data={auditData} users={detailData.supervisorUsers} />
             </div>
           </div>
         </TabsContent>

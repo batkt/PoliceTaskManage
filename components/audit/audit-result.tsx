@@ -6,15 +6,35 @@ import { cn, formatDateFull } from '@/lib/utils';
 import { Audit } from '@/lib/types/audit.types';
 import { Badge } from '../ui/badge';
 import { Label } from '../ui/label';
+import { User } from '@/lib/types/user.types';
+import { Card, CardContent, CardTitle } from '../ui/card';
 
-const AuditResult = ({ data }: { data: Audit[] | null }) => {
+const AuditResult = ({ data, users = [] }: { data: Audit[] | null, users?: User[] }) => {
   if (!data) {
     return null;
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <Label>Хяналтын мэдээлэл</Label>
+    <>
+      {
+        users?.length > 0 ?
+          <div className='space-y-2'>
+            <Label className='text-muted-foreground'>Хяналт хийх алба хаагч</Label>
+            <div className='flex gap-2'>
+              {users.map(item => (<div key={item._id} className="flex justify-between items-center">
+                <div className="flex items-center gap-2 bg-muted rounded-full px-3 py-1 pe-4">
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={item?.profileImageUrl} />
+                    <AvatarFallback className="text-xs bg-background">
+                      {item?.givenname?.[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm">{item?.givenname}</span>
+                </div>
+              </div>))
+              }</div>
+          </div> : null
+      }
       {data?.map((item) => {
         return (
           <div key={item._id} className="px-2 py-4 border rounded-md relative">
@@ -26,6 +46,11 @@ const AuditResult = ({ data }: { data: Audit[] | null }) => {
                 {item.result === 'approved' ? 'Зөвшөөрсөн' : 'Татгалзсан'}
               </Badge>
             </div>
+            {
+              item.result === 'approved' && item?.point ? (
+                <div className='text-sm mb-2'>Үнэлгээ: {item.point}</div>
+              ) : null
+            }
             <div
               className={cn(
                 'text-muted-foreground text-sm mb-2',
@@ -34,6 +59,7 @@ const AuditResult = ({ data }: { data: Audit[] | null }) => {
             >
               {item?.comments}
             </div>
+
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2 bg-muted rounded-full px-3 py-1 pe-4">
                 <Avatar className="h-6 w-6">
@@ -51,7 +77,7 @@ const AuditResult = ({ data }: { data: Audit[] | null }) => {
           </div>
         );
       })}
-    </div>
+    </>
   );
 };
 

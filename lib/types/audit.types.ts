@@ -1,4 +1,4 @@
-import { User } from './user.types';
+import { User } from "./user.types";
 
 export type AuditInput = {
   taskId: string;
@@ -12,6 +12,7 @@ export type Audit = {
   task: string;
   result: string;
   comments: string;
+  point?: string;
   checkedBy: User;
   createdAt: string;
 };

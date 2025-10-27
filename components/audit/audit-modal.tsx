@@ -56,7 +56,7 @@ const AuditModal = ({ taskId, open, onOpenChange }: AuditModalProps) => {
         toast({
           variant: 'success',
           title: 'Амжилттай',
-          description: 'Даалгаврт амжилттай хяналт хийлээ',
+          description: 'Даалгаврыг амжилттай хяналт хийлээ',
         });
         onOpenChange(false);
         return;
@@ -70,7 +70,7 @@ const AuditModal = ({ taskId, open, onOpenChange }: AuditModalProps) => {
       toast({
         variant: 'destructive',
         title: 'Амжилтгүй',
-        description: message || 'Хяналтын мэдээлэл хадгалахад гарлаа',
+        description: message || 'Хяналтын мэдээлэл хадгалахад алдаа гарлаа',
       });
     } finally {
       setLoading(false);

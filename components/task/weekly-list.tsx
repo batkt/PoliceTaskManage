@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import AuditModal from '../audit/audit-modal';
+import TaskFinishModal from './task-finish-modal';
 
 const TaskItem = ({
     task,
@@ -38,7 +39,8 @@ const TaskItem = ({
 }) => {
     const { authUser } = useAuth();
     const [isOpenAuditModal, setIsOpenAuditModal] = useState(false);
-    console.log("Task Item Rendered ", task);
+    const [isOpenTaskFinishModal, setIsOpenTaskFinishModal] = useState(false);
+
     const cardVariants = cva("p-2 cursor-pointer", {
         variants: {
             variant: {
@@ -67,7 +69,6 @@ const TaskItem = ({
 
     return (
         <>
-
             <ContextMenu>
                 <ContextMenuTrigger asChild>
                     <Card className={cn(cardVariants({ variant: task.status, className }))}>
@@ -122,10 +123,7 @@ const TaskItem = ({
                                 {task.status === TaskStatus.IN_PROGRESS ? (
                                     <ContextMenuItem
                                         onClick={() =>
-                                            handleChangeStatus?.({
-                                                status: TaskStatus.COMPLETED,
-                                                taskId: task._id,
-                                            })
+                                            setIsOpenTaskFinishModal(true)
                                         }
                                     >
                                         Дуусгах
@@ -144,6 +142,16 @@ const TaskItem = ({
                     onOpenChange={setIsOpenAuditModal}
                 />
             ) : null}
+
+            {
+                isOpenTaskFinishModal ? (
+                    <TaskFinishModal
+                        taskId={task._id}
+                        open={isOpenTaskFinishModal}
+                        onOpenChange={setIsOpenTaskFinishModal}
+                    />
+                ) : null
+            }
         </>
     )
 }
@@ -160,6 +168,7 @@ const MultiDayTaskItem = ({
 }) => {
     const { authUser } = useAuth();
     const [isOpenAuditModal, setIsOpenAuditModal] = useState(false);
+    const [isOpenTaskFinishModal, setIsOpenTaskFinishModal] = useState(false);
 
     const cardVariants = cva("p-2 cursor-pointer border transition-all hover:shadow-md", {
         variants: {
@@ -218,13 +227,10 @@ const MultiDayTaskItem = ({
                         Дэлгэрэнгүй
                     </ContextMenuItem>
                     {
-                        isSupervisor() ? (
+                        isSupervisor() && task.status !== TaskStatus.REVIEWED ? (
                             <>
-                                {
-                                    task.status
-                                }
                                 <ContextMenuItem
-                                    disabled={['completed', 'reviewed'].includes(task.status)}
+                                    disabled={task.status !== TaskStatus.COMPLETED}
                                     onClick={() =>
                                         setIsOpenAuditModal(true)
                                     }
@@ -234,32 +240,32 @@ const MultiDayTaskItem = ({
                             </>
                         ) : null
                     }
-                    {isAssignee() ? (<>
-                        {['pending', 'active'].includes(task.status) ? (
-                            <ContextMenuItem
-                                onClick={() =>
-                                    handleChangeStatus?.({
-                                        status: TaskStatus.IN_PROGRESS,
-                                        taskId: task._id,
-                                    })
-                                }
-                            >
-                                Хийж эхлэх
-                            </ContextMenuItem>
-                        ) : null}
-                        {task.status === TaskStatus.IN_PROGRESS ? (
-                            <ContextMenuItem
-                                onClick={() =>
-                                    handleChangeStatus?.({
-                                        status: TaskStatus.COMPLETED,
-                                        taskId: task._id,
-                                    })
-                                }
-                            >
-                                Дуусгах
-                            </ContextMenuItem>
-                        ) : null}
-                    </>) : null
+                    {
+                        isAssignee() ? (
+                            <>
+                                {['pending', 'active'].includes(task.status) ? (
+                                    <ContextMenuItem
+                                        onClick={() =>
+                                            handleChangeStatus?.({
+                                                status: TaskStatus.IN_PROGRESS,
+                                                taskId: task._id,
+                                            })
+                                        }
+                                    >
+                                        Хийж эхлэх
+                                    </ContextMenuItem>
+                                ) : null}
+                                {task.status === TaskStatus.IN_PROGRESS ? (
+                                    <ContextMenuItem
+                                        onClick={() =>
+                                            setIsOpenTaskFinishModal(true)
+                                        }
+                                    >
+                                        Дуусгах
+                                    </ContextMenuItem>
+                                ) : null}
+                            </>
+                        ) : null
                     }
                 </ContextMenuContent>
             </ContextMenu>
@@ -270,6 +276,16 @@ const MultiDayTaskItem = ({
                     onOpenChange={setIsOpenAuditModal}
                 />
             ) : null}
+
+            {
+                isOpenTaskFinishModal ? (
+                    <TaskFinishModal
+                        taskId={task._id}
+                        open={isOpenTaskFinishModal}
+                        onOpenChange={setIsOpenTaskFinishModal}
+                    />
+                ) : null
+            }
         </>
     )
 }

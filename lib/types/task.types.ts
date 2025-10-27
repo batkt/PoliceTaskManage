@@ -53,6 +53,7 @@ export type CreateWorkGroupTaskType = {
 export type TaskStatusChangeType = {
   status: TaskStatus;
   taskId: string;
+  summary?: string
 };
 
 export type Memo = {
@@ -99,10 +100,12 @@ export type TaskDetail = {
   createdBy: User;
   completedDate?: string;
   status: TaskStatus;
+  summary?: string;
   priority: TaskPriority;
   files: UploadedFile[];
   notes: any[];
   supervisors?: string[];
+  supervisorUsers?: User[];
 };
 
 export type AttachFileInput = {

@@ -23,6 +23,7 @@ const TaskDetailPage = async (props: {
   const auditData = await getAuditData(params.slug);
   const notesRes = await getTaskNotes(params.slug);
   const activities = await getActivities(params.slug);
+  
   return (
     <TaskProvider data={res.data} notesData={notesRes.data}>
       <TaskDetail auditData={auditData} activities={activities} />

@@ -1,7 +1,7 @@
-'use server';
+"use server";
 
-import { BACKEND_URL } from '@/lib/config';
-import { ssrClient } from '../client';
+import { BACKEND_URL } from "@/lib/config";
+import { ssrClient } from "../client";
 import {
   AttachFileInput,
   CreateMemoTaskType,
@@ -9,10 +9,10 @@ import {
   ICreateTaskInput,
   TaskStatus,
   TaskStatusChangeType,
-} from '@/lib/types/task.types';
-import { revalidatePath } from 'next/cache';
-import { CreateFormData } from '@/lib/types/task-type.types';
-import { UploadedFile } from '@/lib/types/file.types';
+} from "@/lib/types/task.types";
+import { revalidatePath } from "next/cache";
+import { CreateFormData } from "@/lib/types/task-type.types";
+import { UploadedFile } from "@/lib/types/file.types";
 
 export const createMemoTask = async (
   data: CreateMemoTaskType,
@@ -42,11 +42,12 @@ export const changeStatusAction = async (
   data: TaskStatusChangeType,
   path?: string
 ) => {
-  const { status, taskId } = data;
+  const { status, taskId, summary } = data;
   let res;
   if (status === TaskStatus.COMPLETED) {
     res = await ssrClient.post(`${BACKEND_URL}/api/task-v2/complete`, {
       taskId,
+      summary,
     });
   } else {
     res = await ssrClient.post(`${BACKEND_URL}/api/task-v2/start`, {

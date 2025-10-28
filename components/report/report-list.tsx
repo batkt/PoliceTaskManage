@@ -20,7 +20,7 @@ import { deleteUser, dismissal } from '@/ssr/actions/user';
 import { useToast } from '@/hooks/use-toast';
 import StatusBadge from '../task/status-badge';
 import { FormTemplate } from '@/lib/types/form.types';
-import { Task } from '@/lib/types/task.types';
+import { Report, Task } from '@/lib/types/task.types';
 
 // const columnInformations = [
 //   {
@@ -52,13 +52,13 @@ import { Task } from '@/lib/types/task.types';
 export function ReportList({
   data = [],
   params,
-  type,
+  type = "weekly",
   isArchived = false
 }: {
-  data?: Task[];
+  data?: Report[];
   params: TableParams;
   isArchived?: boolean,
-  type: 'weekly' | 'monthly' | 'quarterly' | 'halfYearly' | 'yearly';
+  type?: string;
 }) {
   // const total = data?.total || 1;
   // const totalPages = data?.totalPages || 1;
@@ -131,7 +131,7 @@ export function ReportList({
   //   }
   // }
 
-  const columns: ColumnDef<Task>[] = [
+  const columns: ColumnDef<Report>[] = [
     {
       key: 'title',
       header: (props) => (
@@ -143,7 +143,7 @@ export function ReportList({
       ),
       renderCell: (row) => (
         <div className="font-medium whitespace-nowrap truncate">
-          {row.title}
+          {row.task.title}
         </div>
       ),
     },
@@ -157,13 +157,52 @@ export function ReportList({
         />
       ),
       renderCell: (row) => {
-        const formTemplate = row.formTemplateId as FormTemplate;
+        const formTemplate = row.task.formTemplate;
         return (
           <div className="font-medium whitespace-nowrap truncate">
             {formTemplate?.name}
           </div>
         );
       },
+    },
+    {
+      key: 'completedDate',
+      header: (props) => (
+        <div className="flex justify-center">
+          <ColumnHeader {...props} title="Дуусгасан огноо" />
+        </div>
+      ),
+      renderCell: (row) => (
+        <div className="text-center">
+          {format(new Date(row.task.completedDate), 'yyyy-MM-dd')}
+        </div>
+      ),
+    },
+    {
+      key: 'reviewedDate',
+      header: (props) => (
+        <div className="flex justify-center">
+          <ColumnHeader {...props} title="Хянасан огноо" />
+        </div>
+      ),
+      renderCell: (row) => (
+        <div className="text-center">
+          {format(new Date(row.createdAt), 'yyyy-MM-dd')}
+        </div>
+      ),
+    },
+    {
+      key: 'reviewedBy',
+      header: (props) => (
+        <div className="flex justify-center">
+          <ColumnHeader {...props} title="Хянагч" />
+        </div>
+      ),
+      renderCell: (row) => (
+        <div className="text-center">
+          {row.checkedBy?.rank} {row.checkedBy?.surname?.[0]}.{row.checkedBy?.givenname}
+        </div>
+      ),
     },
     {
       key: 'status',
@@ -176,7 +215,7 @@ export function ReportList({
       renderCell: (row) => {
         return (
           <div className="flex justify-center items-center">
-            <StatusBadge status={row.status} />
+            <StatusBadge status={row.task.status} />
           </div>
         );
       },

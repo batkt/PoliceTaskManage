@@ -7,6 +7,9 @@ import { TableParams } from "@/components/data-table-v2"
 import { getReportList } from "@/ssr/service/report"
 import { Suspense } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { isEmptyObject } from "@/lib/utils"
+import { queryStringBuilder } from "@/lib/query.util"
+import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Reports - Task Management System",
@@ -33,21 +36,21 @@ export default async function ReportsPage(props: {
     ),
   };
 
-  // const { filters, ...other } = params;
-  // const otherFilter = isEmptyObject(filters)
-  //   ? {}
-  //   : {
-  //     ...filters,
-  //   };
+  const { filters, ...other } = params;
+  const otherFilter = isEmptyObject(filters)
+    ? {}
+    : {
+      ...filters,
+    };
 
-  // const query = queryStringBuilder({
-  //   ...other,
-  //   ...otherFilter,
-  // });
+  const query = queryStringBuilder({
+    ...other,
+    ...otherFilter,
+    type: filters.type || 'weekly',
+  });
 
-  const res = await getReportList();
+  const res = await getReportList(query);
 
-  console.log("--------------------------- ", res.data)
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -64,17 +67,27 @@ export default async function ReportsPage(props: {
       </div>
 
       <div className="space-y-4">
-        <Tabs defaultValue="monthly" className="space-y-4">
+        <Tabs defaultValue="weekly" className="space-y-4">
           <TabsList className="w-fit">
-            <TabsTrigger value="weekly">7 хоног</TabsTrigger>
-            <TabsTrigger value="monthly">Сар</TabsTrigger>
-            <TabsTrigger value="quarterly">Улирал</TabsTrigger>
-            <TabsTrigger value="halfYearly">Хагас жил</TabsTrigger>
-            <TabsTrigger value="yearly">Жил</TabsTrigger>
+            <TabsTrigger value="weekly" asChild>
+              <Link href={`/dashboard/reports?type=weekly`}>7 хоног</Link>
+            </TabsTrigger>
+            <TabsTrigger value="monthly">
+              <Link href={`/dashboard/reports?type=monthly`}>Сар</Link>
+            </TabsTrigger>
+            <TabsTrigger value="quarterly">
+              <Link href={`/dashboard/reports?type=quarterly`}>Улирал</Link>
+            </TabsTrigger>
+            <TabsTrigger value="halfYearly">
+              <Link href={`/dashboard/reports?type=halfYearly`}>Хагас жил</Link>
+            </TabsTrigger>
+            <TabsTrigger value="yearly">
+              <Link href={`/dashboard/reports?type=yearly`}>Жил</Link>
+            </TabsTrigger>
           </TabsList>
           <div className="space-y-4">
             <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-              <ReportList type="yearly" data={res.data} params={params} />
+              <ReportList type={filters?.type} data={res.data} params={params} />
             </Suspense>
           </div>
         </Tabs>

@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { isEmptyObject } from "@/lib/utils"
 import { queryStringBuilder } from "@/lib/query.util"
 import Link from "next/link"
+import ReportDownloader from "@/components/report/report-downloader"
 
 export const metadata: Metadata = {
   title: "Reports - Task Management System",
@@ -60,10 +61,7 @@ export default async function ReportsPage(props: {
             Тайлант хугацааг сонгон өөрийн тайланг авна уу
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Тайлан татах
-        </Button>
+        <ReportDownloader data={res.data} type={filters.type}/>
       </div>
 
       <div className="space-y-4">
@@ -87,7 +85,7 @@ export default async function ReportsPage(props: {
           </TabsList>
           <div className="space-y-4">
             <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-              <ReportList type={filters?.type} data={res.data} params={params} />
+              <ReportList data={res.data} params={params} />
             </Suspense>
           </div>
         </Tabs>

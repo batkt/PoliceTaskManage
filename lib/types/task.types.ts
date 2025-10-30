@@ -113,24 +113,24 @@ export type AttachFileInput = {
   fileIds: string[];
 };
 
-export type Report = {
+export type TaskReport = {
   _id: string;
-  comment: string;
-  result: string;
-  points: number;
-  checkedBy: User;
-  createdAt: string;
-  task: {
+  title: string;
+  description: string;
+  status: string;
+  supervisors: User[];
+  summary: string;
+  startDate: string;
+  dueDate: string;
+  createdBy: User;
+  completedDate: string;
+  formTemplate: FormTemplate;
+  audit: {
     _id: string;
-    title: string;
-    description: string;
-    status: string;
-    supervisors: User[];
-    summary: string;
-    startDate: string;
-    dueDate: string;
-    createdBy: User;
-    completedDate: string;
-    formTemplate: FormTemplate;
+    comment: string;
+    result: string;
+    point: number;
+    checkedBy: User;
+    createdAt: string;
   };
 };

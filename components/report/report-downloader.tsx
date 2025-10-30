@@ -1,12 +1,12 @@
 "use client";
 
 import { saveAs } from 'file-saver';
-import { Document, Packer, Paragraph, Table, TableCell, TableRow, AlignmentType, WidthType, TextRun } from 'docx';
+import { Document, Packer, Paragraph, Table, TableCell, TableRow, AlignmentType, WidthType, TextRun, BorderStyle, TabStopType } from 'docx';
 
 
 import React from 'react'
 import { Button } from '../ui/button';
-import { Plus } from 'lucide-react';
+import { FileDown, Plus } from 'lucide-react';
 import { TaskReport } from '@/lib/types/task.types';
 import { format } from 'date-fns';
 
@@ -46,34 +46,85 @@ const ReportDownloader = ({
             ),
         ];
 
+        const approvedBox = new Table({
+            alignment: AlignmentType.RIGHT,
+            width: { size: 40, type: WidthType.PERCENTAGE },
+            borders: {
+                top: { style: BorderStyle.NONE },
+                bottom: { style: BorderStyle.NONE },
+                left: { style: BorderStyle.NONE },
+                right: { style: BorderStyle.NONE },
+            },
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            borders: {
+                                top: { style: BorderStyle.NONE },
+                                bottom: { style: BorderStyle.NONE },
+                                left: { style: BorderStyle.NONE },
+                                right: { style: BorderStyle.NONE },
+                            },
+                            children: [
+                                new Paragraph({
+                                    alignment: AlignmentType.CENTER,
+                                    text: "БАТЛАВ"
+                                }),
+                                new Paragraph({
+                                    alignment: AlignmentType.CENTER,
+                                    text: "ЗАХИРГААНЫ УДИРДЛАГЫН ХЭЛТСИЙН ДАРГА, ЦАГДААГИЙН ХУРАНДАА Ц.НАРАНБААТАР"
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+            ],
+        });
+
+        const title = new Table({
+            alignment: AlignmentType.CENTER, // Төвд байрлуулна
+            width: { size: 90, type: WidthType.PERCENTAGE }, // 80% өргөн
+            borders: {
+                top: { style: BorderStyle.NONE },
+                bottom: { style: BorderStyle.NONE },
+                left: { style: BorderStyle.NONE },
+                right: { style: BorderStyle.NONE },
+            },
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            borders: {
+                                top: { style: BorderStyle.NONE },
+                                bottom: { style: BorderStyle.NONE },
+                                left: { style: BorderStyle.NONE },
+                                right: { style: BorderStyle.NONE },
+                            },
+                            children: [
+                                new Paragraph({
+                                    alignment: AlignmentType.CENTER,
+                                    spacing: { after: 200 },
+                                    children: [
+                                        new TextRun({
+                                            text: `ТЭЭВРИЙН ЦАГДААГИЙН АЛБАНЫ ЗАХИРГААНЫ УДИРДЛАГЫН ХЭЛТСЭЭС ${reportTitle} ХУГАЦААНД ХИЙЖ ХЭРЭГЖҮҮЛСЭН АЖЛЫН ТӨЛӨВЛӨГӨӨНИЙ БИЕЛЭЛТ`,
+                                            bold: true,
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+            ],
+        });
+
         const doc = new Document({
             sections: [
                 {
                     properties: {},
                     children: [
                         // ----- Баруун дээд булан -----
-                        new Paragraph({
-                            alignment: AlignmentType.RIGHT,
-                            children: [
-                                new TextRun({ text: 'БАТЛАВ', bold: true }),
-                            ],
-                        }),
-                        new Paragraph({
-                            alignment: AlignmentType.RIGHT,
-                            children: [
-                                new TextRun('ЗАХИРГААНЫ УДИРДЛАГЫН ХЭЛТСИЙН'),
-                            ],
-                        }),
-                        new Paragraph({
-                            alignment: AlignmentType.RIGHT,
-                            children: [
-                                new TextRun('ДАРГА, ЦАГДААГИЙН ХУРАНДАА'),
-                            ],
-                        }),
-                        new Paragraph({
-                            alignment: AlignmentType.RIGHT,
-                            children: [new TextRun('Ц.НАРАНБААТАР')],
-                        }),
+                        approvedBox,
                         new Paragraph({ text: '' }),
                         new Paragraph({
                             alignment: AlignmentType.RIGHT,
@@ -82,15 +133,7 @@ const ReportDownloader = ({
                         new Paragraph({ text: '' }),
 
                         // ----- Төв гарчиг -----
-                        new Paragraph({
-                            alignment: AlignmentType.CENTER,
-                            spacing: { after: 200 },
-                            children: [
-                                new TextRun({
-                                    text: `ТЭЭВРИЙН ЦАГДААГИЙН АЛБАНЫ ЗАХИРГААНЫ УДИРДЛАГЫН ХЭЛТСЭЭС ${reportTitle} ХУГАЦААНД ХИЙЖ ХЭРЭГЖҮҮЛСЭН АЖЛЫН ТӨЛӨВЛӨГӨӨНИЙ БИЕЛЭЛТ`,
-                                    bold: true,
-                                })]
-                        }),
+                        title,
                         new Paragraph({
                             text: `(2025.10.01-2025.10.30)`,
                             alignment: AlignmentType.CENTER,
@@ -99,8 +142,13 @@ const ReportDownloader = ({
 
                         // ----- Огноо, байршил -----
                         new Paragraph({
-                            text: `${today}                     Улаанбаатар хот`,
-                            alignment: AlignmentType.CENTER,
+                            tabStops: [
+                                { position: 9000, type: TabStopType.RIGHT }, // баруун талд tab байрлуулах
+                            ],
+                            children: [
+                                new TextRun(`${today}`),
+                                new TextRun({ text: "\tУлаанбаатар хот" }), // ← \t нь tab байрлал руу үсрэх
+                            ],
                         }),
                         new Paragraph({ text: '' }),
 
@@ -120,7 +168,7 @@ const ReportDownloader = ({
 
     return (
         <Button onClick={handleDownloadDoc}>
-            <Plus className="mr-2 h-4 w-4" />
+            <FileDown className="mr-2 h-4 w-4" />
             Тайлан татах
         </Button>
     )

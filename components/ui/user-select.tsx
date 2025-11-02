@@ -23,6 +23,7 @@ import { Button } from './button';
 interface UserSelectProps {
   value?: string;
   onChange?: (userId: string) => void;
+  onChangeUser?: (user?: User) => void
   placeholder?: string;
   error?: FieldError;
   name?: string;
@@ -37,6 +38,7 @@ export const UserSelect: React.FC<UserSelectProps> = ({
   value = '',
   branchId,
   onChange,
+  onChangeUser,
   placeholder = 'Алба хаагч сонгох',
   error,
   name = '',
@@ -89,6 +91,7 @@ export const UserSelect: React.FC<UserSelectProps> = ({
     setSelectedUsers([user]);
     setManualChanged(true);
     onChange?.(user._id);
+    onChangeUser?.(user);
     setIsOpen(!isOpen);
   };
 
@@ -138,14 +141,12 @@ export const UserSelect: React.FC<UserSelectProps> = ({
       ) : (
         <div
           className={cn(
-            `min-h-[42px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background flex flex-wrap gap-1 items-center transition-colors ${
-              disabled
-                ? 'cursor-not-allowed opacity-50'
-                : 'cursor-pointer hover:bg-accent/50'
-            } ${
-              error
-                ? 'border-destructive focus-within:ring-destructive'
-                : 'border-input focus-within:ring-2 focus-within:ring-ring'
+            `min-h-[42px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background flex flex-wrap gap-1 items-center transition-colors ${disabled
+              ? 'cursor-not-allowed opacity-50'
+              : 'cursor-pointer hover:bg-accent/50'
+            } ${error
+              ? 'border-destructive focus-within:ring-destructive'
+              : 'border-input focus-within:ring-2 focus-within:ring-ring'
             } ${isOpen ? 'ring-2 ring-ring' : ''}`
           )}
           onClick={handleContainerClick}
@@ -196,6 +197,7 @@ export const UserSelect: React.FC<UserSelectProps> = ({
                         setSelectedUsers([]);
                         setManualChanged(true);
                         onChange?.('');
+                        onChangeUser?.(undefined);
                         setIsOpen(false);
                       }}
                     >

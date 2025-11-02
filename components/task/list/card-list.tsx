@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { MoreVertical } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MoreVertical } from 'lucide-react';
 import { Task, TaskStatus, TaskStatusChangeType } from '@/lib/types/task.types';
 import { List } from '@/lib/types/global.types';
 import { Card } from '../../ui/card';
@@ -15,21 +15,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../../ui/dropdown-menu';
-import MobilePagination from '../../data-table-v2/mobile-pagination';
+// import MobilePagination from '../../data-table-v2/mobile-pagination';
 import { usePathname, useRouter } from 'next/navigation';
-import { queryStringBuilder } from '@/lib/query.util';
-import { TableParams } from '../../data-table-v2';
+// import { queryStringBuilder } from '@/lib/query.util';
+// import { TableParams } from '../../data-table-v2';
 import StatusBadge from '../status-badge';
 import PriorityBadge from '../priority-badge';
 import TaskListToolbar from './toolbar';
 import { changeStatusAction } from '@/ssr/actions/task';
 import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 export function MyTaskCardList({
   data,
   params,
   tableKey = 'my-tasks',
   clickToDetail = false,
+  startWeek
 }: {
   data?: List<Task>;
   params: {
@@ -39,15 +41,56 @@ export function MyTaskCardList({
     filters: Record<string, string | undefined>;
   };
   tableKey?: string;
+  startWeek?: string,
   clickToDetail?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
   const rows = data?.rows || [];
-  const total = data?.total || 0;
-  const totalPages = data?.totalPages || 0;
+  // const total = data?.total || 0;
+  // const totalPages = data?.totalPages || 0;
+  const [currentWeekStart, setCurrentWeekStart] = useState(() => {
+    const today = startWeek ? new Date(startWeek) : new Date()
+    const day = today.getDay()
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1) // Даваа гараг
+    return new Date(today.setDate(diff))
+  })
 
+  const goToPreviousWeek = () => {
+    const newDate = new Date(currentWeekStart)
+    newDate.setDate(newDate.getDate() - 7)
+    setCurrentWeekStart(newDate);
+    const url = new URL(window.location.href);
+    url.searchParams.set('startDate', newDate.toISOString());
+    router.push(url.toString());
+  }
+
+  const goToCurrentWeek = () => {
+    const today = new Date()
+    const day = today.getDay()
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1)
+    setCurrentWeekStart(new Date(today.setDate(diff)))
+    const url = new URL(window.location.href);
+    url.searchParams.set('startDate', today.toISOString());
+    router.push(url.toString());
+  }
+
+  const goToNextWeek = () => {
+    const newDate = new Date(currentWeekStart)
+    newDate.setDate(newDate.getDate() + 7)
+    setCurrentWeekStart(newDate)
+    const url = new URL(window.location.href);
+    url.searchParams.set('startDate', newDate.toISOString());
+    router.push(url.toString());
+  }
+
+  const isEnableNextWeek = () => {
+    const newDate = new Date(currentWeekStart)
+    newDate.setDate(newDate.getDate() + 7)
+
+    return (new Date() > newDate)
+  }
   //   useEffect(() => {
   //     const handleGlobalSearch = (event: Event) => {
   //       const customEvent = event as CustomEvent;
@@ -321,6 +364,32 @@ export function MyTaskCardList({
             onNextPage={changePage}
             onPrevPage={changePage}
           /> */}
+          <div className='flex items-center space-x-2'>
+            <Button
+              variant="outline"
+              className="h-8 w-8 p-0"
+              onClick={() => goToPreviousWeek()}
+            >
+              <span className="sr-only">Go to previous page</span>
+              <ChevronLeft />
+            </Button>
+            <Button
+              variant="outline"
+              className="h-8 py-0"
+              onClick={() => goToCurrentWeek()}
+            >
+              Өнөөдөр
+            </Button>
+            <Button
+              variant="outline"
+              className="h-8 w-8 p-0"
+              onClick={() => goToNextWeek()}
+              disabled={!isEnableNextWeek()}
+            >
+              <span className="sr-only">Go to next page</span>
+              <ChevronRight />
+            </Button>
+          </div>
         </div>
       )}
     </div>

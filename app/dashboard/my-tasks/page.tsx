@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { TableParams } from '@/components/data-table-v2';
 import { getMyTaskList } from '@/ssr/service/task';
 import { queryStringBuilder } from '@/lib/query.util';
 import { isEmptyObject } from '@/lib/utils';
@@ -64,7 +63,7 @@ export default async function MyTasksPage(props: {
       <div className="space-y-4">
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
           <div className="lg:hidden">
-            <MyTaskCardList params={params} data={res2.data} />
+            <MyTaskCardList startWeek={searchParams?.startDate} params={params} data={res2.data} />
           </div>
           <div className="max-lg:hidden">
             {/* <MyTaskTableList params={params} data={res2.data} /> */}

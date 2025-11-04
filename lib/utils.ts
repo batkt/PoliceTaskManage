@@ -60,3 +60,12 @@ export function formatRelativeTime(timestamp: Date | string): string {
   if (minutes > 0) return `${minutes}m ago`;
   return 'Just now';
 }
+
+export const COLORS = {
+  blue: "#3b82f6",
+  green: "#10b981",
+  amber: "#f59e0b",
+  red: "#ef4444",
+  purple: "#8b5cf6",
+  cyan: "#06b6d4",
+};

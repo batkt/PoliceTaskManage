@@ -18,7 +18,7 @@ export function middleware(request: NextRequest) {
     }
 
     // Нэвтэрсэн үед нэвтрэх хуудас руу орох гэж оролдвол dashboard руу үсэргэнэ
-    if (isPublicRoute && token && url !== '/') {
+    if (isPublicRoute && token) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 

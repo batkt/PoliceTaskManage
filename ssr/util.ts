@@ -2,7 +2,6 @@
 
 import { TOKEN_KEY } from '@/lib/config';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 
 export const getAuthHeaders = async () => {
   const cookie = await cookies();
@@ -19,8 +18,6 @@ export const reponseChecker = async (response: Response) => {
   if (data.code === 401) {
     const cookie = await cookies();
     if (cookie.has('TOKEN_KEY')) cookie.delete(TOKEN_KEY);
-
-    redirect('/');
   }
   return data;
 };

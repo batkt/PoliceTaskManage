@@ -66,7 +66,9 @@ const AuthProvider = ({
         setAuthStatus(AuthStatus.AUTHENTICATED);
         setAccessToken(res.data?.accessToken);
       } else {
-        window.location.href = '/';
+        setAuthStatus(AuthStatus.UNAUTHENTICATED);
+        if (window.location.pathname !== "/")
+          window.location.href = '/';
       }
     }
   }, []);

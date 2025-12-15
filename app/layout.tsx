@@ -4,10 +4,8 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import './globals.css';
 import { AuthProvider } from '@/context/auth-context';
-import { isAuthenticated } from '@/ssr/util';
 import { Toaster } from '@/components/ui/toaster';
 import SocketProvider from '@/context/socket-context';
-import { getLoggedUser } from '@/ssr/service/user';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,8 +20,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const token = await isAuthenticated();
-  const loggedUser = await getLoggedUser();
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -34,11 +30,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider
-            isAuthenticated={!!token}
-            accessToken={token}
-            loggedUser={loggedUser}
-          >
+          <AuthProvider>
             <SocketProvider>
               {children}
               <Toaster />

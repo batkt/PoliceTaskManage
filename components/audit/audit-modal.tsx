@@ -20,6 +20,7 @@ import { createAudit } from '@/ssr/actions/audit';
 import { useToast } from '@/hooks/use-toast';
 import { usePathname } from 'next/navigation';
 import { Input } from '../ui/input';
+import { useAuth } from '@/context/auth-context';
 
 interface AuditModalProps {
   taskId: string;
@@ -30,6 +31,7 @@ interface AuditModalProps {
 const AuditModal = ({ taskId, open, onOpenChange }: AuditModalProps) => {
   const [loading, setLoading] = useState(false);
   const pathname = usePathname();
+  const { accessToken } = useAuth();
   const { toast } = useToast();
   const { handleSubmit, control, watch, reset } = useForm({
     defaultValues: {
@@ -49,9 +51,10 @@ const AuditModal = ({ taskId, open, onOpenChange }: AuditModalProps) => {
           point: values.point,
           comments: values.comments,
         },
-        pathname
+        pathname,
+        accessToken
       );
-      if (res.code === 200) {
+      if (res.isOk) {
         reset();
         toast({
           variant: 'success',

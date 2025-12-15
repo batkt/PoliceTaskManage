@@ -64,7 +64,7 @@ export function OfficerUpdateModal({
 }: OfficerUpdateModalProps) {
   const pathname = usePathname();
   const { toast } = useToast();
-  const { authUser } = useAuth();
+  const { authUser, accessToken } = useAuth();
 
   const {
     control,
@@ -131,9 +131,10 @@ export function OfficerUpdateModal({
           ...other,
           joinedDate: joinedDate ? format(joinedDate, 'yyyy-MM-dd') : "",
         },
-        pathname
+        pathname,
+        accessToken
       );
-      if (res.code === 200) {
+      if (res.isOk) {
         toast({
           variant: 'success',
           title: 'Амжилттай',

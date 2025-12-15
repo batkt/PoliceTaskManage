@@ -7,9 +7,13 @@ export type List<T> = {
 
 export type CustomResponse<T> = {
   // code is number and greater than 200
-  code: number;
+  isOk: true;
   message?: string;
   data: T;
+} | {
+  isOk: false;
+  code: number;
+  message: string;
 };
 
 export type Pagination = {

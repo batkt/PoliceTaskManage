@@ -22,7 +22,7 @@ export const loginAction = async (data: LoginInputType) => {
     data
   );
 
-  if (res.code === 200) {
+  if (res.isOk) {
     const decoded = decode(res.data.accessToken) as { exp: number };
     const cookieStore = await cookies();
     cookieStore.set(TOKEN_KEY, res.data.accessToken, {
@@ -43,9 +43,10 @@ export const logoutAction = async () => {
   return true;
 };
 
-export const changePassword = async (data: any) => {
+export const changePassword = async (data: any, accessToken?: string) => {
   return await ssrClient.post<{}>(
     `${BACKEND_URL}/api/auth/change-password`,
-    data
+    data,
+    accessToken
   );
 };

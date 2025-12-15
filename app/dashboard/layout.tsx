@@ -2,11 +2,8 @@ import type React from 'react';
 import type { Metadata } from 'next';
 import { SidebarNavigation } from '@/components/sidebar-navigation';
 import { Header } from '@/components/header';
-import { redirect } from 'next/navigation';
-import { isAuthenticated } from '@/ssr/util';
 import { NotificationProvider } from '@/context/notification-context';
 import UserProvider from '@/context/user-context';
-import { getAllBranches } from '@/ssr/service/branch';
 
 export const metadata: Metadata = {
   title: 'Dashboard - Task Management System',
@@ -18,15 +15,8 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const token = await isAuthenticated();
-  if (!token) {
-    redirect('/');
-  }
-
-  const branchRes = await getAllBranches();
-
   return (
-    <UserProvider branchData={branchRes.code === 200 ? branchRes.data : []}>
+    <UserProvider>
       <NotificationProvider>
         <div className="flex min-h-screen flex-col">
           <SidebarNavigation />

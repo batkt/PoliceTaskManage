@@ -4,11 +4,12 @@ import { getAuthHeaders, reponseChecker } from './util';
 export const postRequest = async <T>(
   url: string,
   data?: any,
+  token?: string,
   config?: RequestInit
 ): Promise<CustomResponse<T>> => {
   try {
     const { headers, ...otherConfig } = config || {};
-    const authHeaders = await getAuthHeaders();
+    const authHeaders = await getAuthHeaders(token);
 
     const response = await fetch(url, {
       method: 'POST',
@@ -22,24 +23,33 @@ export const postRequest = async <T>(
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      return {
+        isOk: false,
+        code: response.status,
+        message: response.statusText,
+      };
     }
 
     return reponseChecker(response);
   } catch (error) {
     console.error('Error in getRequest:', error);
-    throw error;
+    return {
+      isOk: false,
+      code: 500,
+      message: 'Internal Server Error',
+    };
   }
 };
 
 const getRequest = async <T>(
   url: string,
+  token?: string,
   config?: ResponseInit
 ): Promise<CustomResponse<T>> => {
   try {
     const { headers, ...otherConfig } = config || {};
 
-    const authHeaders = await getAuthHeaders();
+    const authHeaders = await getAuthHeaders(token);
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -51,13 +61,21 @@ const getRequest = async <T>(
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      return {
+        isOk: false,
+        code: response.status,
+        message: response.statusText,
+      };
     }
 
     return reponseChecker(response);
   } catch (error) {
     console.error('Error in getRequest:', error);
-    throw error;
+    return {
+      isOk: false,
+      code: 500,
+      message: 'Internal Server Error',
+    };
   }
 };
 

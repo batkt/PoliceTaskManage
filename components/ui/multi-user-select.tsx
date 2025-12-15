@@ -48,7 +48,7 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
   const getSearchUsers = useCallback(
     async (q: string | undefined = '') => {
       const res = await getUserList(q, accessToken);
-      if (res.code == 200) {
+      if (res.isOk) {
         setListUsers(res.data);
       }
     },
@@ -62,7 +62,7 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
   const getSelectedUsers = useCallback(async () => {
     if (value?.length > 0 && !manualChanged) {
       const res = await getUserList(`userIds=${value?.join('|')}`, accessToken);
-      if (res.code === 200) {
+      if (res.isOk) {
         setSelectedUsers(res.data.rows);
       }
     }
@@ -72,7 +72,6 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
     getSelectedUsers();
   }, [getSelectedUsers]);
 
-  useEffect(() => {}, [value]);
 
   const handleToggleUser = (user: User) => {
     if (disabled) return;
@@ -151,14 +150,12 @@ export const MultiUserSelect: React.FC<MultiUserSelectProps> = ({
       {/* Main Select Container */}
       <div
         className={cn(
-          `min-h-[42px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background flex items-center transition-colors ${
-            disabled
-              ? 'cursor-not-allowed opacity-50'
-              : 'cursor-pointer hover:bg-accent/50'
-          } ${
-            error
-              ? 'border-destructive focus-within:ring-destructive'
-              : 'border-input focus-within:ring-2 focus-within:ring-ring'
+          `min-h-[42px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background flex items-center transition-colors ${disabled
+            ? 'cursor-not-allowed opacity-50'
+            : 'cursor-pointer hover:bg-accent/50'
+          } ${error
+            ? 'border-destructive focus-within:ring-destructive'
+            : 'border-input focus-within:ring-2 focus-within:ring-ring'
           } ${isOpen ? 'ring-2 ring-ring' : ''}`
         )}
         onClick={handleContainerClick}

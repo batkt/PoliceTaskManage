@@ -59,8 +59,7 @@ export default function Dashboard() {
 
             const result = await getMasterDashboard(params.toString(), accessToken);
 
-            console.log(result)
-            if (result.code === 200) {
+            if (result.isOk) {
                 setDashboardData(result.data);
             }
         } catch (error) {

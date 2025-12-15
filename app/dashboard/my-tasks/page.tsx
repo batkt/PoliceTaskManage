@@ -10,6 +10,7 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 // import MyTaskTableList from '@/components/task/list/my-task-table';
 import WeeklyList from '@/components/task/weekly-list';
+import { isAuthenticated } from '@/ssr/util';
 
 export const metadata: Metadata = {
   title: 'Миний даалгавал - Төлөвлөгөөний систем',
@@ -20,6 +21,7 @@ export default async function MyTasksPage(props: {
   searchParams: Promise<Record<string, string>>;
 }) {
   const searchParams = await props.searchParams;
+  const token = await isAuthenticated();
   const params = {
     startDate: searchParams?.startDate || new Date().toISOString(),
     sort: searchParams?.sort ?? '',
@@ -43,7 +45,14 @@ export default async function MyTasksPage(props: {
     ...otherFilter,
   });
 
-  const res2 = await getMyTaskList(query);
+  const res2 = await getMyTaskList(query, token);
+
+  const taskList = res2.isOk ? res2.data : {
+    rows: [],
+    total: 0,
+    totalPages: 1,
+    currentPage: 1
+  }
 
   return (
     <div className="space-y-4">
@@ -63,11 +72,11 @@ export default async function MyTasksPage(props: {
       <div className="space-y-4">
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
           <div className="lg:hidden">
-            <MyTaskCardList startWeek={searchParams?.startDate} params={params} data={res2.data} />
+            <MyTaskCardList startWeek={searchParams?.startDate} params={params} data={taskList} />
           </div>
           <div className="max-lg:hidden">
             {/* <MyTaskTableList params={params} data={res2.data} /> */}
-            <WeeklyList startWeek={searchParams?.startDate} data={res2.data} />
+            <WeeklyList startWeek={searchParams?.startDate} data={taskList} />
           </div>
 
         </Suspense>

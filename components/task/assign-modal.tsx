@@ -14,6 +14,7 @@ import { UserSelect } from '../ui/user-select';
 import { User } from '@/lib/types/user.types';
 import { assignTask } from '@/ssr/actions/task';
 import { TaskDetail } from '@/lib/types/task.types';
+import { useAuth } from '@/context/auth-context';
 
 interface AssignModalProps {
   task: TaskDetail;
@@ -31,6 +32,7 @@ const AssignModal = ({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { accessToken } = useAuth();
   const {
     handleSubmit,
     control,
@@ -48,8 +50,8 @@ const AssignModal = ({
       const res = await assignTask({
         taskId: task._id,
         assignTo: values.assignee,
-      });
-      if (res.code === 200) {
+      }, accessToken);
+      if (res.isOk) {
         toast({
           variant: 'success',
           title: 'Амжилттай',

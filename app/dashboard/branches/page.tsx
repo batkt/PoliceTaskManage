@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import BranchRegisterButton from '@/components/branch/BranchRegisterButton';
 import { BranchList } from '@/components/branch/branch-list';
 import { getAllBranches } from '@/ssr/service/branch';
+import { isAuthenticated } from '@/ssr/util';
 
 export const metadata: Metadata = {
   title: 'Officers - Task Management System',
@@ -36,15 +37,18 @@ export default async function BranchesPage(props: {
   const otherFilter = isEmptyObject(filters)
     ? {}
     : {
-        ...filters,
-      };
+      ...filters,
+    };
 
   const query = queryStringBuilder({
     ...other,
     ...otherFilter,
   });
 
-  const res = await getAllBranches();
+  const token = await isAuthenticated();
+  const res = await getAllBranches(token);
+
+  const branchData = res.isOk ? res.data : [];
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -59,7 +63,7 @@ export default async function BranchesPage(props: {
 
       <div className="space-y-4">
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-          <BranchList data={res.data} params={params} />
+          <BranchList data={branchData} params={params} />
         </Suspense>
       </div>
     </div>

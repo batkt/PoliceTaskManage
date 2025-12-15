@@ -40,7 +40,7 @@ const TaskDetail = ({
   auditData: Audit[] | null;
   activities: Activity[] | null;
 }) => {
-  const { authUser } = useAuth();
+  const { authUser, accessToken } = useAuth();
   const { detailData, handleChangeStatus, notes, addNote, users } = useTasks();
   const [files, setFiles] = useState<UploadedFile[]>(detailData?.files || []);
 
@@ -73,14 +73,14 @@ const TaskDetail = ({
       const fileRes = await attachFile({
         taskId: detailData._id,
         fileIds: added.map((f) => f._id),
-      });
+      }, accessToken);
     }
 
     if (removed?.length > 0) {
       const fileRes2 = await removeFile({
         taskId: detailData._id,
         fileIds: removed.map((f) => f._id),
-      });
+      }, accessToken);
     }
   };
 
@@ -409,9 +409,9 @@ const TaskDetail = ({
                   >
                     <div className="flex items-start gap-3">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={note.createdBy?.profileImageUrl} />
+                        <AvatarImage src={note?.createdBy?.profileImageUrl} />
                         <AvatarFallback className="text-xs">
-                          {note.createdBy?.givenname?.[0]}
+                          {note?.createdBy?.givenname?.[0]}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
@@ -420,10 +420,10 @@ const TaskDetail = ({
                             {note?.createdBy?.givenname}
                           </p>
                           <span className="text-xs text-muted-foreground">
-                            {formatDateFull(note.createdAt)}
+                            {formatDateFull(note?.createdAt)}
                           </span>
                         </div>
-                        <p className="text-sm">{note.content}</p>
+                        <p className="text-sm">{note?.content}</p>
                       </div>
                     </div>
                   </div>

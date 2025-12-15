@@ -27,7 +27,7 @@ export function BranchList({
   const [openChildRegisterModal, setOpenChildRegisterModal] = useState(false);
   const [selectedData, setSelectedData] = useState<Branch>();
   const [showQuestionDeleteModal, setShowQuestionDeleteModal] = useState(false);
-  const { authUser } = useAuth();
+  const { authUser, accessToken } = useAuth();
   const pathname = usePathname();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
@@ -42,8 +42,8 @@ export function BranchList({
   const handleDelete = () => {
     startTransition(async () => {
       try {
-        const res = await deleteBranch(selectedData?._id!, pathname);
-        if (res.code === 200) {
+        const res = await deleteBranch(selectedData?._id!, pathname, accessToken);
+        if (res.isOk) {
           toast({
             title: 'Амжилттай',
             description: 'Алба, хэлтэс устлаа.',

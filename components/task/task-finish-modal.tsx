@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { usePathname } from 'next/navigation';
 import { changeStatusAction } from '@/ssr/actions/task';
 import { TaskStatus } from '@/lib/types/task.types';
+import { useAuth } from '@/context/auth-context';
 
 interface TaskFinishModalProps {
     taskId: string;
@@ -23,6 +24,7 @@ interface TaskFinishModalProps {
 const TaskFinishModal = ({ taskId, open, onOpenChange }: TaskFinishModalProps) => {
     const [loading, setLoading] = useState(false);
     const pathname = usePathname();
+    const { accessToken } = useAuth();
     const { toast } = useToast();
     const { handleSubmit, control } = useForm({
         defaultValues: {
@@ -37,9 +39,9 @@ const TaskFinishModal = ({ taskId, open, onOpenChange }: TaskFinishModalProps) =
                 status: TaskStatus.COMPLETED,
                 taskId,
                 summary: values.summary,
-            }, pathname);
+            }, pathname, accessToken);
 
-            if (res.code === 200) {
+            if (res.isOk) {
                 toast({
                     variant: 'success',
                     title: 'Амжилттай.',

@@ -6,6 +6,7 @@ import { TableParams } from '@/components/data-table-v2';
 import { isEmptyObject } from '@/lib/utils';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { isAuthenticated } from '@/ssr/util';
 
 export const metadata: Metadata = {
   title: 'Officers - Task Management System',
@@ -44,7 +45,11 @@ export default async function OfficersPage(props: {
     isArchived: true,
   });
 
-  const res = await getUserList(query);
+  const token = await isAuthenticated();
+  const res = await getUserList(query, token);
+
+  const officerList = res.isOk ? res.data : undefined;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -59,7 +64,7 @@ export default async function OfficersPage(props: {
 
       <div className="space-y-4">
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-          <OfficerList data={res.data} params={params} isArchived={true} />
+          <OfficerList data={officerList} params={params} isArchived={true} />
         </Suspense>
       </div>
     </div>

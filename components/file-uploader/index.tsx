@@ -146,7 +146,7 @@ export function FileUploader({
 
       const response = await fileUpload(formData, accessToken);
 
-      if (response.code === 200) {
+      if (response.isOk) {
         onChange?.([response.data, ...value]);
         reset();
       } else {
@@ -169,7 +169,7 @@ export function FileUploader({
 
         const response = await fileUpload(formData, accessToken);
 
-        if (response.code === 200) {
+        if (response.isOk) {
           onChange?.([response.data, ...value]);
           reset();
         } else {

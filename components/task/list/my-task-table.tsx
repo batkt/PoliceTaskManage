@@ -28,6 +28,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FormTemplate } from '@/lib/types/form.types';
 import { changeStatusAction } from '@/ssr/actions/task';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/auth-context';
 
 type TaskWithAction = Task & { action?: '' };
 export default function MyTaskTableList({
@@ -47,6 +48,7 @@ export default function MyTaskTableList({
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
+  const { accessToken } = useAuth();
 
   const handleSortChange = (key: string, direction: 'asc' | 'desc' | null) => {
     const url = new URL(window.location.href);
@@ -86,9 +88,9 @@ export default function MyTaskTableList({
   };
 
   const handleChangeStatus = async (data: TaskStatusChangeType) => {
-    const res = await changeStatusAction(data, pathname);
+    const res = await changeStatusAction(data, pathname, accessToken);
 
-    if (res.code === 200) {
+    if (res.isOk) {
       let text = 'Төлөвлөгөөг амжилттай эхлүүллээ';
       if (data.status === 'completed') {
         text = 'Төлөвлөгөөг амжилттай гүйцэтгэж дууслаа';

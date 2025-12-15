@@ -9,6 +9,7 @@ import TaskTableList from '@/components/task/list/task-table';
 import { TableParams } from '@/components/data-table-v2';
 import { getFormTemplate } from '@/ssr/service/form';
 import RouteToCreatetaskButton from '@/components/task/route-to-createtask-button';
+import { isAuthenticated } from '@/ssr/util';
 
 export const metadata: Metadata = {
   title: 'Tasks - Task Management System',
@@ -21,6 +22,7 @@ export default async function TasksPage(props: {
 }) {
   const { slug } = await props.params;
   const searchParams = await props.searchParams;
+  const token = await isAuthenticated();
   const params: TableParams = {
     page: Number(searchParams.page ?? 1),
     pageSize: Number(searchParams.pageSize ?? 10),
@@ -37,16 +39,25 @@ export default async function TasksPage(props: {
   const otherFilter = isEmptyObject(filters)
     ? {}
     : {
-        ...filters,
-      };
+      ...filters,
+    };
 
   const query = queryStringBuilder({
     ...other,
     formTemplateId: slug,
     ...otherFilter,
   });
-  const templateRes = await getFormTemplate(slug);
-  const res2 = await getTaskList(query);
+  const templateRes = await getFormTemplate(slug, token);
+  const res2 = await getTaskList(query, token);
+
+  const templateData = templateRes.isOk ? templateRes.data : undefined
+
+  const taskList = res2.isOk ? res2.data : {
+    rows: [],
+    total: 0,
+    totalPages: 1,
+    currentPage: 1
+  }
 
   return (
     <div className="space-y-4">
@@ -59,7 +70,7 @@ export default async function TasksPage(props: {
           <div className="lg:hidden">
             <MyTaskCardList
               params={params}
-              data={res2.data}
+              data={taskList}
               tableKey="all-tasks"
               clickToDetail
             />
@@ -67,8 +78,8 @@ export default async function TasksPage(props: {
           <div className="max-lg:hidden">
             <TaskTableList
               params={params}
-              data={res2.data}
-              template={templateRes.data}
+              data={taskList}
+              template={templateData}
               tableKey="all-tasks"
               clickToDetail
             />

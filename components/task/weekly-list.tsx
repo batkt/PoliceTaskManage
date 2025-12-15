@@ -375,6 +375,7 @@ const WeeklyList = ({
     })
     const pathname = usePathname();
     const router = useRouter();
+    const { accessToken } = useAuth();
     const { toast } = useToast();
     const weekDays = ['Даваа', 'Мягмар', 'Лхагва', 'Пүрэв', 'Баасан', 'Бямба', 'Ням']
 
@@ -457,9 +458,9 @@ const WeeklyList = ({
     const multiDayTaskRows = organizeMultiDayTasks(getMultiDayTasks(), weekDates)
 
     const handleChangeStatus = async (data: TaskStatusChangeType) => {
-        const res = await changeStatusAction(data, pathname);
+        const res = await changeStatusAction(data, pathname, accessToken);
 
-        if (res.code === 200) {
+        if (res.isOk) {
             let text = 'Төлөвлөгөөг амжилттай эхлүүллээ';
             if (data.status === 'completed') {
                 text = 'Төлөвлөгөөг амжилттай гүйцэтгэж дууслаа';

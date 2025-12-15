@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { getAllForms } from '@/ssr/service/form';
 import { Card, CardContent } from '@/components/ui/card';
+import { isAuthenticated } from '@/ssr/util';
 
 export const metadata: Metadata = {
   title: 'Ажлын жагсаалт - Ажил гүйцэтгэлийн систем',
@@ -11,9 +12,10 @@ export const metadata: Metadata = {
 };
 
 export default async function TasksPage() {
-  const resForms = await getAllForms();
+  const token = await isAuthenticated();
+  const resForms = await getAllForms(token);
 
-  const typesData = resForms?.data || [];
+  const typesData = resForms.isOk ? resForms?.data || [] : [];
 
   return (
     <div className="space-y-4">

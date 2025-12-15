@@ -8,6 +8,7 @@ import { Input } from '../ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { createBranch } from '@/ssr/actions/branch';
 import { Branch } from '@/lib/types/branch.types';
+import { useAuth } from '@/context/auth-context';
 
 interface BranchCreateModalProps {
     open: boolean;
@@ -22,6 +23,7 @@ const BranchCreateModal = ({
 }: BranchCreateModalProps) => {
 
     const { toast } = useToast();
+    const { accessToken } = useAuth();
     const {
         control,
         handleSubmit,
@@ -38,9 +40,9 @@ const BranchCreateModal = ({
             const res = await createBranch({
                 name: values.name,
                 parentId: parent?._id,
-            }, '/branches'
+            }, '/branches', accessToken
             );
-            if (res.code === 200) {
+            if (res.isOk) {
                 toast({
                     title: 'Амжилттай',
                     description: 'Алба хэлтэс амжилттай бүртгэгдлээ.',

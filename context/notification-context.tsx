@@ -62,7 +62,7 @@ export const NotificationProvider = ({
 
   const fetchNotifications = useCallback(async () => {
     const res = await getNotifications(accessToken);
-    if (res.code === 200) {
+    if (res.isOk) {
       setNotifications((prev) => {
         if (!prev || prev?.length === 0) {
           return res.data?.rows;
@@ -84,15 +84,15 @@ export const NotificationProvider = ({
   }, [fetchNotifications]);
 
   const markAllAsSeen = async () => {
-    const res = await allNotifSeen();
-    if (res.code === 200) {
+    const res = await allNotifSeen(accessToken);
+    if (res.isOk) {
       setNotifications((prev) => prev.map((n) => ({ ...n, seen: true })));
       setNotseenCount(0);
     }
   };
 
   const markAsRead = async (notif: Notification, path?: string) => {
-    await notifRead({ notificationId: notif._id }, path);
+    await notifRead({ notificationId: notif._id }, path, accessToken);
     setNotifications((prev) =>
       prev.map((n) => (n._id === notif._id ? { ...n, read: true } : n))
     );

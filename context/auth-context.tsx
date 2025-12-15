@@ -1,10 +1,10 @@
 'use client';
 
-import { getUserProfile } from '@/lib/service/user';
+import { getUserData } from '@/lib/service/user';
 import { CustomResponse } from '@/lib/types/global.types';
 import { AuthUser } from '@/lib/types/user.types';
 import { LoginResponseType, loginAction } from '@/ssr/actions/auth';
-import { useRouter } from 'next/navigation';
+
 import {
   createContext,
   ReactNode,
@@ -19,8 +19,14 @@ interface ILoginData {
   password: string;
 }
 
+enum AuthStatus {
+  UNKNOWN = "unknown",
+  AUTHENTICATED = "authenticated",
+  UNAUTHENTICATED = "unauthenticated",
+}
 interface IAuthContext {
   isAuthenticated: boolean;
+  authStatus: AuthStatus;
   accessToken?: string;
   login: (data: ILoginData) => Promise<CustomResponse<LoginResponseType>>;
   authUser?: AuthUser;
@@ -29,17 +35,15 @@ interface IAuthContext {
 
 const AuthContext = createContext<IAuthContext>({
   isAuthenticated: false,
+  authStatus: AuthStatus.UNKNOWN,
   accessToken: undefined,
   login: () => Promise.reject({ message: '' }),
   authUser: undefined,
-  clearUserData: () => {},
+  clearUserData: () => { },
 });
 
 interface IAAuthProviderProps {
   children: ReactNode;
-  isAuthenticated: boolean;
-  accessToken?: string;
-  loggedUser?: AuthUser;
 }
 
 export const useAuth = () => {
@@ -48,47 +52,55 @@ export const useAuth = () => {
 
 const AuthProvider = ({
   children,
-  isAuthenticated = false,
-  accessToken,
-  loggedUser,
 }: IAAuthProviderProps) => {
-  // const [authUser, setAuthUser] = useState<AuthUser | undefined>();
-  const router = useRouter();
+  const [loggedUser, setLoggedUser] = useState<AuthUser | undefined>(undefined)
+  const [authStatus, setAuthStatus] = useState<AuthStatus>(AuthStatus.UNKNOWN)
+  const [accessToken, setAccessToken] = useState<string | undefined>(undefined)
 
-  // const fetchProfile = useCallback(async () => {
-  //   const res = await getUserProfile(accessToken);
-  //   if (res.code === 200) {
-  //     setAuthUser(res.data);
-  //   }
-  //   if (res.code === 401) {
-  //     router.push('/');
-  //   }
-  // }, []);
+  const fetchProfile = useCallback(async () => {
+    if (authStatus === AuthStatus.UNKNOWN) {
+      const res = await getUserData();
 
-  // useEffect(() => {
-  //   if (!authUser) {
-  //     fetchProfile();
-  //   }
-  // }, [authUser, fetchProfile]);
+      if (res.isOk) {
+        setLoggedUser(res.data?.user);
+        setAuthStatus(AuthStatus.AUTHENTICATED);
+        setAccessToken(res.data?.accessToken);
+      } else {
+        window.location.href = '/';
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProfile();
+
+  }, [fetchProfile]);
 
   const login = async (data: ILoginData) => {
     const res = await loginAction(data);
 
-    // if (res.code === 200) {
-    //   setAuthUser(res.data?.user);
-    // }
+    if (res.isOk) {
+      setLoggedUser(res.data?.user);
+      setAuthStatus(AuthStatus.AUTHENTICATED);
+      setAccessToken(res.data?.accessToken);
+    }
     return res;
   };
 
   const clearUserData = () => {
-    // setAuthUser(undefined);
+    setLoggedUser(undefined);
   };
+
+  if (authStatus === AuthStatus.UNKNOWN) {
+    return null
+  }
 
   return (
     <AuthContext.Provider
       value={{
         accessToken: accessToken,
-        isAuthenticated,
+        isAuthenticated: false,
+        authStatus,
         login,
         authUser: loggedUser,
         clearUserData,

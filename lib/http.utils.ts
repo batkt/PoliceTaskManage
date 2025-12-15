@@ -3,7 +3,7 @@
 import { BASE_URL } from "./config";
 import { CustomResponse } from "./types/global.types";
 
-const API_URL = BASE_URL;
+const API_URL = BASE_URL + '/api';
 
 const reponseChecker = async (response: Response) => {
   const data = await response.json();
@@ -12,18 +12,23 @@ const reponseChecker = async (response: Response) => {
     // localStorage.removeItem(TOKEN_KEY);
     console.log("401");
   }
-  return data;
+  return {
+    isOk: true,
+    ...data
+  };
 };
 
 const getRequest = async <T>(
   url: string,
   token?: string,
-  config?: ResponseInit
+  config?: ResponseInit & {
+    baseUrl?: string;
+  }
 ): Promise<CustomResponse<T>> => {
   try {
     const { headers, ...otherConfig } = config || {};
 
-    const response = await fetch(`${API_URL}/api${url}`, {
+    const response = await fetch(`${config?.baseUrl || API_URL}${url}`, {
       method: "GET",
       headers: {
         ...getAuthHeaders(token),
@@ -34,13 +39,21 @@ const getRequest = async <T>(
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      return {
+        isOk: false,
+        code: response.status,
+        message: response.statusText,
+      };
     }
 
     return reponseChecker(response);
   } catch (error) {
     console.error("Error in getRequest:", error);
-    throw error;
+    return {
+      isOk: false,
+      code: 500,
+      message: "Internal Server Error",
+    };
   }
 };
 
@@ -48,11 +61,13 @@ const postRequest = async <T>(
   url: string,
   data?: any,
   token?: string,
-  config?: ResponseInit
+  config?: ResponseInit & {
+    baseUrl?: string;
+  }
 ): Promise<CustomResponse<T>> => {
   try {
     const { headers, ...otherConfig } = config || {};
-    const response = await fetch(`${API_URL}/api${url}`, {
+    const response = await fetch(`${config?.baseUrl || API_URL}${url}`, {
       method: "POST",
       headers: {
         ...getAuthHeaders(token),
@@ -64,13 +79,21 @@ const postRequest = async <T>(
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      return {
+        isOk: false,
+        code: response.status,
+        message: response.statusText,
+      };
     }
 
     return reponseChecker(response);
   } catch (error) {
     console.error("Error in getRequest:", error);
-    throw error;
+    return {
+      isOk: false,
+      code: 500,
+      message: "Internal Server Error",
+    };
   }
 };
 
@@ -78,11 +101,13 @@ const postFormDataRequest = async <T>(
   url: string,
   data?: FormData,
   token?: string,
-  config?: ResponseInit
+  config?: ResponseInit & {
+    baseUrl?: string;
+  }
 ): Promise<CustomResponse<T>> => {
   try {
     const { headers, ...otherConfig } = config || {};
-    const response = await fetch(`${API_URL}/api${url}`, {
+    const response = await fetch(`${config?.baseUrl || API_URL}${url}`, {
       method: "POST",
       headers: {
         ...getAuthHeaders(token),
@@ -93,13 +118,21 @@ const postFormDataRequest = async <T>(
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      return {
+        isOk: false,
+        code: response.status,
+        message: response.statusText,
+      };
     }
 
     return reponseChecker(response);
   } catch (error) {
     console.error("Error in getRequest:", error);
-    throw error;
+    return {
+      isOk: false,
+      code: 500,
+      message: "Internal Server Error",
+    };
   }
 };
 

@@ -30,7 +30,7 @@ const CreateTaskDialog = ({
   isEdit = false,
   me = false,
   open = false,
-  onHide = () => {},
+  onHide = () => { },
 }: {
   isEdit?: boolean;
   onHide: () => void;
@@ -40,7 +40,7 @@ const CreateTaskDialog = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const pathname = usePathname();
-  const { authUser } = useAuth();
+  const { authUser, accessToken } = useAuth();
 
   const { register, control, setValue, watch, handleSubmit, reset } =
     useForm<TaskFormData>({
@@ -112,9 +112,9 @@ const CreateTaskDialog = ({
   };
 
   const createMemoTaskSubmit = async (data: CreateMemoTaskType) => {
-    const res = await createMemoTask(data, pathname);
+    const res = await createMemoTask(data, pathname, accessToken);
 
-    if (res.code === 200) {
+    if (res.isOk) {
       return {
         title: 'Амжилттай',
         variant: 'success',
@@ -130,9 +130,9 @@ const CreateTaskDialog = ({
   };
 
   const createWorkGroupTaskSubmit = async (data: CreateWorkGroupTaskType) => {
-    const res = await createWorkGroupTask(data, pathname);
+    const res = await createWorkGroupTask(data, pathname, accessToken);
 
-    if (res.code === 200) {
+    if (res.isOk) {
       return {
         title: 'Амжилттай',
         description: 'Ажлын хэсэг даалгавар амжилттай үүслээ.',

@@ -2,6 +2,7 @@ import { TableParams } from '@/components/data-table-v2';
 import NotificationList from '@/components/notification/notification-list';
 import ProfileLayout from '@/components/profile/layout';
 import { getNotificaitonList } from '@/ssr/service/notificatoin';
+import { isAuthenticated } from '@/ssr/util';
 import React from 'react';
 
 type SearchParams = Promise<{ [key: string]: string | undefined }>;
@@ -21,11 +22,19 @@ const Notification = async (props: { searchParams: SearchParams }) => {
     ),
   };
 
-  const notificationRes = await getNotificaitonList();
+  const token = await isAuthenticated();
+  const notificationRes = await getNotificaitonList(undefined, token);
+
+  const notifications = notificationRes.isOk ? notificationRes.data : {
+    rows: [],
+    total: 0,
+    totalPages: 1,
+    currentPage: 1
+  };
 
   return (
     <ProfileLayout active="notification">
-      <NotificationList data={notificationRes.data} params={params} />
+      <NotificationList data={notifications} params={params} />
     </ProfileLayout>
   );
 };

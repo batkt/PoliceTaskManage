@@ -67,6 +67,7 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import FormOptionsInput from './form-optoins-input';
 import { createForm } from '@/ssr/actions/task';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
 
 const fieldTypeIcons: Record<FieldType, React.ReactNode> = {
   text: <Type className="h-4 w-4" />,
@@ -172,6 +173,7 @@ export function TaskTypeBuilder() {
   });
   const previewFields = watch('fields');
 
+  const { accessToken } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewData, setPreviewData] = useState<Record<string, any>>({});
   const [activeFieldId, setActiveFieldId] = useState<string | null>(null);
@@ -263,8 +265,8 @@ export function TaskTypeBuilder() {
     setIsSubmitting(true);
 
     try {
-      const res = await createForm(values);
-      if (res.code === 200 && res.data === true) {
+      const res = await createForm(values, accessToken);
+      if (res.isOk && res.data === true) {
         toast({
           variant: 'success',
           title: 'Амжилттай',
@@ -539,22 +541,20 @@ export function TaskTypeBuilder() {
                             }}
                           >
                             <Card
-                              className={`border ${
-                                activeFieldId === field.tempId
-                                  ? 'border-primary ring-1 ring-primary'
-                                  : 'border-border'
-                              }`}
+                              className={`border ${activeFieldId === field.tempId
+                                ? 'border-primary ring-1 ring-primary'
+                                : 'border-border'
+                                }`}
                             >
                               <CollapsibleTrigger asChild>
                                 <CardHeader className="cursor-pointer hover:bg-muted/50 p-4">
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                       <div
-                                        className={`flex h-8 w-8 items-center justify-center rounded-md border ${
-                                          activeFieldId === field.tempId
-                                            ? 'bg-primary/10'
-                                            : 'bg-muted'
-                                        }`}
+                                        className={`flex h-8 w-8 items-center justify-center rounded-md border ${activeFieldId === field.tempId
+                                          ? 'bg-primary/10'
+                                          : 'bg-muted'
+                                          }`}
                                       >
                                         {fieldTypeIcons[field.type]}
                                       </div>

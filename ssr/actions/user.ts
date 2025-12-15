@@ -7,48 +7,51 @@ import { User } from "@/lib/types/user.types";
 
 export const registerUser = async (
   data: Omit<OfficerRegistrationData, "joinedDate"> & { joinedDate: string },
-  path: string
+  path: string,
+  accessToken?: string
 ) => {
-  const res = await ssrClient.post(`${BACKEND_URL}/api/user/register`, data);
+  const res = await ssrClient.post(`${BACKEND_URL}/api/user/register`, data, accessToken);
   revalidatePath(path);
   return res;
 };
 
-export const updateUser = async (data: Partial<User>, path: string) => {
-  const res = await ssrClient.post(`${BACKEND_URL}/api/user/update`, data);
+export const updateUser = async (data: Partial<User>, path: string, accessToken?: string) => {
+  const res = await ssrClient.post(`${BACKEND_URL}/api/user/update`, data, accessToken);
   revalidatePath(path);
   return res;
 };
 
 export const changeUserPassword = async (
   userId: string,
-  newPassword: string
+  newPassword: string,
+  accessToken?: string
 ) => {
   const res = await ssrClient.post(
     `${BACKEND_URL}/api/user/changeUserPassword`,
     {
       userId,
       newPassword,
-    }
+    },
+    accessToken
   );
   return res;
 };
 
-export const deleteUser = async (userId: string, path: string) => {
-  const res = await ssrClient.post(`${BACKEND_URL}/api/user/delete/${userId}`);
+export const deleteUser = async (userId: string, path: string, accessToken?: string) => {
+  const res = await ssrClient.post(`${BACKEND_URL}/api/user/delete/${userId}`, accessToken);
 
-  if (res.code === 200) {
+  if (res.isOk) {
     revalidatePath(path);
   }
   return res;
 };
 
-export const dismissal = async (userId: string, path: string) => {
+export const dismissal = async (userId: string, path: string, accessToken?: string) => {
   const res = await ssrClient.post(`${BACKEND_URL}/api/user/dismissal`, {
     id: userId,
-  });
+  }, accessToken);
 
-  if (res.code === 200) {
+  if (res.isOk) {
     revalidatePath(path);
   }
   return res;

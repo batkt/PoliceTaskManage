@@ -16,11 +16,13 @@ import { UploadedFile } from "@/lib/types/file.types";
 
 export const createMemoTask = async (
   data: CreateMemoTaskType,
-  path: string
+  path: string,
+  accessToken?: string
 ) => {
   const res = await ssrClient.post(
     `${BACKEND_URL}/api/task/createMemoTask`,
-    data
+    data,
+    accessToken
   );
   revalidatePath(path);
   return res;
@@ -28,11 +30,13 @@ export const createMemoTask = async (
 
 export const createWorkGroupTask = async (
   data: CreateWorkGroupTaskType,
-  path: string
+  path: string,
+  accessToken?: string
 ) => {
   const res = await ssrClient.post(
     `${BACKEND_URL}/api/task/createWorkGroupTask`,
-    data
+    data,
+    accessToken
   );
   revalidatePath(path);
   return res;
@@ -40,7 +44,8 @@ export const createWorkGroupTask = async (
 
 export const changeStatusAction = async (
   data: TaskStatusChangeType,
-  path?: string
+  path?: string,
+  accessToken?: string
 ) => {
   const { status, taskId, summary } = data;
   let res;
@@ -48,43 +53,45 @@ export const changeStatusAction = async (
     res = await ssrClient.post(`${BACKEND_URL}/api/task-v2/complete`, {
       taskId,
       summary,
-    });
+    }, accessToken);
   } else {
     res = await ssrClient.post(`${BACKEND_URL}/api/task-v2/start`, {
       taskId,
-    });
+    }, accessToken);
   }
 
   if (path) revalidatePath(path);
   return res;
 };
 
-export const createTask = async (data: ICreateTaskInput) => {
-  const res = await ssrClient.post(`${BACKEND_URL}/api/task-v2/`, data);
+export const createTask = async (data: ICreateTaskInput, accessToken?: string) => {
+  const res = await ssrClient.post(`${BACKEND_URL}/api/task-v2/`, data, accessToken);
   return res;
 };
 
-export const createForm = async (data: CreateFormData) => {
+export const createForm = async (data: CreateFormData, accessToken?: string) => {
   return ssrClient.post<boolean>(`${BACKEND_URL}/api/form/`, data);
 };
 
 export const assignTask = async (data: {
   taskId: string;
   assignTo: string;
-}) => {
-  return ssrClient.post<boolean>(`${BACKEND_URL}/api/task-v2/assign`, data);
+}, accessToken?: string) => {
+  return ssrClient.post<boolean>(`${BACKEND_URL}/api/task-v2/assign`, data, accessToken);
 };
 
-export const attachFile = async (data: AttachFileInput) => {
+export const attachFile = async (data: AttachFileInput, accessToken?: string) => {
   return ssrClient.post<UploadedFile[]>(
     `${BACKEND_URL}/api/task-v2/file`,
-    data
+    data,
+    accessToken
   );
 };
 
-export const removeFile = async (data: AttachFileInput) => {
+export const removeFile = async (data: AttachFileInput, accessToken?: string) => {
   return ssrClient.post<UploadedFile[]>(
     `${BACKEND_URL}/api/task-v2/removeFile`,
-    data
+    data,
+    accessToken
   );
 };

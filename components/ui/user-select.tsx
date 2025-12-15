@@ -61,7 +61,7 @@ export const UserSelect: React.FC<UserSelectProps> = ({
   const getSearchUsers = useCallback(
     async (q: string | undefined = '') => {
       const res = await getUserList(q, accessToken);
-      if (res.code == 200) {
+      if (res.isOk) {
         setListUsers(res.data);
       }
     },
@@ -75,7 +75,7 @@ export const UserSelect: React.FC<UserSelectProps> = ({
   const getSelectedUsers = useCallback(async () => {
     if (value && !manualChanged) {
       const res = await getUserList(`userIds=${value}`, accessToken);
-      if (res.code === 200) {
+      if (res.isOk) {
         setSelectedUsers(res.data.rows);
       }
     }

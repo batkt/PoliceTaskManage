@@ -63,7 +63,7 @@ export function OfficerRegisterModal({
 }: OfficerRegisterModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const pathname = usePathname();
-  const { authUser } = useAuth();
+  const { authUser, accessToken } = useAuth();
   const { toast } = useToast();
 
   const {
@@ -132,9 +132,10 @@ export function OfficerRegisterModal({
           ...other,
           joinedDate: format(joinedDate, 'yyyy-MM-dd'),
         },
-        pathname
+        pathname,
+        accessToken
       );
-      if (res.code === 200) {
+      if (res.isOk) {
         toast({
           variant: 'success',
           title: 'Амжилттай',

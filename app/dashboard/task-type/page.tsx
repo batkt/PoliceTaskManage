@@ -3,6 +3,7 @@ import TaskTypesList from '@/components/task-type/task-types-list';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getAllForms } from '@/ssr/service/form';
+import { isAuthenticated } from '@/ssr/util';
 import Link from 'next/link';
 import React, { Suspense } from 'react';
 
@@ -20,11 +21,11 @@ const TaskTypePage = async (props: {
     ),
   };
 
-  const res = await getAllForms();
+  const token = await isAuthenticated();
+  const res = await getAllForms(token);
+  const forms = res.isOk ? res.data || [] : [];
 
-  const typesData = res.code === 200 ? res.data || [] : [];
-
-  const sorted = typesData?.sort(
+  const sorted = forms?.sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 

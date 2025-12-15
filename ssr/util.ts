@@ -3,10 +3,7 @@
 import { TOKEN_KEY } from '@/lib/config';
 import { cookies } from 'next/headers';
 
-export const getAuthHeaders = async () => {
-  const cookie = await cookies();
-  const token = cookie.get(TOKEN_KEY)?.value;
-
+export const getAuthHeaders = async (token?: string) => {
   return {
     Authorization: token ? `Bearer ${token}` : '',
   };
@@ -19,7 +16,10 @@ export const reponseChecker = async (response: Response) => {
     const cookie = await cookies();
     if (cookie.has('TOKEN_KEY')) cookie.delete(TOKEN_KEY);
   }
-  return data;
+  return {
+    isOk: true,
+    ...data,
+  };
 };
 
 export async function isAuthenticated(): Promise<string | undefined> {

@@ -67,7 +67,7 @@ export function TaskForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { branches } = useUsers();
-  const { authUser } = useAuth();
+  const { authUser, accessToken } = useAuth();
 
   const getDefaultValues = (): FormInputType => ({
     title: '',
@@ -141,9 +141,9 @@ export function TaskForm({
         ...other,
         formValues,
         fileIds: files.map((f) => f._id),
-      });
+      }, accessToken);
 
-      if (res.code === 200) {
+      if (res.isOk) {
         toast({
           variant: 'success',
           title: 'Амжилттай.',

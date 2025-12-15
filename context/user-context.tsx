@@ -1,8 +1,9 @@
 'use client';
 
-import { createContext, ReactNode, useContext, useMemo } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Branch } from '@/lib/types/branch.types';
 import { useAuth } from './auth-context';
+import { getBranches } from '@/lib/service/branch';
 
 const UserContext = createContext<{
   allBranch: Branch[];
@@ -18,11 +19,26 @@ export const useUsers = () => {
 
 interface IProps {
   children: ReactNode;
-  branchData?: Branch[];
 }
 
-const UserProvider = ({ children, branchData = [] }: IProps) => {
-  const { authUser } = useAuth();
+const UserProvider = ({ children }: IProps) => {
+  const { authUser, accessToken } = useAuth();
+
+  const [branchData, setBranchData] = useState<Branch[]>([]);
+
+  const getAllBranchData = useCallback(async () => {
+    if (accessToken) {
+      const res = await getBranches(accessToken)
+      if (res.isOk) {
+        setBranchData(res.data)
+      }
+    }
+  }, [accessToken])
+
+  useEffect(() => {
+    getAllBranchData()
+  }, [getAllBranchData])
+
   const branches = useMemo((): Branch[] => {
     if (!branchData || branchData?.length < 1) {
       return [];

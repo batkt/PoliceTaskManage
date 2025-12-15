@@ -7,6 +7,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { changeUserPassword } from '@/ssr/actions/user';
+import { useAuth } from '@/context/auth-context';
 
 interface PasswordChangeModalProps {
     open: boolean;
@@ -22,6 +23,7 @@ const PasswordChangeModal = ({
 
     const [showPassword, setShowPassword] = useState(false);
     const { toast } = useToast();
+    const { accessToken } = useAuth();
     const {
         control,
         handleSubmit,
@@ -35,8 +37,8 @@ const PasswordChangeModal = ({
 
     const handleFormSubmit = async (values: FieldValues) => {
         try {
-            const res = await changeUserPassword(userId!, values.password);
-            if (res.code === 200) {
+            const res = await changeUserPassword(userId!, values.password, accessToken);
+            if (res.isOk) {
                 toast({
                     title: 'Амжилттай',
                     description: 'Нууц үг амжилттай солигдлоо.',

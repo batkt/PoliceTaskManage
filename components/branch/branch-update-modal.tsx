@@ -8,6 +8,7 @@ import { Input } from '../ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { updateBranch } from '@/ssr/actions/branch';
 import { Branch } from '@/lib/types/branch.types';
+import { useAuth } from '@/context/auth-context';
 
 interface BranchUpdateModalProps {
     open: boolean;
@@ -22,6 +23,7 @@ const BranchUpdateModal = ({
 }: BranchUpdateModalProps) => {
 
     const { toast } = useToast();
+    const { accessToken } = useAuth();
     const {
         control,
         handleSubmit,
@@ -38,9 +40,9 @@ const BranchUpdateModal = ({
             const res = await updateBranch({
                 _id: data?._id,
                 name: values.name,
-            }, '/branches'
+            }, '/branches', accessToken
             );
-            if (res.code === 200) {
+            if (res.isOk) {
                 toast({
                     title: 'Амжилттай',
                     description: 'Алба хэлтэс амжилттай засварлагдлаа.',

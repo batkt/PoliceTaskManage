@@ -8,6 +8,7 @@ import { isEmptyObject } from '@/lib/utils';
 import OfficerRegisterButton from '@/components/officer/officer-register-button';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { isAuthenticated } from '@/ssr/util';
 
 export const metadata: Metadata = {
   title: 'Officers - Task Management System',
@@ -37,15 +38,19 @@ export default async function OfficersPage(props: {
   const otherFilter = isEmptyObject(filters)
     ? {}
     : {
-        ...filters,
-      };
+      ...filters,
+    };
 
   const query = queryStringBuilder({
     ...other,
     ...otherFilter,
   });
 
-  const res = await getUserList(query);
+  const token = await isAuthenticated();
+  const res = await getUserList(query, token);
+
+  const officerList = res.isOk ? res.data : undefined;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -60,7 +65,7 @@ export default async function OfficersPage(props: {
 
       <div className="space-y-4">
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-          <OfficerList data={res.data} params={params} />
+          <OfficerList data={officerList} params={params} />
         </Suspense>
       </div>
     </div>

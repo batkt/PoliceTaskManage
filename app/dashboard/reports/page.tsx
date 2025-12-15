@@ -1,7 +1,5 @@
 import type { Metadata } from "next"
-import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus } from "lucide-react"
 import { ReportList } from "@/components/report/report-list"
 import { TableParams } from "@/components/data-table-v2"
 import { getReportList } from "@/ssr/service/report"
@@ -11,6 +9,7 @@ import { isEmptyObject } from "@/lib/utils"
 import { queryStringBuilder } from "@/lib/query.util"
 import Link from "next/link"
 import ReportDownloader from "@/components/report/report-downloader"
+import { isAuthenticated } from "@/ssr/util"
 
 export const metadata: Metadata = {
   title: "Reports - Task Management System",
@@ -50,7 +49,10 @@ export default async function ReportsPage(props: {
     type: filters.type || 'weekly',
   });
 
-  const res = await getReportList(query);
+  const token = await isAuthenticated();
+  const res = await getReportList(query, token);
+
+  const reportList = res.isOk ? res.data : [];
 
   return (
     <div className="space-y-4">
@@ -61,7 +63,7 @@ export default async function ReportsPage(props: {
             Тайлант хугацааг сонгон өөрийн тайланг авна уу
           </p>
         </div>
-        <ReportDownloader data={res.data} type={filters.type}/>
+        <ReportDownloader data={reportList} type={filters.type} />
       </div>
 
       <div className="space-y-4">
@@ -85,7 +87,7 @@ export default async function ReportsPage(props: {
           </TabsList>
           <div className="space-y-4">
             <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-              <ReportList data={res.data} params={params} />
+              <ReportList data={reportList} params={params} />
             </Suspense>
           </div>
         </Tabs>

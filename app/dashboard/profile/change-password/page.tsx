@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { changePassword } from '@/ssr/actions/auth';
 import ProfileLayout from '@/components/profile/layout';
+import { useAuth } from '@/context/auth-context';
 
 const schema = z
   .object({
@@ -38,6 +39,7 @@ const ChangePassword = () => {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const { toast } = useToast();
+  const { accessToken } = useAuth();
 
   const {
     control,
@@ -55,8 +57,8 @@ const ChangePassword = () => {
 
   const onSubmit = async (data: ChangePasswordData) => {
     try {
-      const res = await changePassword(data);
-      if (res.code === 200) {
+      const res = await changePassword(data, accessToken);
+      if (res.isOk) {
         toast({
           variant: 'success',
           title: 'Амжилттай',

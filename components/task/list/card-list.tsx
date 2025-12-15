@@ -25,6 +25,7 @@ import TaskListToolbar from './toolbar';
 import { changeStatusAction } from '@/ssr/actions/task';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { useAuth } from '@/context/auth-context';
 
 export function MyTaskCardList({
   data,
@@ -47,6 +48,7 @@ export function MyTaskCardList({
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
+  const { accessToken } = useAuth();
   const rows = data?.rows || [];
   // const total = data?.total || 0;
   // const totalPages = data?.totalPages || 0;
@@ -128,9 +130,9 @@ export function MyTaskCardList({
   };
 
   const handleChangeStatus = async (data: TaskStatusChangeType) => {
-    const res = await changeStatusAction(data, pathname);
+    const res = await changeStatusAction(data, pathname, accessToken);
 
-    if (res.code === 200) {
+    if (res.isOk) {
       let text = 'Төлөвлөгөөг амжилттай эхлүүллээ';
       if (data.status === 'completed') {
         text = 'Төлөвлөгөөг амжилттай гүйцэтгэж дууслаа';

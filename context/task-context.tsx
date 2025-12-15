@@ -49,7 +49,9 @@ const TaskProvider = ({
   useEffect(() => {
     const loadUsers = async (_ids: string[], token?: string) => {
       const res = await getUserByIds(_ids, token);
-      setUsers(res.data);
+      if (res.isOk) {
+        setUsers(res.data);
+      }
     };
 
     if (data?.formValues && data?.formValues?.length > 0) {
@@ -70,9 +72,9 @@ const TaskProvider = ({
   }, [data, accessToken]);
 
   const handleChangeStatus = async (data: TaskStatusChangeType) => {
-    const res = await changeStatusAction(data, pathname);
+    const res = await changeStatusAction(data, pathname, accessToken);
 
-    if (res.code === 200) {
+    if (res.isOk) {
       let text = 'Төлөвлөгөөг амжилттай эхлүүллээ';
       if (data.status === 'completed') {
         text = 'Төлөвлөгөөг амжилттай гүйцэтгэж дууслаа';

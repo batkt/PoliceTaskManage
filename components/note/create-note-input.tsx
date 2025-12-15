@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { createNote } from '@/ssr/actions/note';
 import { Note } from '@/lib/types/note.types';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
 
 const CreateNoteInput = ({
   taskId,
@@ -14,6 +15,7 @@ const CreateNoteInput = ({
   onSave?: (e: Note) => void;
 }) => {
   const pathname = usePathname();
+  const { accessToken } = useAuth();
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
   const { toast } = useToast();
@@ -26,9 +28,10 @@ const CreateNoteInput = ({
           taskId,
           content,
         },
-        pathname
+        pathname,
+        accessToken
       );
-      if (res.code === 200) {
+      if (res.isOk) {
         onSave?.(res.data);
         setContent('');
         return;

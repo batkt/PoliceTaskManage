@@ -69,7 +69,7 @@ export function OfficerList({
   const [openDismissalModal, setOpenDismissalModal] = useState(false);
   const [selectedData, setSelectedData] = useState<User>();
   const [showQuestionDeleteModal, setShowQuestionDeleteModal] = useState(false);
-  const { authUser } = useAuth();
+  const { authUser, accessToken } = useAuth();
 
   const router = useRouter();
 
@@ -80,8 +80,8 @@ export function OfficerList({
 
   const handleDelete = async () => {
     try {
-      const res = await deleteUser(selectedData?._id!, pathname);
-      if (res.code === 200) {
+      const res = await deleteUser(selectedData?._id!, pathname, accessToken);
+      if (res.isOk) {
         toast({
           title: 'Амжилттай',
           description: 'Алба хаагч устлаа.',
@@ -106,8 +106,8 @@ export function OfficerList({
 
   const handleDismissal = async () => {
     try {
-      const res = await dismissal(selectedData?._id!, pathname);
-      if (res.code === 200) {
+      const res = await dismissal(selectedData?._id!, pathname, accessToken);
+      if (res.isOk) {
         toast({
           title: 'Амжилттай',
           description: 'Алба хаагчийг чөлөөллөө.',

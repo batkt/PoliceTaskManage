@@ -29,7 +29,7 @@ export const loginAction = async (data: LoginInputType) => {
       httpOnly: false,
       secure: false,
       sameSite: 'lax',
-      expires: decoded.exp * 1000,
+      expires: new Date(decoded.exp * 1000),
       path: '/',
     });
   }

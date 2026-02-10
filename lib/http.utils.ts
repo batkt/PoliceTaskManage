@@ -1,6 +1,6 @@
 "use client";
 
-import { BASE_URL } from "./config";
+import { BASE_URL, TOKEN_KEY } from "./config";
 import { CustomResponse } from "./types/global.types";
 
 const API_URL = BASE_URL + '/api';
@@ -13,7 +13,7 @@ const reponseChecker = async (response: Response) => {
     console.log("401");
   }
   return {
-    isOk: true,
+    isOk: data.code !== 401,
     ...data
   };
 };
@@ -137,9 +137,28 @@ const postFormDataRequest = async <T>(
 };
 
 export function getAuthHeaders(token?: string): Record<string, string> {
-  return {
-    Authorization: token ? `Bearer ${token}` : "",
-  };
+  const headers: Record<string, string> = {};
+  let currentToken = token;
+
+  if (!currentToken && typeof document !== "undefined") {
+    const name = TOKEN_KEY + "=";
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const ca = decodedCookie.split(";");
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) === " ") {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) === 0) {
+        currentToken = c.substring(name.length, c.length);
+      }
+    }
+  }
+
+  if (currentToken) {
+    headers.Authorization = `Bearer ${currentToken}`;
+  }
+  return headers;
 }
 
 export const httpRequest = {

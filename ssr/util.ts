@@ -14,7 +14,7 @@ export const reponseChecker = async (response: Response) => {
 
   if (data.code === 401) {
     const cookie = await cookies();
-    if (cookie.has('TOKEN_KEY')) cookie.delete(TOKEN_KEY);
+    if (cookie.has(TOKEN_KEY)) cookie.delete(TOKEN_KEY);
   }
   return {
     isOk: true,

@@ -101,7 +101,7 @@ const AuthProvider = ({
     <AuthContext.Provider
       value={{
         accessToken: accessToken,
-        isAuthenticated: false,
+        isAuthenticated: authStatus === AuthStatus.AUTHENTICATED,
         authStatus,
         login,
         authUser: loggedUser,

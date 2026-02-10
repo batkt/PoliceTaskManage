@@ -3,12 +3,25 @@ import { getLoggedUser } from "@/ssr/service/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
-    // Get token from cookies
-    const token = req.cookies.get(TOKEN_KEY)?.value;
+    // Get token from Authorization header or cookies
+    const authHeader = req.headers.get('Authorization');
+    let token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : undefined;
+    
+    if (!token) {
+        token = req.cookies.get(TOKEN_KEY)?.value;
+    }
+
+    console.log("Internal auth check - token exists:", !!token);
+    
     if (!token) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const res = await getLoggedUser(token);
+    console.log("Internal auth check - user profile fetched:", !!res);
+
+    if (!res) {
+        return NextResponse.json({ error: 'Unauthorized', message: 'Invalid token' }, { status: 401 });
+    }
 
     return NextResponse.json({
         isOk: true,

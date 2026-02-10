@@ -11,13 +11,10 @@ export const GET = async (req: NextRequest) => {
         token = req.cookies.get(TOKEN_KEY)?.value;
     }
 
-    console.log("Internal auth check - token exists:", !!token);
-    
     if (!token) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const res = await getLoggedUser(token);
-    console.log("Internal auth check - user profile fetched:", !!res);
 
     if (!res) {
         return NextResponse.json({ error: 'Unauthorized', message: 'Invalid token' }, { status: 401 });

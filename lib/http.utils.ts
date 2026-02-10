@@ -10,7 +10,6 @@ const reponseChecker = async (response: Response) => {
 
   if (data.code === 401) {
     // localStorage.removeItem(TOKEN_KEY);
-    console.log("401");
   }
   return {
     isOk: data.code !== 401,

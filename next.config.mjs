@@ -38,14 +38,14 @@ const nextConfig = {
   },
   async rewrites() {
     return [
-      // {
-      //   source: "/uploads/:slug*",
-      //   destination: `${process.env.BACKEND_URL}/uploads/:slug*`,
-      // },
-      // {
-      //   source: "/api/:slug*",
-      //   destination: `${process.env.BACKEND_URL}/api/:slug*`,
-      // },
+      {
+        source: "/uploads/:slug*",
+        destination: `${process.env.BACKEND_URL}/uploads/:slug*`,
+      },
+      {
+        source: "/api/:slug*",
+        destination: `${process.env.BACKEND_URL}/api/:slug*`,
+      },
     ];
   },
 };
